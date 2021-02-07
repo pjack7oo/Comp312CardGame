@@ -19,6 +19,8 @@ namespace CompCardGame.Source
         public static Font font = new Font("Media/ARIALBD.TTF");
         //shapes used to draw the card
         Drawable[] shapes;
+
+        RectangleShape backSide;
         //card attributes
         Text cardName;
         Text cardDescription;
@@ -30,8 +32,8 @@ namespace CompCardGame.Source
 
         private int attack;
         private int defense;
-        private const float width = 200f;
-        private const float height = 320f;
+        public const float width = 200f;
+        public const float height = 320f;
 
         public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
         public int Defense { get { return defense; } set { defense = value; cardDefenseText.DisplayedString = "Defense: " + value.ToString(); } }
@@ -40,13 +42,14 @@ namespace CompCardGame.Source
         {
             //creating the shapes of the card
             shapes = CardShapes(Position, Color.Cyan, Color.Black);
-            
-            
+            backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
+
             //filling in the name and description
             cardName = NewText("Card Name", 15, Position + new Vector2f {X = 10f, Y = 10f }, Color.Black);
             cardDescription = NewText("Description", 10, Position + new Vector2f { X = 10f, Y = 235f }, Color.Black);
             cardAttackText = NewText("Attack: ", 15, Position + new Vector2f { X = 10f, Y = height - 20f }, Color.Black);
             cardDefenseText = NewText("Defense: ", 15, Position + new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
+
             //attributes for dealing damage and defense yugioh does in hundreds, Hearthstone is in singles digits not sure which to use
             Attack  = 100;
             Defense = 100;
@@ -57,6 +60,7 @@ namespace CompCardGame.Source
         {
             //creating the shapes of the card
             shapes = CardShapes(Position, Color.Cyan, Color.Black);
+            backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
 
             //filling in the name and description
             cardName = NewText(name, 15, Position + new Vector2f { X = 10f, Y = 10f }, Color.Black);
@@ -76,21 +80,28 @@ namespace CompCardGame.Source
         {
             //applying object transform to the states transform for drawing uniformly
             states.Transform = Transform;
-            //drawing each of the shapes 
-            foreach(var shape in shapes)
+            //drawing based on the state
+            if (state == CardState.Front)
             {
-                target.Draw(shape, states);
+                //drawing each of the shapes
+                foreach (var shape in shapes)
+                {
+                    target.Draw(shape, states);
+                }
+                //drawing the text
+                target.Draw(cardName, states);
+                target.Draw(cardDescription, states);
+                target.Draw(cardAttackText, states);
+                target.Draw(cardDefenseText, states);
+            } 
+            else //drawing the back
+            {
+                target.Draw(backSide,states);
             }
-            //drawing the text
-            target.Draw(cardName, states);
-            target.Draw(cardDescription, states);
-            target.Draw(cardAttackText, states);
-            target.Draw(cardDefenseText, states);
-            //target.Draw(new Text("Attack", font,15) { Position = new Vector2f { X = 10f, Y = height - 20f } }, states);
-            //target.Draw(new Text(Attack.ToString(), font, 15) { Position = new Vector2f { X = 70f, Y = height - 20f } }, states);
-            //target.Draw(new Text("Defense", font, 15) { Position = new Vector2f { X = 100f, Y = height - 20f } }, states);
-            //target.Draw(new Text(Defense.ToString(), font, 15) { Position = new Vector2f { X = 170f, Y = height - 20f } }, states);
+            
+            
         }
+
 
         private static Drawable[] CardShapes(Vector2f position, Color fillColor, Color accentColor)
         {
@@ -103,6 +114,7 @@ namespace CompCardGame.Source
             return shapes;
         }
 
+        //quicker way of creating text
         public static Text NewText(String text, uint charSize, Vector2f position, Color fillColor)
         {
             return new Text() { DisplayedString = text, Font = font, CharacterSize = charSize, FillColor = fillColor, Position = position};
