@@ -5,29 +5,39 @@ using System.Collections.Generic;
 
 namespace CompCardGame.Source
 {
+
+
     class Game
     {
 
         RenderWindow window; //Essentially what you are drawing too
         List<Card> cards = new List<Card>();//temporary
-        
+
         Player player1;
         Player player2;
         Field gameField;
-        
+
+        //drawing the field and positioning of the cards on the field will be dependent on these two
+        public static uint ScreenWidth { get; private set; }
+        public static uint ScreenHeight { get; private set; }
+
         public void Initialize()
         {
             //boiler plate setup for SFML
-            var mode = new VideoMode(1920, 1080);
+            ScreenWidth = 1920;
+            ScreenHeight = 1080;
+            var mode = new VideoMode(ScreenWidth, ScreenHeight);
             window = new RenderWindow(mode, "SFML works!");
             window.SetFramerateLimit(60);
             //this is how events are handled we will probably just need esc on keyboard and mouse movement/clicking
             window.Closed += new EventHandler(OnClose);
 
             //just initializing the fields, this will be moved into seperate code for starting a match
-            player1 = new Player();
-            player2 = new Player();
+            player1 = new Player(PlayerType.Player);
+            player2 = new Player(PlayerType.Enemy);
             gameField = new Field();
+            player1.setDeckPosition();
+            player2.setDeckPosition();
 
         }
         public void Run()
@@ -57,11 +67,12 @@ namespace CompCardGame.Source
         private void Render()
         {
             window.Clear();
-            
+            //I think we need to setup a view so that sizing doesn't go weird if you resize the game
             //these are the individual calls to each class for drawing what they need to draw
             //Remember order matters for drawing
             window.Draw(gameField);
             window.Draw(player1);
+            window.Draw(player2);
             window.Display();
         }
 
