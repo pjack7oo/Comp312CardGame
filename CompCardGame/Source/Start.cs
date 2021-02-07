@@ -8,10 +8,11 @@ namespace CompCardGame.Source
 {
     class Start
     {
+        //start game
         static void Main(String[] args)
         {
             Game game = new Game();
-            game.Start();
+            game.Initialize();
             game.Run();
         }
     }

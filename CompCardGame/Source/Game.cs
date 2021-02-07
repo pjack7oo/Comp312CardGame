@@ -8,20 +8,23 @@ namespace CompCardGame.Source
     class Game
     {
 
-        RenderWindow window;
+        RenderWindow window; //Essentially what you are drawing too
         List<Card> cards = new List<Card>();//temporary
+        
         Player player1;
         Player player2;
         Field gameField;
-        public void Start()
+        
+        public void Initialize()
         {
+            //boiler plate setup for SFML
             var mode = new VideoMode(1920, 1080);
             window = new RenderWindow(mode, "SFML works!");
-            window.Closed += new EventHandler(OnClose);
             window.SetFramerateLimit(60);
-            //cards.Add(new Card("Card 1", "First Card I have", 100, 200) { Position = new SFML.System.Vector2f { X = 100,Y= 750 } });
-            //cards.Add(new Card("Card 2", "Second Card I have", 100, 200) { Position = new SFML.System.Vector2f { X = 400, Y = 750 } });
-            //temp
+            //this is how events are handled we will probably just need esc on keyboard and mouse movement/clicking
+            window.Closed += new EventHandler(OnClose);
+
+            //just initializing the fields, this will be moved into seperate code for starting a match
             player1 = new Player();
             player2 = new Player();
             gameField = new Field();
@@ -29,22 +32,18 @@ namespace CompCardGame.Source
         }
         public void Run()
         {
+            //boilerplate gameloop
             // still needs timing to base things off so it lags less if we ever get to a problem of fps
             while (window.IsOpen)
             {
                 window.DispatchEvents();
-                //ProcessEvents();
-                Update();
+                
+                Update();//will need timing
                 Render();
             }
         }
 
-        private void ProcessEvents()
-        {
-            //Event @event;
-            //while(window.pollEvent(@e))
-
-        }
+       
 
         private void Update()
         {
@@ -58,18 +57,15 @@ namespace CompCardGame.Source
         private void Render()
         {
             window.Clear();
-            //var vector = new SFML.System.Vector2f { X = 100f, Y = 100f };
-            //var shape = new SFML.Graphics.RectangleShape(vector) { FillColor = SFML.Graphics.Color.Cyan };
-            //shape.Position = new SFML.System.Vector2f { X = 100, Y = 100};
-            //foreach(var card in cards)
-            //{
-            //    window.Draw(card);
-            //}
+            
+            //these are the individual calls to each class for drawing what they need to draw
+            //Remember order matters for drawing
             window.Draw(gameField);
             window.Draw(player1);
             window.Display();
         }
 
+        //this is the event handler method called earlier
         private void OnClose(object sender, EventArgs e)
         {
             RenderWindow window = (RenderWindow)sender;
