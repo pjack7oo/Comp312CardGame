@@ -88,8 +88,9 @@ namespace CompCardGame.Source
             //these are the individual calls to each class for drawing what they need to draw
             //Remember order matters for drawing
             window.Draw(gameField);
-            window.Draw(player1);
+            
             window.Draw(player2);
+            window.Draw(player1);
             window.Display();
         }
 

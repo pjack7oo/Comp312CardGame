@@ -108,8 +108,9 @@ namespace CompCardGame.Source
         
         public void Draw(RenderTarget target, RenderStates states)
         {
-            DrawHand(target, states);
+            
             DrawDeck(target, states);
+            DrawHand(target, states);
         }
         //drawing the cards in your hand
         private void DrawHand(RenderTarget target, RenderStates states)
