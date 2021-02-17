@@ -15,6 +15,9 @@ namespace CompCardGame.Source
     }
     class Player : Drawable
     {
+        //to make sure player never has more than 5 cards
+        public static int MaxCardsInHand = 5;
+        
         List<Card> cards;//deck
         List<Card> hand;
         List<Card> graveYard;
@@ -22,7 +25,7 @@ namespace CompCardGame.Source
         //help with drawing location on the board
         private PlayerType playerType;
 
-        ////une
+        
         //public Player()
         //{
         //    type = PlayerType.Player;
@@ -78,11 +81,11 @@ namespace CompCardGame.Source
         
         public void Draw(RenderTarget target, RenderStates states)
         {
-            drawHand(target, states);
-            drawDeck(target, states);
+            DrawHand(target, states);
+            DrawDeck(target, states);
         }
         //drawing the cards in your hand
-        private void drawHand(RenderTarget target, RenderStates states)
+        private void DrawHand(RenderTarget target, RenderStates states)
         {
             foreach (var card in hand)
             {
@@ -92,11 +95,76 @@ namespace CompCardGame.Source
         }
 
         //drawing the deck of cards
-        private void drawDeck(RenderTarget target, RenderStates states) 
+        private void DrawDeck(RenderTarget target, RenderStates states) 
         {
             foreach (var card in cards)
             {
                 target.Draw(card);
+            }
+        }
+        //draw a card and add to hand
+        public void DrawACardFromDeck()
+        {
+            if (hand.Count < MaxCardsInHand)
+            {
+                hand.Add(cards[0]);
+                cards.RemoveAt(0);
+                setPositionsOfHand();
+            }
+        }
+        //when a card is drawn we will update the cards position, state, location
+        private void setPositionsOfHand()
+        {
+            if (playerType == PlayerType.Player)
+            {
+                for(int i = 0; i < hand.Count;i++)
+                {
+                    hand[i].Location = CardLocation.Hand;
+                    hand[i].State = CardState.Front;
+                    hand[i].Position = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height/2 +10);
+                    hand[i].updatePositions();
+                    //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < hand.Count; i++)
+                {
+                    hand[i].Location = CardLocation.Hand;
+                    hand[i].Position = new Vector2f(i * (Card.width + 20) + 410, 0-Card.height/2-10);
+                    hand[i].updatePositions();
+                    //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
+                }
+            }
+        }
+
+        
+        
+        //handle when card is hovered over by player
+        public void HandleMouseMovement(Vector2f mouse)
+        {
+            
+            //checking if mouse moves over the cards in the hand
+            for(int i = 0; i < hand.Count;i++)
+            {
+                
+                if (hand[i].contains(mouse))
+                {
+                    var pos = new Vector2f(0, -30);
+                    //Console.WriteLine(true);
+                    //lift card to view it
+                    hand[i].liftCardUp();
+                    
+                } 
+                else
+                {
+                    if (hand[i].Active)
+                    {
+                        //lower card when no longer hovering over it
+                        hand[i].setCardDown();
+                    }
+                    //Console.WriteLine(false);
+                }
             }
         }
 

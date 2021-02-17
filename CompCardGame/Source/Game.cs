@@ -31,13 +31,25 @@ namespace CompCardGame.Source
             window.SetFramerateLimit(60);
             //this is how events are handled we will probably just need esc on keyboard and mouse movement/clicking
             window.Closed += new EventHandler(OnClose);
+            //handler for mouseMovement
+            window.MouseMoved += MouseMovement;
+            //handler for mouseclick
+            window.MouseButtonPressed += MouseClick;
 
+            window.MouseButtonReleased += MouseReleased;
             //just initializing the fields, this will be moved into seperate code for starting a match
             player1 = new Player(PlayerType.Player);
             player2 = new Player(PlayerType.Enemy);
             gameField = new Field();
             player1.setDeckPosition();
             player2.setDeckPosition();
+            
+            //draw 3 cards from the deck and add to hand
+            for(int i = 0; i < 3;i++)
+            {
+                player1.DrawACardFromDeck();
+                player2.DrawACardFromDeck();
+            }
 
         }
         public void Run()
@@ -52,7 +64,7 @@ namespace CompCardGame.Source
                 Render();
             }
         }
-
+        
        
 
         private void Update()
@@ -81,6 +93,29 @@ namespace CompCardGame.Source
         {
             RenderWindow window = (RenderWindow)sender;
             window.Close();
+        }
+        //handles mouseMovement
+        private void MouseMovement(object sender, MouseMoveEventArgs e)
+        {
+            var mouse = new SFML.System.Vector2f(e.X, e.Y);
+            player1.HandleMouseMovement(mouse);
+            //TODO add handler for when card is selected and being moved
+        }
+
+        //this will be important for handling when card is placed on field and when attacking opponent
+        private void MouseReleased(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void MouseClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == Mouse.Button.Left)
+            {
+                //TODO add handler for player1
+                Console.WriteLine($"{e.X}, {e.Y}");
+                //player1.HandleMouseClick()
+            }
         }
     }
 }
