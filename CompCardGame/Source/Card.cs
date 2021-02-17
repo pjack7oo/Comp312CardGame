@@ -20,7 +20,8 @@ namespace CompCardGame.Source
         Deck,
         Hand,
         Field,
-        Graveyard
+        Graveyard,
+        Moving
     }
     class Card: Transformable, Drawable
     {
@@ -38,8 +39,8 @@ namespace CompCardGame.Source
         Text cardDescription;
         Text cardAttackText;
         Text cardDefenseText;
-       
-        
+
+        public Vector2f previousPosition;
         //used to know which side to draw
         private CardState state = CardState.Back;
 
@@ -145,6 +146,11 @@ namespace CompCardGame.Source
                 Active = true;
             }
 
+        }
+
+        public void ResetCard()
+        {
+            Position = previousPosition;
         }
         //lower card back down after looking at it
         public void setCardDown()

@@ -11,7 +11,8 @@ namespace CompCardGame.Source
     
     class FieldPosition: Drawable
     {
-        public Card card { get; set; }
+        private Card card;
+        public Card Card { get { return card; } set { card = value; card.Position = topLeftCorner; } }
         public int position; //temporary way of store card position it might be changed
         public Boolean HasCard { get { return (this.card != null) ? true : false; } }
         //important for drawing things to the right spot
@@ -34,10 +35,26 @@ namespace CompCardGame.Source
             }
             this.outline = CardOutlineRectangle(topLeftCorner);
         }
+        //simply to check if mouse is in the fieldposition
+        public Boolean Contains(Vector2f point)
+        {
+            if(outline.GetGlobalBounds().Contains(point.X, point.Y))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public void Draw(RenderTarget target, RenderStates states)
         {
             target.Draw(outline);
+            if (HasCard)
+            {
+                target.Draw(card);
+            }
         }
 
         //This is a helper to reduce the annoyance of drawing the outlines

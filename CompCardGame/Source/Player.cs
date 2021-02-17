@@ -21,6 +21,11 @@ namespace CompCardGame.Source
         List<Card> cards;//deck
         List<Card> hand;
         List<Card> graveYard;
+
+        //Selected card for handling when player grabs a card
+        Card selectedCard;
+        //target for when selecting target to attack or use spell on
+        object target;
         public int Health { get; private set; }
         //help with drawing location on the board
         private PlayerType playerType;
@@ -57,7 +62,7 @@ namespace CompCardGame.Source
         }
 
         //position the decks on their field
-        public void setDeckPosition()
+        public void SetDeckPosition()
         {
             //will stager these in the future so it looks like the deck has height, will also need shadows
             // bottom field deck position
@@ -75,6 +80,28 @@ namespace CompCardGame.Source
                 for (int i = 0; i < cards.Count; i++)
                 {
                     cards[i].Position = position;
+                }
+            }
+        }
+        //testing things with reseting nicely
+        public void ResetCards()
+        {
+            for(int i = 0; i <hand.Count;i++)
+            {
+                hand[i].Position = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height / 2 + 10);
+            }
+        }
+        //testing things with reseting nicely
+        public void ResetCardPosition(Card card)
+        {
+            for(int i = 0; i < hand.Count;i++)
+            {
+                if (hand[i] == card)
+                {
+
+                    Console.WriteLine(true);
+                    card.Position = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height / 2 + 10);
+
                 }
             }
         }
@@ -109,11 +136,16 @@ namespace CompCardGame.Source
             {
                 hand.Add(cards[0]);
                 cards.RemoveAt(0);
-                setPositionsOfHand();
+                SetPositionsOfHand();
             }
         }
+        //remove card from hand this is called when moved elsewhere
+        public void RemoveCard(Card card)
+        {
+            hand.Remove(card);
+        }
         //when a card is drawn we will update the cards position, state, location
-        private void setPositionsOfHand()
+        private void SetPositionsOfHand()
         {
             if (playerType == PlayerType.Player)
             {
@@ -121,7 +153,7 @@ namespace CompCardGame.Source
                 {
                     hand[i].Location = CardLocation.Hand;
                     hand[i].State = CardState.Front;
-                    hand[i].Position = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height/2 +10);
+                    hand[i].Position = hand[i].previousPosition = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height/2 +10);
                     hand[i].updatePositions();
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
@@ -137,7 +169,18 @@ namespace CompCardGame.Source
                 }
             }
         }
-
+        //check if click on cards in hand
+        public Card HandleMouseClick(Vector2f mouse)
+        {
+            foreach(var card in hand)
+            {
+                if (card.contains(mouse))
+                {
+                    return card;
+                }
+            }
+            return null;
+        }
         
         
         //handle when card is hovered over by player
@@ -147,11 +190,11 @@ namespace CompCardGame.Source
             //checking if mouse moves over the cards in the hand
             for(int i = 0; i < hand.Count;i++)
             {
-                
+                //Console.WriteLine(hand[i].Position);
                 if (hand[i].contains(mouse))
                 {
                     var pos = new Vector2f(0, -30);
-                    //Console.WriteLine(true);
+                    
                     //lift card to view it
                     hand[i].liftCardUp();
                     
@@ -165,6 +208,12 @@ namespace CompCardGame.Source
                     }
                     //Console.WriteLine(false);
                 }
+            }
+            //if when mouse is clicked and moving a card
+            if (selectedCard != null)
+            {
+                //needs to be shifted so mouse in middle of the card
+                selectedCard.Position = mouse;
             }
         }
 

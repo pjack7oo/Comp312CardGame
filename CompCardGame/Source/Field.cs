@@ -32,6 +32,18 @@ namespace CompCardGame.Source
                 count++;
             }
         }
+        //might move handling of obj mouse can touch can be moved to its own file
+        public Tuple<PlayerType,FieldPosition> GetTarget(Vector2f mouse)
+        {
+            for(int i = 0;i < player1Field.Count(); i++)
+            {
+                if (player1Field[i].Contains(mouse))
+                {
+                    return new Tuple<PlayerType, FieldPosition>(PlayerType.Player, player1Field[i]);
+                }
+            }
+            return null;
+        }
 
         //not done since cant move cards yet
         public Boolean placeCardOnField(int player, int fieldPosition, Card card)
@@ -40,7 +52,7 @@ namespace CompCardGame.Source
             {
                 if (!player1Field[fieldPosition].HasCard)
                 {
-                    player1Field[fieldPosition].card = card;
+                    player1Field[fieldPosition].Card = card;
                     return true;
                 }
                 else
