@@ -57,6 +57,8 @@ namespace CompCardGame.Source
             }
         }
 
+        
+
         //This is a helper to reduce the annoyance of drawing the outlines
         public static RectangleShape CardOutlineRectangle(float x, float y)
         {

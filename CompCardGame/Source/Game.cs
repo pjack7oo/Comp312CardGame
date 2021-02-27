@@ -5,8 +5,20 @@ using System.Collections.Generic;
 
 namespace CompCardGame.Source
 {
+    enum TurnState //this is so we can make state machine so we know which turn phase it is
+    {
+        Drawing,
+        Primary,
+        Attack,
+        Secondary,
+        End
+    }
 
-
+    enum GameState // this is so we can make a state machine so we know whos turn it is
+    {
+        Player,
+        Opponent
+    }
     class Game
     {
 
@@ -16,6 +28,8 @@ namespace CompCardGame.Source
         Player player1;
         Player player2;
         Field gameField;
+
+        public static TurnState turnState;
 
         private Card selectedCard;
         //drawing the field and positioning of the cards on the field will be dependent on these two
@@ -51,7 +65,8 @@ namespace CompCardGame.Source
                 player1.DrawACardFromDeck();
                 player2.DrawACardFromDeck();
             }
-
+            gameField.PlaceCardOnField(PlayerType.Enemy, gameField.GetRandomFieldPosition(PlayerType.Enemy), player2.GrabRandomCard());//temporary
+            turnState = TurnState.Primary;
         }
         public void Run()
         {
@@ -79,7 +94,8 @@ namespace CompCardGame.Source
             //    X = 10f,
             //    Y = 10f
             //};
-
+            
+            //method to draw arrow to mouse from attacking card
         }
         private void Render()
         {
@@ -91,6 +107,10 @@ namespace CompCardGame.Source
             
             window.Draw(player2);
             window.Draw(player1);
+            if (selectedCard != null)
+            {
+                window.Draw(selectedCard);
+            }
             window.Display();
         }
 
@@ -107,10 +127,10 @@ namespace CompCardGame.Source
             player1.HandleMouseMovement(mouse);
             //TODO add handler for when card is selected and being moved
             //if when mouse is clicked and moving a card
-            if (selectedCard != null)
+            if (selectedCard != null && selectedCard.Location == CardLocation.Moving)
             {
                 //needs to be shifted so mouse in middle of the card
-                selectedCard.Position = mouse;
+                selectedCard.UpdatePositions(mouse);
             }
         }
 
@@ -125,14 +145,15 @@ namespace CompCardGame.Source
                 var mouse = new SFML.System.Vector2f(e.X, e.Y);
 
                 target = gameField.GetTarget(mouse);
-
-                if (selectedCard != null && target != null)
+                
+                if (selectedCard != null && target != null)//
                 {
-                    //handle clicking on player field position this will include spell handling
+                    //handle releasing on player field position this will include spell handling
                     if (target.Item1 == PlayerType.Player)
                     {
-                        if (!target.Item2.HasCard)
+                        if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
                         {
+                            gameField.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
                             target.Item2.Card = selectedCard;
                             selectedCard.Location = CardLocation.Field;
                             selectedCard.Active = false;
@@ -142,12 +163,12 @@ namespace CompCardGame.Source
                             
                         }
                     } 
-                    else //handle clicking on opponent field
+                    else //handle release on opponent field in necessary
                     {
 
                     }
                 }
-                else if (selectedCard != null && target == null)
+                else if (selectedCard != null && target == null) //check where to place card when mouse is released and if no valid slot is selected then drop the card back to previous spot
                 {
                     if (selectedCard.Location == CardLocation.Moving)
                     {
@@ -165,24 +186,70 @@ namespace CompCardGame.Source
             }));
             release.Start();
             
-            //check where to place card when mouse is released and if no valid slot is selected then drop the card back to previous spot
+            
         }
 
 
+        private void CalculateCardAttack(Card card1, Card card2) // handle attack between cards 
+        {
+            Console.WriteLine($"{card1} attacked {card2}");
+            if (card1.Attack > card2.Defense)//attack worked, send card2 to graveyard and deal difference of attack - defense to opponent
+            {
+
+            }
+            else //attack failed you get dealt difference of defense -attack
+            {
+
+            }
+        }
+
         
-        private void MouseClick(object sender, MouseButtonEventArgs e)
+        private void MouseClick(object sender, MouseButtonEventArgs e)//this might need the state of the turn in future
         {
             if (e.Button == Mouse.Button.Left)
             {
                 //TODO add handler for player1
                 //Console.WriteLine($"{e.X}, {e.Y}");
-
-                selectedCard = player1.HandleMouseClick(new SFML.System.Vector2f(e.X, e.Y));
-                if (selectedCard != null)
+                var mouse = new SFML.System.Vector2f(e.X, e.Y);
+                if (turnState == TurnState.Attack)//temporary state check to test things out a lot wil lchange when we implement the turns
                 {
-                    selectedCard.Location = CardLocation.Moving;
+                   var temp = gameField.SelectCard(mouse); //check field
+                    if (temp != null)
+                    {
+                        selectedCard = temp;
+                    } 
+                    else
+                    {
+                        Tuple<PlayerType, FieldPosition> target;
+                        target = gameField.GetTarget(mouse);
+                        if (target != null) //handle attacking card
+                        {
+                            CalculateCardAttack(selectedCard, target.Item2.Card);
+                        } else //attack hp directly
+                        {
+                            Console.WriteLine("Attack health");
+                        }
+                    }
+                } 
+                else
+                {
+                    selectedCard = player1.HandleMouseClick(mouse);//check hand
+                    if (selectedCard != null)
+                    {
+                        selectedCard.Location = CardLocation.Moving;
+                    }
                 }
                 
+                if (selectedCard == null)
+                {
+                    selectedCard = gameField.SelectCard(mouse); //check field
+                }
+                
+                
+            }
+            else if (e.Button == Mouse.Button.Right)//temporary for testing
+            {
+                turnState = TurnState.Attack;
             }
         }
     }

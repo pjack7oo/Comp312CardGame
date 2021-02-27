@@ -31,7 +31,7 @@ namespace CompCardGame.Source
         //shapes used to draw the card
         Shape[] shapes;
 
-        RectangleShape boundingBox;
+        public RectangleShape boundingBox;
 
         RectangleShape backSide;
         //card attributes
@@ -62,7 +62,7 @@ namespace CompCardGame.Source
             //creating the shapes of the card
             shapes = CardShapes(Position, Color.Cyan, Color.Black);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
-            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent };
+            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 1, OutlineColor = Color.Red };
             //filling in the name and description
             cardName = NewText("Card Name", 15, Position + new Vector2f {X = 10f, Y = 10f }, Color.Black);
             cardDescription = NewText("Description", 10, Position + new Vector2f { X = 10f, Y = 235f }, Color.Black);
@@ -82,7 +82,7 @@ namespace CompCardGame.Source
             //creating the shapes of the card
             shapes = CardShapes(Position, Color.Cyan, Color.Black);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
-            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent };
+            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 1, OutlineColor = Color.Red };
             //filling in the name and description
             cardName = NewText(name, 15, Position + new Vector2f { X = 10f, Y = 10f }, Color.Black);
             cardDescription = NewText(discription, 10, Position + new Vector2f { X = 10f, Y = 235f }, Color.Black);
@@ -97,7 +97,7 @@ namespace CompCardGame.Source
         }
 
         
-
+        
         
         public void Draw(RenderTarget target, RenderStates states)
         {
@@ -122,6 +122,10 @@ namespace CompCardGame.Source
             {
                 target.Draw(backSide,states);
             }
+            if (Active)
+            {
+                target.Draw(boundingBox);
+            }
         }
         //this is for checking bounding box of card
         public Boolean contains(Vector2f point)
@@ -131,7 +135,12 @@ namespace CompCardGame.Source
             
         }
         //this is to update the boundingbox might do more in the future
-        public void updatePositions()
+        public void UpdatePositions(Vector2f mouse)
+        {
+            this.Position = mouse;
+            boundingBox.Position = Position;
+        }
+        public void UpdatePositions()
         {
             boundingBox.Position = Position;
         }
@@ -142,7 +151,7 @@ namespace CompCardGame.Source
             if (!Active && Location == CardLocation.Hand)
             {
                 Position -= new Vector2f(0, height/2+20);
-                updatePositions();
+                UpdatePositions();
                 Active = true;
             }
 
@@ -158,7 +167,7 @@ namespace CompCardGame.Source
             if (Location == CardLocation.Hand)
             {
                 Position += new Vector2f(0, height / 2 + 20);
-                updatePositions();
+                UpdatePositions();
                 Active = false;
             }
             

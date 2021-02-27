@@ -42,17 +42,28 @@ namespace CompCardGame.Source
                     return new Tuple<PlayerType, FieldPosition>(PlayerType.Player, player1Field[i]);
                 }
             }
+            for(int i = 0; i < player2Field.Count(); i++)//check if we clicked on opponent field
+            {   if (Game.turnState == TurnState.Attack)//handle click on opponent in attack phase
+                {
+                    if (player2Field[i].Contains(mouse) && player2Field[i].HasCard)
+                    {
+                        return new Tuple<PlayerType, FieldPosition>(PlayerType.Enemy, player2Field[i]);
+                    }
+                }
+                
+            }
             return null;
         }
 
-        //not done since cant move cards yet
-        public Boolean placeCardOnField(int player, int fieldPosition, Card card)
+        
+        public Boolean PlaceCardOnField(PlayerType player, FieldPosition fieldPosition, Card card)
         {
-            if (player == 1)
+            if (player == PlayerType.Player)
             {
-                if (!player1Field[fieldPosition].HasCard)
+                if (!fieldPosition.HasCard)
                 {
-                    player1Field[fieldPosition].Card = card;
+                    fieldPosition.Card = card;
+                    card.UpdatePositions();
                     return true;
                 }
                 else
@@ -60,18 +71,55 @@ namespace CompCardGame.Source
                     return false;
                 }
             }
-            else //todo
+            else //enemy 
             {
-                if (player2Field[fieldPosition] == null)
+                if (!fieldPosition.HasCard)
                 {
+                    card.State = CardState.Front;
+                    fieldPosition.Card = card;
+                    card.UpdatePositions();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
-                    return true;
-                }
-                else
+        public Card SelectCard(Vector2f mouse)
+        {
+            Card result = null;
+            foreach(var fieldPos in player1Field)//go through field and select the card that contains mouse
+            {
+                if (fieldPos.HasCard && fieldPos.Contains(mouse))
                 {
-                    return false;
+                    fieldPos.Card.Active = true;
+                    result = fieldPos.Card;
+                }
+                
+            }
+            if (result != null)
+            {
+                foreach(var fieldPos in player1Field)//make not selected cards inactive
+                {
+                    if (result != fieldPos.Card && fieldPos.HasCard)
+                    {
+                        fieldPos.Card.Active = false;
+                    }
                 }
             }
+            return result;
+        }
+        //this is for the cpu to place on random field pos
+        public FieldPosition GetRandomFieldPosition(PlayerType player)
+        {
+            var random = new Random();
+            if (player == PlayerType.Enemy)
+            {
+                return player2Field[random.Next(0, player2Field.Length - 1)];
+            }
+            return null;
         }
 
         //drawing the field positions will also in future handle the background

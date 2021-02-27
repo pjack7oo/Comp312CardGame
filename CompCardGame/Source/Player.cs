@@ -155,7 +155,7 @@ namespace CompCardGame.Source
                     hand[i].Location = CardLocation.Hand;
                     hand[i].State = CardState.Front;
                     hand[i].Position = hand[i].previousPosition = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height/2 +10);
-                    hand[i].updatePositions();
+                    hand[i].UpdatePositions();
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
             }
@@ -165,10 +165,16 @@ namespace CompCardGame.Source
                 {
                     hand[i].Location = CardLocation.Hand;
                     hand[i].Position = new Vector2f(i * (Card.width + 20) + 410, 0-Card.height/2-10);
-                    hand[i].updatePositions();
+                    hand[i].UpdatePositions();
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
             }
+        }
+
+        public Card GrabRandomCard()//might be used by somecard abilities and using it for testing opponent will stillo need AI
+        {
+            var random = new Random();
+            return hand[random.Next(0, hand.Count - 1)];
         }
         //check if click on cards in hand
         public Card HandleMouseClick(Vector2f mouse)
@@ -211,11 +217,11 @@ namespace CompCardGame.Source
                 }
             }
             //if when mouse is clicked and moving a card
-            if (selectedCard != null)
-            {
+            //if (selectedCard != null)
+            //{
                 //needs to be shifted so mouse in middle of the card
-                selectedCard.Position = mouse;
-            }
+            //    selectedCard.Position = mouse;
+            //}
         }
 
         //when card hits player
