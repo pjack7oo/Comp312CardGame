@@ -28,7 +28,7 @@ namespace CompCardGame.Source
         object target;
         public int Health { get; private set; }
         //help with drawing location on the board
-        private PlayerType playerType;
+        public PlayerType PlayerType { get; private set; }
 
         
         //public Player()
@@ -48,7 +48,7 @@ namespace CompCardGame.Source
         //will be called every time match is started
         public Player(PlayerType playerType)
         {
-            this.playerType = playerType;
+            PlayerType = playerType;
             cards = new List<Card>();
             hand = new List<Card>();
             graveYard = new List<Card>();
@@ -66,7 +66,7 @@ namespace CompCardGame.Source
         {
             //will stager these in the future so it looks like the deck has height, will also need shadows
             // bottom field deck position
-            if (playerType == PlayerType.Player) 
+            if (PlayerType == PlayerType.Player) 
             {
                 Vector2f position = new Vector2f(Game.ScreenWidth - Card.width - 190-20, Game.ScreenHeight - Card.height - 160);
                 for (int i = 0; i < cards.Count; i++)
@@ -148,7 +148,7 @@ namespace CompCardGame.Source
         //when a card is drawn we will update the cards position, state, location
         private void SetPositionsOfHand()
         {
-            if (playerType == PlayerType.Player)
+            if (PlayerType == PlayerType.Player)
             {
                 for(int i = 0; i < hand.Count;i++)
                 {
@@ -181,8 +181,10 @@ namespace CompCardGame.Source
         {
             foreach(var card in hand)
             {
-                if (card.contains(mouse))
+                
+                if (card.contains(mouse) && card.Location == CardLocation.Hand)
                 {
+                    card.Location = CardLocation.Moving;
                     return card;
                 }
             }
@@ -200,7 +202,7 @@ namespace CompCardGame.Source
                 //Console.WriteLine(hand[i].Position);
                 if (hand[i].contains(mouse))
                 {
-                    var pos = new Vector2f(0, -30);
+                    //var pos = new Vector2f(0, -30);
                     
                     //lift card to view it
                     hand[i].liftCardUp();
