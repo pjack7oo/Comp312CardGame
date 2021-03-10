@@ -35,15 +35,16 @@ namespace CompCardGame.Source
         //might move handling of obj mouse can touch can be moved to its own file
         public Tuple<PlayerType,FieldPosition> GetTarget(Vector2f mouse)
         {
-            for(int i = 0;i < player1Field.Count(); i++)
+            
+            for (int i = 0; i < player1Field.Count(); i++)
             {
                 if (player1Field[i].Contains(mouse))
                 {
                     return new Tuple<PlayerType, FieldPosition>(PlayerType.Player, player1Field[i]);
                 }
             }
-            for(int i = 0; i < player2Field.Count(); i++)//check if we clicked on opponent field
-            {   if (Game.turnState == TurnState.Attack)//handle click on opponent in attack phase
+            for (int i = 0; i < player2Field.Count(); i++)//check if we clicked on opponent field
+            {   if (Match.TurnState == TurnState.Attack)//handle click on opponent in attack phase
                 {
                     if (player2Field[i].Contains(mouse) && player2Field[i].HasCard)
                     {

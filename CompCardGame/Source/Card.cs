@@ -160,6 +160,7 @@ namespace CompCardGame.Source
         public void ResetCard()
         {
             Position = previousPosition;
+            UpdatePositions();
         }
         //lower card back down after looking at it
         public void setCardDown()
@@ -180,7 +181,7 @@ namespace CompCardGame.Source
             Shape[] shapes = new Shape[3];
             //creating the shapes of the card
             shapes[0] = new RectangleShape(new Vector2f { X = width, Y = height }) { FillColor = fillColor };
-            shapes[1] = new RectangleShape(new Vector2f { X = width - 20f, Y = 20f }) { OutlineColor = accentColor, OutlineThickness = 1f, Position = position + new Vector2f { X = 10f, Y = 10f } };//TODO make all of this relative to width and height
+            shapes[1] = new RectangleShape(new Vector2f { X = width - 20f, Y = 20f }) { OutlineColor = accentColor, OutlineThickness = 1f, Position = position + new Vector2f { X = 10f, Y = 10f } };
             shapes[2] = new RectangleShape(new Vector2f { X = width - 20f, Y = width - 20f }) { OutlineColor = accentColor, OutlineThickness = 1f, Position = position + new Vector2f { X = 10f, Y = 50f } };
 
             return shapes;

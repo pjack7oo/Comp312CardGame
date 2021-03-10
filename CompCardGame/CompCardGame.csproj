@@ -49,12 +49,16 @@
     <Reference Include="SFML.Window, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFML.Window.2.5.0\lib\netstandard2.0\SFML.Window.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Button.cs" />
     <Compile Include="Source\Card.cs" />
     <Compile Include="Source\Field.cs" />
     <Compile Include="Source\FieldPosition.cs" />
     <Compile Include="Source\Game.cs" />
+    <Compile Include="Source\Match.cs" />
+    <Compile Include="Source\InputHandler.cs" />
     <Compile Include="Source\Player.cs" />
     <Compile Include="Source\Start.cs" />
   </ItemGroup>
