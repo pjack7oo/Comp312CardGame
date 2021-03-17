@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SFML.Window;
 using SFML.Graphics;
+using SFML.System;
 
 namespace CompCardGame.Source
 {
@@ -59,9 +60,11 @@ namespace CompCardGame.Source
 
                     break;
                 case GameState.MainPage://TODO check if hovering over button
+                    CheckButtonHover(mouse);
                     break;
                 case GameState.Match:
                     match.MouseMovement(mouse);
+                    CheckButtonHover(mouse);
                     break;
                 case GameState.Settings:
                     break;
@@ -69,6 +72,35 @@ namespace CompCardGame.Source
                     break;
             }
 
+        }
+
+        public void CheckButtonHover(Vector2f mouse)
+        {
+            foreach(var button in buttons)
+            {
+                if (button.Contains(mouse) && button.ButtonState == ButtonState.Default ){
+                    button.ButtonState = ButtonState.Hover;
+                } else
+                {
+                    if (button.ButtonState == ButtonState.Hover)
+                    {
+                        button.ButtonState = ButtonState.Default;
+                    }
+                }
+            }
+        }
+
+        public void CheckButtonClick(Vector2f mouse)
+        {
+            foreach (var button in buttons)
+            {
+                if (button.Contains(mouse))
+                {
+                    
+                    button.DoAction();
+                }
+                
+            }
         }
 
         public void MouseClick(object sender, MouseButtonEventArgs e)//this might need the state of the turn in future
@@ -83,8 +115,10 @@ namespace CompCardGame.Source
                 switch (Game.GameState)
                 {
                     case GameState.MainPage://TODO check if click on a button
+                        CheckButtonClick(mouse);
                         break;
                     case GameState.Match:
+                        CheckButtonClick(mouse);
                         match.MouseClick(mouse);
                         break;
                     default:
@@ -117,6 +151,15 @@ namespace CompCardGame.Source
             
 
 
+        }
+        //update buttons
+        public void Update(System.TimeSpan time)
+        {
+            
+            foreach(var button in buttons)
+            {
+                button.Update(time);
+            }
         }
     }
 }

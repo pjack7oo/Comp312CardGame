@@ -57,6 +57,7 @@
     <Compile Include="Source\Field.cs" />
     <Compile Include="Source\FieldPosition.cs" />
     <Compile Include="Source\Game.cs" />
+    <Compile Include="Source\HelperFunctions.cs" />
     <Compile Include="Source\Match.cs" />
     <Compile Include="Source\InputHandler.cs" />
     <Compile Include="Source\Player.cs" />
@@ -64,7 +65,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Lib\" />
-    <Folder Include="Media\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Media\Images\GenericBtn.png" />
+    <Content Include="Media\Images\GenericBtnPressed.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

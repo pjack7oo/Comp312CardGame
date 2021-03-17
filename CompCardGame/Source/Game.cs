@@ -1,6 +1,8 @@
 ﻿using System;
 using SFML.Window;
 using SFML.Graphics;
+using SFML.System;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace CompCardGame.Source
@@ -29,6 +31,7 @@ namespace CompCardGame.Source
         public static uint ScreenWidth { get; private set; }
         public static uint ScreenHeight { get; private set; }
 
+        private static Stopwatch stopwatch;//used to get time passed
         public void Initialize()
         {
             //boiler plate setup for SFML
@@ -50,10 +53,15 @@ namespace CompCardGame.Source
             //temporary this will be later connected to a button on the main page screen
             match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
             InputHandler.SetMatch(match);
-            
 
-            
+            stopwatch = new Stopwatch();
+            stopwatch.Start();
     
+        }
+        //get current time
+        public static TimeSpan GetTimeStamp()
+        {
+            return stopwatch.Elapsed;
         }
         public void Run()
         {
@@ -72,7 +80,8 @@ namespace CompCardGame.Source
 
         private void Update()
         {
-
+            var time = stopwatch.Elapsed;
+            InputHandler.Update(time);
             switch (GameState)
             {
                 case GameState.Loading:

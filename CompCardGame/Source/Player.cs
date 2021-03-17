@@ -17,20 +17,36 @@ namespace CompCardGame.Source
     {
         //to make sure player never has more than 5 cards
         public static int MaxCardsInHand = 5;
+
         
-        List<Card> cards;//deck
+        
+        Queue<Card> cards;//deck
         List<Card> hand;
         List<Card> graveYard;
 
         //Selected card for handling when player grabs a card
-        Card selectedCard;
+        //Card selectedCard;
         //target for when selecting target to attack or use spell on
-        object target;
-        public int Health { get; private set; }
-        //help with drawing location on the board
-        public PlayerType PlayerType { get; private set; }
+        //object target;
+
+        private int health;
+        public int Health { get { return health; } private set { health = value; healthText.DisplayedString = $"Health: {value}"; } }
 
         
+        //help with drawing location on the board
+        public PlayerType PlayerType { get; private set; }
+        private int crystals;
+        public int Crystals { get { return crystals; } private set { crystals = value; crystalsText.DisplayedString= $"Crystals: {value}"; } }
+        //this is for when a card increases the amount of crystals to be received for the turn
+        public int CrystalsToAdd { get; set; }
+
+        public int MaxCrystals { get; private set; }
+
+        private Queue<Card> cardsToRemove = new Queue<Card>();
+
+        private Text healthText;
+
+        private Text crystalsText;
         //public Player()
         //{
         //    type = PlayerType.Player;
@@ -49,16 +65,38 @@ namespace CompCardGame.Source
         public Player(PlayerType playerType)
         {
             PlayerType = playerType;
-            cards = new List<Card>();
+            cards = new Queue<Card>();
             hand = new List<Card>();
             graveYard = new List<Card>();
             //temporary for loop for testing later wont be needed because it will load in the players cards
             for (int i = 0; i < 30; i++)
             {
-                cards.Add(new Card());
+                cards.Enqueue(new Card());
             }
-            cards.shuffle();
+            cards.Shuffle();
+            
+
+
+            
+            
+
+            if (playerType == PlayerType.Player)
+            {
+                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 100f, Y = Game.ScreenHeight-100f }, Color.Red);
+                crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 100f, Y = Game.ScreenHeight - 50f }, Color.Blue);
+            }
+            else
+            {
+                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 100f, Y = 50f }, Color.Red);
+                crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 100f, Y = 100f }, Color.Blue);
+            }
+
             Health = 30;
+
+            MaxCrystals = 4;
+            Crystals = MaxCrystals;
+            CrystalsToAdd = 0;
+
         }
 
         //position the decks on their field
@@ -69,17 +107,25 @@ namespace CompCardGame.Source
             if (PlayerType == PlayerType.Player) 
             {
                 Vector2f position = new Vector2f(Game.ScreenWidth - Card.width - 190-20, Game.ScreenHeight - Card.height - 160);
-                for (int i = 0; i < cards.Count; i++)
+                //for (int i = 0; i < cards.Count; i++)
+                //{
+                //    cards[i].Position = position;
+                //}
+                foreach(var card in cards)
                 {
-                    cards[i].Position = position;
+                    card.Position = position;
                 }
             }
             else //top field deck position
             {
                 Vector2f position = new Vector2f(190,  160);
-                for (int i = 0; i < cards.Count; i++)
+                //for (int i = 0; i < cards.Count; i++)
+                //{
+                //    cards[i].Position = position;
+                //}
+                foreach (var card in cards)
                 {
-                    cards[i].Position = position;
+                    card.Position = position;
                 }
             }
         }
@@ -105,12 +151,47 @@ namespace CompCardGame.Source
                 }
             }
         }
-        
+
+        public void AddCardToRemoveQueue(Card card)
+        {
+            cardsToRemove.Enqueue(card);
+        }
+        //to be called once per turn right after being given to player
+        public void ResetCrystalsToAdd()
+        {
+            CrystalsToAdd = 0;
+        }
+
+        //get crystals during drawing phase and 
+        public void GetCrystals()
+        {
+            Crystals = MaxCrystals;
+            Crystals += CrystalsToAdd;
+            ResetCrystalsToAdd();
+        }
+        //to be used when a card or spell grants crystals
+        public void AddCrystals(int num)
+        {
+
+        }
+
+        public void RemoveCrystals(int num)
+        {
+            Crystals -= num;
+        }
+
+        //as game progresses this will be used to increase amount of crystals the player can get from turn start
+        public void IncreaseMaxCrystals(int num)
+        {
+
+        }
         public void Draw(RenderTarget target, RenderStates states)
         {
             
             DrawDeck(target, states);
             DrawHand(target, states);
+            target.Draw(healthText);//temporary later will have a drawing and sprite 
+            target.Draw(crystalsText);//^^^^^
         }
         //drawing the cards in your hand
         private void DrawHand(RenderTarget target, RenderStates states)
@@ -135,8 +216,8 @@ namespace CompCardGame.Source
         {
             if (hand.Count < MaxCardsInHand)
             {
-                hand.Add(cards[0]);
-                cards.RemoveAt(0);
+                hand.Add(cards.Dequeue());
+                //cards.RemoveAt(0);
                 SetPositionsOfHand();
             }
         }
@@ -150,8 +231,10 @@ namespace CompCardGame.Source
         {
             if (PlayerType == PlayerType.Player)
             {
-                for(int i = 0; i < hand.Count;i++)
+                Update();//make sure things are updated
+                for (int i = 0; i < hand.Count;i++)
                 {
+                    
                     hand[i].Location = CardLocation.Hand;
                     hand[i].State = CardState.Front;
                     hand[i].Position = hand[i].previousPosition = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height/2 +10);
@@ -174,7 +257,21 @@ namespace CompCardGame.Source
         public Card GrabRandomCard()//might be used by somecard abilities and using it for testing opponent will stillo need AI
         {
             var random = new Random();
-            return hand[random.Next(0, hand.Count - 1)];
+            var card = hand[random.Next(0, hand.Count)];
+            foreach(var cardToBeRemoved in cardsToRemove)
+            {
+                if (card == cardToBeRemoved)
+                {
+                    foreach( var card2 in hand)
+                    {
+                        if (card != card2)
+                        {
+                            return card2;
+                        }
+                    }
+                }
+            }
+            return card;
         }
         //check if click on cards in hand
         public Card HandleMouseClick(Vector2f mouse)
@@ -182,7 +279,7 @@ namespace CompCardGame.Source
             foreach(var card in hand)
             {
                 
-                if (card.contains(mouse) && card.Location == CardLocation.Hand)
+                if (card.contains(mouse) && card.Location == CardLocation.Hand && Crystals >= card.CrystalCost)
                 {
                     card.Location = CardLocation.Moving;
                     return card;
@@ -190,7 +287,17 @@ namespace CompCardGame.Source
             }
             return null;
         }
-        
+        //this will be updates that are independent of matchstate so for example removing cards from hand/graveyard
+        public void Update()
+        {
+            
+                while (cardsToRemove.Count > 0)
+                {
+                    var card = cardsToRemove.Dequeue();
+                    RemoveCard(card);
+                }
+            
+        }
         
         //handle when card is hovered over by player
         public void HandleMouseMovement(Vector2f mouse)
@@ -236,8 +343,9 @@ namespace CompCardGame.Source
     static class Extensions
     {
         //Fisher-Yates shuffle
-        public static void shuffle<T>(this List<T> list)
+        public static Queue<T> Shuffle<T>(this Queue<T> queue)
         {
+            List<T> list = queue.ToList();
             Random randomNum = new Random();
             int n = list.Count;
 
@@ -249,6 +357,7 @@ namespace CompCardGame.Source
                 list[j] = list[n];
                 list[n] = value;
             }
+            return new Queue<T>(list);
         }
     }
 

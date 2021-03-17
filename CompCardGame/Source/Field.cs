@@ -10,16 +10,23 @@ namespace CompCardGame.Source
 {
     class Field : Drawable
     {
+        readonly Random  random = new Random();
         //temporary will be fieldPositions in the future
         //Card[] player1Field;
         //Card[] player2Field;
         FieldPosition[] player1Field;
         FieldPosition[] player2Field;
+
+        private readonly Text turnStateText;
+        private readonly Text matchStateText;
         public Field()
         {
             player1Field = new FieldPosition[5];
             player2Field = new FieldPosition[5];
             int count = 1;
+
+            turnStateText = HelperFunctions.NewText(Match.TurnState.ToString(), 15,  new Vector2f { X = 100f, Y = Game.ScreenHeight/2 }, Color.Green);
+            matchStateText = HelperFunctions.NewText(Match.MatchState.ToString(), 15, new Vector2f { X = 1f, Y = Game.ScreenHeight / 2 }, Color.Green);
             //initializing fieldPositions
             for (int i = 0; i < 5; i++)
             {
@@ -56,7 +63,33 @@ namespace CompCardGame.Source
             return null;
         }
 
-        
+        //used by cpu to get random spot to place card
+        public FieldPosition GetRandomUnusedFieldPosition()
+        {
+
+            var randomInt = random.Next(0, player2Field.Length);
+            if (!player2Field[randomInt].HasCard)
+            {
+                return player2Field[randomInt];
+            }
+            else 
+            {
+                
+                foreach(var fieldPos in player2Field)
+                {
+                    if (!fieldPos.HasCard)
+                    {
+                        return fieldPos;
+                    }
+                    
+                }
+                return null;
+            }
+            
+            
+            
+        }
+
         public Boolean PlaceCardOnField(PlayerType player, FieldPosition fieldPosition, Card card)
         {
             if (player == PlayerType.Player)
@@ -88,6 +121,17 @@ namespace CompCardGame.Source
             }
         }
 
+        
+        public void UpdateTurnStateText()
+        {
+            turnStateText.DisplayedString= Match.TurnState.ToString();
+        }
+
+        public void UpdateMatchStateText()
+        {
+            matchStateText.DisplayedString = Match.MatchState.ToString();
+        }
+
         public Card SelectCard(Vector2f mouse)
         {
             Card result = null;
@@ -112,13 +156,25 @@ namespace CompCardGame.Source
             }
             return result;
         }
+        //remove the red outline of any selected card
+        public void ResetCardSelection()
+        {
+            foreach (var fieldPos in player1Field)//make not selected cards inactive
+            {
+                if (fieldPos.HasCard)
+                {
+                    fieldPos.Card.Active = false;
+                }
+            }
+        }
+
         //this is for the cpu to place on random field pos
         public FieldPosition GetRandomFieldPosition(PlayerType player)
         {
-            var random = new Random();
+            
             if (player == PlayerType.Enemy)
             {
-                return player2Field[random.Next(0, player2Field.Length - 1)];
+                return player2Field[random.Next(0, player2Field.Length)];
             }
             return null;
         }
@@ -126,6 +182,9 @@ namespace CompCardGame.Source
         //drawing the field positions will also in future handle the background
         public void Draw(RenderTarget target, RenderStates states)
         {
+
+            target.Draw(turnStateText);
+            target.Draw(matchStateText);
             
             for (int i = 0; i < player1Field.Count(); i++)
             {
