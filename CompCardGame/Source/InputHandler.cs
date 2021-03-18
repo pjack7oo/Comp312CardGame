@@ -15,9 +15,11 @@ namespace CompCardGame.Source
 
         public List<Button> buttons;
 
+        private RenderWindow window;
 
-        public InputHandler()
+        public InputHandler(RenderWindow window)
         {
+            this.window = window;
             buttons = new List<Button>();
         }
 
@@ -52,7 +54,8 @@ namespace CompCardGame.Source
         //handles mouseMovement
         public void MouseMovement(object sender, MouseMoveEventArgs e)
         {
-            var mouse = new SFML.System.Vector2f(e.X, e.Y);
+            var mouse = new Vector2i(e.X, e.Y);
+            Vector2f worldPos;
             //might need this to change based on state
             switch (Game.GameState)
             {
@@ -60,11 +63,13 @@ namespace CompCardGame.Source
 
                     break;
                 case GameState.MainPage://TODO check if hovering over button
-                    CheckButtonHover(mouse);
+                    worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
+                    CheckButtonHover(worldPos);
                     break;
                 case GameState.Match:
-                    match.MouseMovement(mouse);
-                    CheckButtonHover(mouse);
+                    worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
+                    match.MouseMovement(worldPos);
+                    CheckButtonHover(worldPos);
                     break;
                 case GameState.Settings:
                     break;
@@ -109,17 +114,19 @@ namespace CompCardGame.Source
             {
                 //TODO add handler for player1
                 //Console.WriteLine($"{e.X}, {e.Y}");
-                var mouse = new SFML.System.Vector2f(e.X, e.Y);
-
+                var mouse = Mouse.GetPosition(window);
+                Vector2f worldPos;
 
                 switch (Game.GameState)
                 {
                     case GameState.MainPage://TODO check if click on a button
-                        CheckButtonClick(mouse);
+                        worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
+                        CheckButtonClick(worldPos);
                         break;
                     case GameState.Match:
-                        CheckButtonClick(mouse);
-                        match.MouseClick(mouse);
+                        worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
+                        CheckButtonClick(worldPos);
+                        match.MouseClick(worldPos);
                         break;
                     default:
                         break;
@@ -137,13 +144,16 @@ namespace CompCardGame.Source
         //this will be important for handling when card is placed on field and when attacking opponent
         public void MouseReleased(object sender, MouseButtonEventArgs e)
         {
-            var mouse = new SFML.System.Vector2f(e.X, e.Y);
+            var mouse = Mouse.GetPosition(window);
+            Vector2f worldPos = window.MapPixelToCoords(mouse);
             switch (Game.GameState)
             {
                 case GameState.MainPage://TODO check 
+                    worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
                     break;
                 case GameState.Match:
-                    match.MouseReleased(mouse);
+                    worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
+                    match.MouseReleased(worldPos);
                     break;
                 default:
                     break;

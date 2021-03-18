@@ -22,36 +22,60 @@ namespace CompCardGame.Source
         private Match match;
 
         public static GameState GameState;
+        public static View defaultView;
+        public static View fieldView;
+        public static View sideView;
 
-        
+        public static uint SideViewWidth { get; private set; }
 
-        public static InputHandler InputHandler = new InputHandler();
+        public static InputHandler InputHandler;
         //private Card selectedCard;
         //drawing the field and positioning of the cards on the field will be dependent on these two
-        public static uint ScreenWidth { get; private set; }
-        public static uint ScreenHeight { get; private set; }
+        public static float ScreenWidth { get; private set; }
+        public static float ScreenHeight { get; private set; }
+
+        public static float StretchedScreenWidth { get { return ScreenWidth * 1.5f; }  }
+        public static float StretchedScreenHeight { get { return ScreenWidth * 1.5f;}  }
 
         private static Stopwatch stopwatch;//used to get time passed
         public void Initialize()
         {
             //boiler plate setup for SFML
-            ScreenWidth = 1920;
-            ScreenHeight = 1080;
-            var mode = new VideoMode(ScreenWidth, ScreenHeight);
+            ScreenWidth = 1920f;
+            ScreenHeight = 1080f;
+            var mode = new VideoMode((uint)ScreenWidth,(uint) ScreenHeight);
             window = new RenderWindow(mode, "SFML works!");
             window.SetFramerateLimit(60);
             //this is how events are handled we will probably just need esc on keyboard and mouse movement/clicking
             window.Closed += new EventHandler(OnClose);
             //handler for mouseMovement
+            InputHandler = new InputHandler(window);
             window.MouseMoved += new EventHandler<MouseMoveEventArgs>(InputHandler.MouseMovement);
             //handler for mouseclick
             window.MouseButtonPressed += new EventHandler<MouseButtonEventArgs>(InputHandler.MouseClick);
 
             window.MouseButtonReleased += new EventHandler<MouseButtonEventArgs>(InputHandler.MouseReleased);
 
+            window.Resized += new EventHandler<SizeEventArgs>(OnResize);
+
+            fieldView = new View(new FloatRect(0f, 0f, ScreenWidth, ScreenHeight));
+            fieldView.Zoom(1.5f);
+            fieldView.Viewport = new FloatRect(0.2f, 0f, 1f, 1f);
+
+            defaultView = new View(new FloatRect(0f, 0f, ScreenWidth, ScreenHeight));//used on main screen
+
+            sideView = new View(new FloatRect(0f, 0f, ScreenWidth/4.8f, ScreenHeight));
+            sideView.Zoom(0.8f);
+            sideView.Viewport = new FloatRect(0f, 0f, 0.2f, 1f);
+            SideViewWidth = 400;
+
+            //window.SetView(fieldView);//for testing views
+
             GameState = GameState.Match;
             //temporary this will be later connected to a button on the main page screen
             match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
+            
+
             InputHandler.SetMatch(match);
 
             stopwatch = new Stopwatch();
@@ -118,17 +142,25 @@ namespace CompCardGame.Source
             switch(GameState)
             {
                 case GameState.Loading:
+                    window.SetView(defaultView);
                     window.Draw(new RectangleShape(new SFML.System.Vector2f(ScreenWidth, ScreenHeight)));
                     break;
                 case GameState.MainPage:
+                    window.SetView(defaultView);
                     window.Draw(InputHandler);
                     
                     break;
                 case GameState.Match:
-                    match.Render();
+                    window.SetView(fieldView);//draw field 
+                    match.RenderFieldView();
                     window.Draw(InputHandler);
+
+                    window.SetView(sideView);//draw sideview like zoom up of cards and display stats
+                    match.RenderSideView();
+
                     break;
                 case GameState.Settings:
+                    window.SetView(defaultView);
                     break;
                 default:
                     break;
@@ -150,7 +182,20 @@ namespace CompCardGame.Source
             RenderWindow window = (RenderWindow)sender;
             window.Close();
         }
+        //resize window if size changed //todo go through things and make sure all the positions are updated and positions should all be relattive to size
+        private void OnResize(object sender, SizeEventArgs e)
+        {
+            fieldView = new View(new FloatRect(0f, 0f, e.Width, e.Height));
+            fieldView.Zoom(1.5f);
+            fieldView.Viewport = new FloatRect(0.2f, 0f, 1f, 1f);
+            //window.SetView(new View(visibleArea));
+            defaultView = new View(new FloatRect(0f, 0f, e.Width, e.Height));//used on main screen
 
+            sideView = new View(new FloatRect(0f, 0f, e.Width/4.8f, e.Height));
+            sideView.Zoom(0.8f);
+            sideView.Viewport = new FloatRect(0f, 0f, 0.2f, 1f);
+            SideViewWidth = 400;
+        }
         
         
 

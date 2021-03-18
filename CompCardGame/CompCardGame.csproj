@@ -61,6 +61,7 @@
     <Compile Include="Source\Match.cs" />
     <Compile Include="Source\InputHandler.cs" />
     <Compile Include="Source\Player.cs" />
+    <Compile Include="Source\PlayerField.cs" />
     <Compile Include="Source\Start.cs" />
   </ItemGroup>
   <ItemGroup>

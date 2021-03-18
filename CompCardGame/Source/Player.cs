@@ -47,6 +47,11 @@ namespace CompCardGame.Source
         private Text healthText;
 
         private Text crystalsText;
+
+        public ViewType viewType;
+
+        private RectangleShape graveyardOutline;
+        private RectangleShape deckOutline;
         //public Player()
         //{
         //    type = PlayerType.Player;
@@ -68,10 +73,18 @@ namespace CompCardGame.Source
             cards = new Queue<Card>();
             hand = new List<Card>();
             graveYard = new List<Card>();
+            Boolean temp = true;
             //temporary for loop for testing later wont be needed because it will load in the players cards
             for (int i = 0; i < 30; i++)
             {
-                cards.Enqueue(new Card());
+                var card = new Card();
+                
+                if (playerType == PlayerType.Player && temp)//temporary for testing
+                {
+                    card.Attack = 110;
+                    temp = false;
+                }
+                cards.Enqueue(card);
             }
             cards.Shuffle();
             
@@ -82,13 +95,13 @@ namespace CompCardGame.Source
 
             if (playerType == PlayerType.Player)
             {
-                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 100f, Y = Game.ScreenHeight-100f }, Color.Red);
-                crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 100f, Y = Game.ScreenHeight - 50f }, Color.Blue);
+                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 80f, Y = Game.ScreenHeight-140f }, Color.Red);
+                crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 180f, Y = Game.ScreenHeight - 140f }, Color.Blue);
             }
             else
             {
-                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 100f, Y = 50f }, Color.Red);
-                crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 100f, Y = 100f }, Color.Blue);
+                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 80f, Y = 120f }, Color.Red);
+                crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 180f, Y = 120f }, Color.Blue);
             }
 
             Health = 30;
@@ -106,7 +119,14 @@ namespace CompCardGame.Source
             // bottom field deck position
             if (PlayerType == PlayerType.Player) 
             {
-                Vector2f position = new Vector2f(Game.ScreenWidth - Card.width - 190-20, Game.ScreenHeight - Card.height - 160);
+                
+                Vector2f position = new Vector2f(Game.ScreenWidth - Card.width * 2 - 220, Game.ScreenHeight - Card.height  - 170);
+                graveyardOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position, OutlineColor = Color.Red, OutlineThickness = 2, FillColor = Color.Transparent};
+
+
+
+                position = new Vector2f(Game.ScreenWidth - Card.width*2 - 220, Game.ScreenHeight  - 150);
+                deckOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position =position  };
                 //for (int i = 0; i < cards.Count; i++)
                 //{
                 //    cards[i].Position = position;
@@ -118,7 +138,16 @@ namespace CompCardGame.Source
             }
             else //top field deck position
             {
-                Vector2f position = new Vector2f(190,  160);
+                
+                
+                Vector2f position = new Vector2f(-20, Card.height/2 + 10);
+
+                graveyardOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position, OutlineColor = Color.Red, OutlineThickness= 2, FillColor = Color.Transparent }; 
+
+                
+
+                position = new Vector2f(-20,  -170);
+                deckOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position };
                 //for (int i = 0; i < cards.Count; i++)
                 //{
                 //    cards[i].Position = position;
@@ -129,26 +158,45 @@ namespace CompCardGame.Source
                 }
             }
         }
-        //testing things with reseting nicely
-        public void ResetCards()
-        {
-            for(int i = 0; i <hand.Count;i++)
-            {
-                hand[i].Position = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height / 2 + 10);
-            }
-        }
-        //testing things with reseting nicely
-        public void ResetCardPosition(Card card)
-        {
-            for(int i = 0; i < hand.Count;i++)
-            {
-                if (hand[i] == card)
-                {
+        ////testing things with reseting nicely
+        //public void ResetCards()
+        //{
+        //    for(int i = 0; i <hand.Count;i++)
+        //    {
+        //        hand[i].Position = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height / 2 + 10);
+        //    }
+        //}
+        ////testing things with reseting nicely
+        //public void ResetCardPosition(Card card)
+        //{
+        //    for(int i = 0; i < hand.Count;i++)
+        //    {
+        //        if (hand[i] == card)
+        //        {
 
-                    Console.WriteLine(true);
-                    card.Position = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height / 2 + 10);
+        //            Console.WriteLine(true);
+        //            card.Position = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height / 2 + 10);
 
-                }
+        //        }
+        //    }
+        //}
+
+        public void SendCardToGraveyard(Card card)
+        {
+            graveYard.Add(card);
+            if (PlayerType == PlayerType.Player)
+            {
+                Vector2f position = new Vector2f(Game.ScreenWidth - Card.width * 2 - 220, Game.ScreenHeight - Card.height - 170);
+
+                card.Position = position;
+                
+            } 
+            else
+            {
+                Vector2f position = new Vector2f(-20, Card.height / 2 + 10);
+
+                card.Position = position;
+                
             }
         }
 
@@ -187,17 +235,38 @@ namespace CompCardGame.Source
         }
         public void Draw(RenderTarget target, RenderStates states)
         {
+            if (viewType == ViewType.FieldView)
+            {
+                target.Draw(deckOutline);
+                target.Draw(graveyardOutline);
+                DrawDeck(target, states);
+                DrawHand(target, states);
+                DrawGraveyard(target, states);
+            }
+            else
+            {
+                target.Draw(healthText);//temporary later will have a drawing and sprite 
+                target.Draw(crystalsText);//^^^^^
+            }
             
-            DrawDeck(target, states);
-            DrawHand(target, states);
-            target.Draw(healthText);//temporary later will have a drawing and sprite 
-            target.Draw(crystalsText);//^^^^^
+            
         }
+
+        public void DrawGraveyard(RenderTarget target, RenderStates states)
+        {
+            foreach(var card in graveYard)
+            {
+                card.viewType = ViewType.FieldView;
+                target.Draw(card, states);
+            }
+        }
+
         //drawing the cards in your hand
         private void DrawHand(RenderTarget target, RenderStates states)
         {
             foreach (var card in hand)
             {
+                card.viewType = ViewType.FieldView;
                 target.Draw(card);
             }
 
@@ -208,6 +277,7 @@ namespace CompCardGame.Source
         {
             foreach (var card in cards)
             {
+                card.viewType = ViewType.FieldView;
                 target.Draw(card);
             }
         }
@@ -237,7 +307,7 @@ namespace CompCardGame.Source
                     
                     hand[i].Location = CardLocation.Hand;
                     hand[i].State = CardState.Front;
-                    hand[i].Position = hand[i].previousPosition = new Vector2f(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height/2 +10);
+                    hand[i].Position = hand[i].previousPosition = new Vector2f(i * (Card.width + 20) + 200, Game.ScreenHeight + Card.height/2 +20);
                     hand[i].UpdatePositions();
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
@@ -247,7 +317,7 @@ namespace CompCardGame.Source
                 for (int i = 0; i < hand.Count; i++)
                 {
                     hand[i].Location = CardLocation.Hand;
-                    hand[i].Position = new Vector2f(i * (Card.width + 20) + 410, 0-Card.height/2-10);
+                    hand[i].Position = new Vector2f(i * (Card.width + 20) + 200, 0-Card.height*1.5f-20);
                     hand[i].UpdatePositions();
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
@@ -279,7 +349,7 @@ namespace CompCardGame.Source
             foreach(var card in hand)
             {
                 
-                if (card.contains(mouse) && card.Location == CardLocation.Hand && Crystals >= card.CrystalCost)
+                if (card.Contains(mouse) && card.Location == CardLocation.Hand && Crystals >= card.CrystalCost)
                 {
                     card.Location = CardLocation.Moving;
                     return card;
@@ -287,6 +357,21 @@ namespace CompCardGame.Source
             }
             return null;
         }
+
+        public Card HandleMouseClickForOppenentTurn(Vector2f mouse)
+        {
+            foreach (var card in hand)
+            {
+
+                if (card.Contains(mouse) && card.Location == CardLocation.Hand )
+                {
+                    //card.Location = CardLocation.Moving;
+                    return card;
+                }
+            }
+            return null;
+        }
+
         //this will be updates that are independent of matchstate so for example removing cards from hand/graveyard
         public void Update()
         {
@@ -307,7 +392,7 @@ namespace CompCardGame.Source
             for(int i = 0; i < hand.Count;i++)
             {
                 //Console.WriteLine(hand[i].Position);
-                if (hand[i].contains(mouse))
+                if (hand[i].Contains(mouse))
                 {
                     //var pos = new Vector2f(0, -30);
                     

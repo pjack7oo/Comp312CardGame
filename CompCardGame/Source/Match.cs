@@ -40,6 +40,8 @@ namespace CompCardGame.Source
         public static MatchState MatchState;
 
         private Card selectedCard;
+
+        private Card lastSelectedCard;//used for drawing the zoom up 
         
 
         
@@ -54,7 +56,7 @@ namespace CompCardGame.Source
             players = new Player[2] {player1, player2};
             TurnState = TurnState.Primary;
             hasDoneUpdate = false;
-            field = new Field();
+            field = new Field(window);
 
             foreach (var player in players)
             {
@@ -67,22 +69,43 @@ namespace CompCardGame.Source
             
             
             //add button used by match will need also settings button
-            Game.InputHandler.AddButton(new Button("Next Phase",20, new Vector2f(1920 / 2-100, 1080 / 2-50), 200, 100, Color.Black,NextTurnState));
+            Game.InputHandler.AddButton(new Button("Next Phase",20, new Vector2f(Game.ScreenWidth -400, Game.ScreenHeight / 2-40), 200, 100, Color.Black,NextTurnState));
         }
 
-        public void Render()
+        public void RenderSideView()
         {
-            window.Draw(field);
-            
-            foreach(var player in players)
+            field.Draw(ViewType.SideView);
+
+            if (lastSelectedCard != null)
             {
+                lastSelectedCard.viewType = ViewType.SideView;
+                window.Draw(lastSelectedCard);
+            }
+
+            foreach (var player in players)
+            {
+                player.viewType = ViewType.SideView;
                 window.Draw(player);
             }
+        }
+
+        public void RenderFieldView()
+        {
+            field.Draw(ViewType.FieldView);
 
             if (selectedCard != null)
             {
+                selectedCard.viewType = ViewType.FieldView;
                 window.Draw(selectedCard);
             }
+
+            foreach (var player in players)
+            {
+                player.viewType = ViewType.FieldView;
+                window.Draw(player);
+            }
+
+            
         }
         //go to next turn state and reset has done update and call to update text
         public void NextTurnState()
@@ -108,17 +131,38 @@ namespace CompCardGame.Source
         //control mouse movement in a match
         public void MouseMovement(Vector2f mouse)
         {
-            players[0].HandleMouseMovement(mouse);
-
-            if (selectedCard != null && selectedCard.Location == CardLocation.Moving)
+            if (MatchState == MatchState.Player)
             {
-                //needs to be shifted so mouse in middle of the card
-                selectedCard.UpdatePositions(mouse);
+
+            
+            switch(TurnState)
+            {
+                
+                default:
+                    players[0].HandleMouseMovement(mouse);
+
+                    if (selectedCard != null && selectedCard.Location == CardLocation.Moving)
+                    {
+                        //needs to be shifted so mouse in middle of the card
+                        selectedCard.UpdatePositions(mouse);
+                    }
+                    break;
             }
+            }
+            else
+            {
+                players[0].HandleMouseMovement(mouse);
+               
+            }
+
         }
 
         public void MouseReleased(Vector2f mouse)
         {
+            if (MatchState == MatchState.Player)
+            {
+
+            
             switch(TurnState)
             {
                 case TurnState.Primary:
@@ -167,9 +211,24 @@ namespace CompCardGame.Source
                     break;
 
                 default:
+                    if (selectedCard != null)
+                    {
+                        if (selectedCard.Location == CardLocation.Moving)
+                        {
+                            selectedCard.Active = false;
+                            selectedCard.Location = CardLocation.Hand;
+                            //player1.ResetCardPosition(selectedCard);
+                            selectedCard.ResetCard();
+                            selectedCard = null;
+                            //Console.WriteLine("released");
+
+                            //player1.ResetCards();
+                        }
+                    }
+                    
                     break;
             }
-            
+            }
 
         }
 
@@ -177,55 +236,101 @@ namespace CompCardGame.Source
 
         public void MouseClick(Vector2f mouse)
         {
-            
+
             //check buttons
-
-
-            switch (TurnState) //TODO: needs handler for each phase
+            var tempForCardZoom = field.SelectAnyCard(mouse);
+            if (tempForCardZoom != null)
             {
-                case TurnState.Drawing:
-                    break;
-                case TurnState.Primary:
-                    
-                    
-                    selectedCard = players[0].HandleMouseClick(mouse);
-                   
-                    break;
-                case TurnState.Attack:
-                    var temp = field.SelectCard(mouse);
-                    if (temp != null)
-                    {
-                        selectedCard = temp;
-                    }
-                    else
-                    {
-                        Tuple<PlayerType, FieldPosition> target;
-                        target = field.GetTarget(mouse);
-                        if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null) //handle attacking card
-                        {
-                            CalculateCardAttack(selectedCard, target.Item2.Card);
-                        }
-                        //else if (false)//TODO check area on top to attack health of player //attack hp directly
-                        //{
-                        //    Console.WriteLine("Attack health");
-                        //}
-                    }
-                    
-                    break;
-                case TurnState.Secondary:
-                    break;
-                case TurnState.End:
-                    break;
-                default:
-                    break;
-
+                lastSelectedCard = tempForCardZoom;
             }
+            if (MatchState == MatchState.Player)
+            {
+                switch (TurnState) //TODO: needs handler for each phase
+                {
+                    case TurnState.Drawing:
+                        selectedCard = players[0].HandleMouseClick(mouse);
+                        if (selectedCard != null)
+                        {
+                            lastSelectedCard = selectedCard;
+                        }
+                        
+                        break;
+                    case TurnState.Primary:
+
+
+                        selectedCard = players[0].HandleMouseClick(mouse);
+                        if (selectedCard != null)
+                        {
+                            lastSelectedCard = selectedCard;
+                        }
+                        
+                        break;
+                    case TurnState.Attack:
+                        var selectedCard2 = players[0].HandleMouseClickForOppenentTurn(mouse);
+                        if (selectedCard2 != null)
+                        {
+                            lastSelectedCard = selectedCard2;
+                        }
+                        var temp = field.SelectPlayerCard(mouse);
+                        if (temp != null)
+                        {
+                            selectedCard = temp;
+                            if (selectedCard != null)
+                            {
+                                lastSelectedCard = selectedCard;
+                            }
+                        }
+                        else
+                        {
+                            Tuple<PlayerType, FieldPosition> target;
+                            target = field.GetTarget(mouse);
+                            if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null) //handle attacking card
+                            {
+                                CalculateCardAttack(selectedCard, target);
+                            }
+                            //else if (false)//TODO check area on top to attack health of player //attack hp directly
+                            //{
+                            //    Console.WriteLine("Attack health");
+                            //}
+                        }
+
+                        break;
+                    case TurnState.Secondary:
+                        selectedCard = players[0].HandleMouseClick(mouse);
+                        if (selectedCard != null)
+                        {
+                            lastSelectedCard = selectedCard;
+                        }
+                        break;
+                    case TurnState.End:
+                        selectedCard = players[0].HandleMouseClick(mouse);
+                        if (selectedCard != null)
+                        {
+                            lastSelectedCard = selectedCard;
+                        }
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+            else
+            {
+                selectedCard = players[0].HandleMouseClickForOppenentTurn(mouse);
+                if (selectedCard != null)
+                {
+                    lastSelectedCard = selectedCard;
+                }
+                
+            }
+            
 
 
         }
 
         public void Update()//multi player match might have to override this
         {
+            
             foreach(var player in players)//do player updates that arent based on turn state
             {
                 player.Update();
@@ -337,17 +442,27 @@ namespace CompCardGame.Source
             
         }
 
-        private void CalculateCardAttack(Card card1, Card card2) // handle attack between cards 
+        private void CalculateCardAttack(Card card1, Tuple<PlayerType, FieldPosition> target) // handle attack between cards 
         {
+            var card2 = target.Item2.Card;
             Console.WriteLine($"{card1} attacked {card2}");
-            if (card1.Attack > card2.Defense)//attack worked, send card2 to graveyard and deal difference of attack - defense to opponent
+            if (card1.Mana -card1.attackManaCost>=0)
             {
+                if (card1.Attack > card2.Defense)//attack worked, send card2 to graveyard and deal difference of attack - defense to opponent
+                {
+                    players[(int)target.Item1].SendCardToGraveyard(card2);
 
-            }
-            else //attack failed you get dealt difference of defense -attack
-            {
+                    players[(int)target.Item1].ApplyDamage(card1.Attack - card2.Defense);
 
+                    target.Item2.ResetCard();
+                }
+                else //attack failed you get dealt difference of defense -attack
+                {
+                    players[(int)target.Item1 - 1].ApplyDamage(card2.Defense - card1.Attack);
+                }
+                card1.Mana -= card1.attackManaCost;
             }
+            
         }
 
 

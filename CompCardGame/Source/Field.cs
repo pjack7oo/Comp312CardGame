@@ -8,84 +8,102 @@ using System.Threading.Tasks;
 
 namespace CompCardGame.Source
 {
-    class Field : Drawable
+    enum ViewType
+    {
+        FieldView,
+        SideView
+    }
+
+    class Field
     {
         readonly Random  random = new Random();
         //temporary will be fieldPositions in the future
         //Card[] player1Field;
         //Card[] player2Field;
-        FieldPosition[] player1Field;
-        FieldPosition[] player2Field;
+        //FieldPosition[] player1Field;
+        //FieldPosition[] player2Field;
+        PlayerField player1Field;
+        PlayerField player2Field;
+
+
+        private RenderWindow window;
 
         private readonly Text turnStateText;
         private readonly Text matchStateText;
-        public Field()
+        public Field(RenderWindow window)
         {
-            player1Field = new FieldPosition[5];
-            player2Field = new FieldPosition[5];
-            int count = 1;
+            this.window = window;
+            //player1Field = new FieldPosition[5];
+            //player2Field = new FieldPosition[5];
+            //int count = 1;
+            player1Field = new PlayerField(PlayerType.Player);
+            player2Field = new PlayerField(PlayerType.Enemy);
+            
 
-            turnStateText = HelperFunctions.NewText(Match.TurnState.ToString(), 15,  new Vector2f { X = 100f, Y = Game.ScreenHeight/2 }, Color.Green);
-            matchStateText = HelperFunctions.NewText(Match.MatchState.ToString(), 15, new Vector2f { X = 1f, Y = Game.ScreenHeight / 2 }, Color.Green);
+            turnStateText = HelperFunctions.NewText(Match.TurnState.ToString(), 15,  new Vector2f { X = 140f, Y = Game.ScreenHeight/2 }, Color.Green);
+            matchStateText = HelperFunctions.NewText(Match.MatchState.ToString(), 15, new Vector2f { X = 40f, Y = Game.ScreenHeight / 2 }, Color.Green);
             //initializing fieldPositions
-            for (int i = 0; i < 5; i++)
-            {
-                player1Field[i] = new FieldPosition(count);
-                count++;
-            }
-            for (int i = 0; i < 5; i++)
-            {
-                player2Field[i] = new FieldPosition(count);
-                count++;
-            }
+            
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    player1Field[i] = new FieldPosition(count);
+            //    count++;
+            //}
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    player2Field[i] = new FieldPosition(count);
+            //    count++;
+            //}
         }
         //might move handling of obj mouse can touch can be moved to its own file
         public Tuple<PlayerType,FieldPosition> GetTarget(Vector2f mouse)
         {
-            
-            for (int i = 0; i < player1Field.Count(); i++)
+            var target = player1Field.GetTarget(mouse);
+            if (target != null)
             {
-                if (player1Field[i].Contains(mouse))
-                {
-                    return new Tuple<PlayerType, FieldPosition>(PlayerType.Player, player1Field[i]);
-                }
+                return target;
             }
-            for (int i = 0; i < player2Field.Count(); i++)//check if we clicked on opponent field
-            {   if (Match.TurnState == TurnState.Attack)//handle click on opponent in attack phase
+            
+            if (Match.TurnState == TurnState.Attack)
+            {
+                target = player2Field.GetTarget(mouse);
+                if (target != null)
                 {
-                    if (player2Field[i].Contains(mouse) && player2Field[i].HasCard)
+                    if (target.Item2.HasCard)
                     {
-                        return new Tuple<PlayerType, FieldPosition>(PlayerType.Enemy, player2Field[i]);
+                        return target;
                     }
+                    
                 }
-                
             }
             return null;
+            
+            //for (int i = 0; i < player1Field.Count(); i++)
+            //{
+            //    if (player1Field[i].Contains(mouse))
+            //    {
+            //        return new Tuple<PlayerType, FieldPosition>(PlayerType.Player, player1Field[i]);
+            //    }
+            //}
+            
+            //for (int i = 0; i < player2Field.Count(); i++)//check if we clicked on opponent field
+            //{   if (Match.TurnState == TurnState.Attack)//handle click on opponent in attack phase
+            //    {
+            //        if (player2Field[i].Contains(mouse) && player2Field[i].HasCard)
+            //        {
+            //            return new Tuple<PlayerType, FieldPosition>(PlayerType.Enemy, player2Field[i]);
+            //        }
+            //    }
+                
+            //}
+            //return null;
         }
 
         //used by cpu to get random spot to place card
         public FieldPosition GetRandomUnusedFieldPosition()
         {
 
-            var randomInt = random.Next(0, player2Field.Length);
-            if (!player2Field[randomInt].HasCard)
-            {
-                return player2Field[randomInt];
-            }
-            else 
-            {
-                
-                foreach(var fieldPos in player2Field)
-                {
-                    if (!fieldPos.HasCard)
-                    {
-                        return fieldPos;
-                    }
-                    
-                }
-                return null;
-            }
-            
+            return player2Field.GetRandomUnusedFieldPosition();
             
             
         }
@@ -121,7 +139,22 @@ namespace CompCardGame.Source
             }
         }
 
-        
+        public Card SelectAnyCard(Vector2f mouse)
+        {
+            var card = player1Field.SelectCardWithoutActivation(mouse);
+            if (card!= null)
+            {
+                return card;
+            }
+            card = player2Field.SelectCardWithoutActivation(mouse);
+            if (card != null)
+            {
+                return card;
+            }
+            return null;
+        }
+
+
         public void UpdateTurnStateText()
         {
             turnStateText.DisplayedString= Match.TurnState.ToString();
@@ -131,75 +164,95 @@ namespace CompCardGame.Source
         {
             matchStateText.DisplayedString = Match.MatchState.ToString();
         }
-
-        public Card SelectCard(Vector2f mouse)
+        //to pass along to playerfield
+        public Card SelectPlayerCard(Vector2f mouse)
         {
-            Card result = null;
-            foreach(var fieldPos in player1Field)//go through field and select the card that contains mouse
-            {
-                if (fieldPos.HasCard && fieldPos.Contains(mouse))
-                {
-                    fieldPos.Card.Active = true;
-                    result = fieldPos.Card;
-                }
-                
-            }
-            if (result != null)
-            {
-                foreach(var fieldPos in player1Field)//make not selected cards inactive
-                {
-                    if (result != fieldPos.Card && fieldPos.HasCard)
-                    {
-                        fieldPos.Card.Active = false;
-                    }
-                }
-            }
-            return result;
+            return player1Field.SelectCard(mouse);
         }
         //remove the red outline of any selected card
         public void ResetCardSelection()
         {
-            foreach (var fieldPos in player1Field)//make not selected cards inactive
-            {
-                if (fieldPos.HasCard)
-                {
-                    fieldPos.Card.Active = false;
-                }
-            }
+            player1Field.ResetCardSelection();
         }
 
         //this is for the cpu to place on random field pos
-        public FieldPosition GetRandomFieldPosition(PlayerType player)
-        {
+        //public FieldPosition GetRandomFieldPosition(PlayerType player)
+        //{
             
-            if (player == PlayerType.Enemy)
-            {
-                return player2Field[random.Next(0, player2Field.Length)];
-            }
-            return null;
-        }
+        //    if (player == PlayerType.Enemy)
+        //    {
+        //        return player2Field[random.Next(0, player2Field.Length)];
+        //    }
+        //    return null;
+        //}
 
         //drawing the field positions will also in future handle the background
-        public void Draw(RenderTarget target, RenderStates states)
+        public void Draw(ViewType viewType)
         {
+            //DrawGrid(viewType);
+            if (viewType == ViewType.SideView)
+            {
+                window.Draw(turnStateText);
+                window.Draw(matchStateText);
+            }
+            else
+            {
+                player1Field.Draw(window);
 
-            target.Draw(turnStateText);
-            target.Draw(matchStateText);
+                player2Field.Draw(window);
+            }
             
-            for (int i = 0; i < player1Field.Count(); i++)
-            {
-                target.Draw(player1Field[i]);
-                //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
-            }
-
-            for (int i = 0; i < player2Field.Count(); i++)
-            {
-                target.Draw(player2Field[i]);
-                //target.Draw(new RectangleShape(new SFML.System.Vector2f { X = 200f, Y = 320f }) { OutlineColor = Color.Green, OutlineThickness = 1, FillColor = Color.Transparent, Position = new SFML.System.Vector2f { X = i * 220 + 200, Y = 100 } });
-                //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, 160));
-            }
+            
+            
 
             //target.Draw(CardOutlineRectangle(1400,600));
         }
+
+
+        private void DrawGrid(ViewType viewType)
+        {
+            if (viewType == ViewType.FieldView)
+            {
+                for (int i = -350; i < Game.ScreenWidth; i =i+  50) {
+                    VertexArray line = new VertexArray(PrimitiveType.Lines, 2);
+                    line[0] = new Vertex(new Vector2f(i, -270), Color.White);
+                    line[1] = new Vertex(new Vector2f(i, Game.ScreenHeight), Color.White);
+                    if (i %100 == 0)
+                    {
+                        line[0] = new Vertex(new Vector2f(i, -270), Color.Red);
+                        line[1] = new Vertex(new Vector2f(i, Game.ScreenHeight), Color.Red);
+                    }
+                    if (i % 1000 == 0)
+                    {
+                        line[0] = new Vertex(new Vector2f(i, -270), Color.Green);
+                        line[1] = new Vertex(new Vector2f(i, Game.ScreenHeight), Color.Green);
+                    }
+
+                    window.Draw(line);
+                }
+                //for (int i = -250; i < Game.ScreenHeight; i = i + 50)
+                //{
+                //    VertexArray line = new VertexArray(PrimitiveType.Lines, 2);
+                //    line[0] = new Vertex(new Vector2f(-350, i), Color.White);
+                //    if (i % 100 == 0)
+                //    {
+                //        line[0] = new Vertex(new Vector2f(-350, i), Color.Red);
+                //    }
+                //    if (i % 1000 == 0)
+                //    {
+                //        line[0] = new Vertex(new Vector2f(Game.ScreenWidth, i), Color.Green);
+                //    }
+                //    line[1] = new Vertex(new Vector2f(Game.ScreenWidth, i), Color.White);
+                    
+                //    window.Draw(line);
+                //}
+            }
+            else
+            {
+
+            }
+        }
+
+        
     }
 }

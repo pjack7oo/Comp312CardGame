@@ -46,11 +46,14 @@ namespace CompCardGame.Source
         //used to know which side to draw
         private CardState state = CardState.Back;
 
+        public ViewType viewType = ViewType.FieldView;
+
         private int attack;
         private int defense;
         private int mana;
         private int maxMana;
         private int crystalCost;
+        public int attackManaCost;
 
         private CircleShape[] crystals;
         
@@ -78,7 +81,7 @@ namespace CompCardGame.Source
             //creating the shapes of the card
             shapes = CardShapes(Position, Color.Cyan, Color.Black);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
-            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 1, OutlineColor = Color.Red };
+            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 2, OutlineColor = Color.Red };
             //filling in the name and description
             cardName = HelperFunctions.NewText("Card Name", 15,new Vector2f {X = 10f, Y = 10f }, Color.Black);
             cardDescription = HelperFunctions.NewText("Description", 10, new Vector2f { X = 10f, Y = 235f }, Color.Black);
@@ -94,6 +97,7 @@ namespace CompCardGame.Source
             MaxMana = 1;
             CrystalCost = 2;
             crystals = new CircleShape[CrystalCost];
+            attackManaCost = 1;
 
             for(int i = 0; i <CrystalCost;i++)
             {
@@ -129,42 +133,71 @@ namespace CompCardGame.Source
         
         public void Draw(RenderTarget target, RenderStates states)
         {
-            
-            //applying object transform to the states transform for drawing uniformly
-            states.Transform = Transform;
-            //drawing based on the state
-            if (state == CardState.Front)
+            if (viewType == ViewType.SideView)
             {
-                //drawing each of the shapes
-                foreach (var shape in shapes)
+                if (state == CardState.Front)
                 {
-                    target.Draw(shape, states);
-                }
-                //drawing the text
-                target.Draw(cardName, states);
-                target.Draw(cardDescription, states);
-                target.Draw(cardAttackText, states);
-                target.Draw(cardDefenseText, states);
-                target.Draw(cardManaText, states);
-                target.Draw(cardMaxManaText, states);
+                    states.Transform.Translate(new Vector2f(Game.SideViewWidth - Card.width*1.4f, Game.ScreenHeight - Card.height*1.4f - 50));
+                    //drawing each of the shapes
+                    foreach (var shape in shapes)
+                    {
+                        target.Draw(shape, states);
+                    }
+                    //drawing the text
+                    target.Draw(cardName, states);
+                    target.Draw(cardDescription, states);
+                    target.Draw(cardAttackText, states);
+                    target.Draw(cardDefenseText, states);
+                    target.Draw(cardManaText, states);
+                    target.Draw(cardMaxManaText, states);
 
-                for(int i = 0; i <crystals.Length;i++)
-                {
-                    target.Draw(crystals[i], states);
+                    for (int i = 0; i < crystals.Length; i++)
+                    {
+                        target.Draw(crystals[i], states);
+                    }
+                    //target.Draw(cardCrystalCostText, states);
                 }
-                //target.Draw(cardCrystalCostText, states);
-            } 
-            else //drawing the back
-            {
-                target.Draw(backSide,states);
             }
-            if (Active)
+            else
             {
-                target.Draw(boundingBox);
+
+
+                //applying object transform to the states transform for drawing uniformly
+                states.Transform = Transform;
+                //drawing based on the state
+                if (state == CardState.Front)
+                {
+                    //drawing each of the shapes
+                    foreach (var shape in shapes)
+                    {
+                        target.Draw(shape, states);
+                    }
+                    //drawing the text
+                    target.Draw(cardName, states);
+                    target.Draw(cardDescription, states);
+                    target.Draw(cardAttackText, states);
+                    target.Draw(cardDefenseText, states);
+                    target.Draw(cardManaText, states);
+                    target.Draw(cardMaxManaText, states);
+
+                    for (int i = 0; i < crystals.Length; i++)
+                    {
+                        target.Draw(crystals[i], states);
+                    }
+                    //target.Draw(cardCrystalCostText, states);
+                }
+                else //drawing the back
+                {
+                    target.Draw(backSide, states);
+                }
+                if (Active)
+                {
+                    target.Draw(boundingBox);
+                }
             }
         }
         //this is for checking bounding box of card
-        public Boolean contains(Vector2f point)
+        public Boolean Contains(Vector2f point)
         {
             
             return (boundingBox.GetGlobalBounds().Contains(point.X, point.Y)) ? true : false;
@@ -186,7 +219,7 @@ namespace CompCardGame.Source
             //this is only done when card is inactive and it is in the hand
             if (!Active && Location == CardLocation.Hand)
             {
-                Position -= new Vector2f(0, height/2+20);
+                Position -= new Vector2f(0, height/1.5f+20);
                 UpdatePositions();
                 Active = true;
             }
@@ -203,7 +236,7 @@ namespace CompCardGame.Source
         {
             if (Location == CardLocation.Hand)
             {
-                Position += new Vector2f(0, height / 2 + 20);
+                Position += new Vector2f(0, height/1.5f + 20);
                 UpdatePositions();
                 Active = false;
             }
@@ -215,8 +248,8 @@ namespace CompCardGame.Source
             Shape[] shapes = new Shape[3];
             //creating the shapes of the card
             shapes[0] = new RectangleShape(new Vector2f { X = width, Y = height }) { FillColor = fillColor };
-            shapes[1] = new RectangleShape(new Vector2f { X = width - 20f, Y = 20f }) { OutlineColor = accentColor, OutlineThickness = 1f, Position = position + new Vector2f { X = 10f, Y = 10f } };
-            shapes[2] = new RectangleShape(new Vector2f { X = width - 20f, Y = width - 20f }) { OutlineColor = accentColor, OutlineThickness = 1f, Position = position + new Vector2f { X = 10f, Y = 50f } };
+            shapes[1] = new RectangleShape(new Vector2f { X = width - 20f, Y = 20f }) { OutlineColor = accentColor, OutlineThickness = 2f, Position = position + new Vector2f { X = 10f, Y = 10f } };
+            shapes[2] = new RectangleShape(new Vector2f { X = width - 20f, Y = width - 20f }) { OutlineColor = accentColor, OutlineThickness = 2f, Position = position + new Vector2f { X = 10f, Y = 50f } };
 
             return shapes;
         }

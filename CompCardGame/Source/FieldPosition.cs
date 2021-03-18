@@ -8,7 +8,11 @@ using System.Threading.Tasks;
 
 namespace CompCardGame.Source
 {
-    
+    public enum  FieldType
+    {
+        Monster,
+        Spell
+    }
     class FieldPosition: Drawable
     {
         private Card card;
@@ -20,20 +24,39 @@ namespace CompCardGame.Source
         private RectangleShape outline;
 
 
-        public FieldPosition(int position)
+        public FieldPosition(PlayerType playerType, int position, FieldType fieldType)
         {
-            this.position = position;
-            //setting the corner for top field and bottom field
-            if (position > 5)
+            if (fieldType == FieldType.Monster)
             {
-                topLeftCorner = new Vector2f((position-6)*(Card.width+20)+410,160);
-                //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
+                this.position = position;
+                //setting the corner for top field and bottom field
+                if (playerType == PlayerType.Enemy)
+                {
+                    topLeftCorner = new Vector2f((position - 6) * (Card.width + 20) + 200, 170);
+                    //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
+                }
+                else//player
+                {
+                    topLeftCorner = new Vector2f((position - 1) * (Card.width + 20) + 200, Game.ScreenHeight - Card.height - 170);
+                }
+                this.outline = CardOutlineRectangle(topLeftCorner);
             }
             else
             {
-                topLeftCorner = new Vector2f((position - 1) * (Card.width + 20) + 410, Game.ScreenHeight - Card.height - 160);
+                this.position = position;
+                //setting the corner for top field and bottom field
+                if (playerType == PlayerType.Enemy)
+                {
+                    topLeftCorner = new Vector2f((position - 6) * (Card.width + 20) +200, -170);
+                    //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
+                }
+                else//player
+                {
+                    topLeftCorner = new Vector2f((position - 1) * (Card.width + 20) +200, Game.ScreenHeight  - 150);
+                }
+                this.outline = CardOutlineRectangle(topLeftCorner);
             }
-            this.outline = CardOutlineRectangle(topLeftCorner);
+            
         }
         //simply to check if mouse is in the fieldposition
         public Boolean Contains(Vector2f point)
@@ -53,20 +76,24 @@ namespace CompCardGame.Source
             target.Draw(outline);
             if (HasCard)
             {
+                card.viewType = ViewType.FieldView;
                 target.Draw(card);
             }
         }
 
-        
+        public void ResetCard()
+        {
+            card = null;
+        }
 
         //This is a helper to reduce the annoyance of drawing the outlines
         public static RectangleShape CardOutlineRectangle(float x, float y)
         {
-           return new RectangleShape(new Vector2f(200f, 320f)) { OutlineColor = Color.Green, OutlineThickness = 1, FillColor = Color.Transparent, Position = new Vector2f { X = x, Y = y } };
+           return new RectangleShape(new Vector2f(200f, 320f)) { OutlineColor = Color.Green, OutlineThickness = 2, FillColor = Color.Transparent, Position = new Vector2f { X = x, Y = y } };
         }
         public static RectangleShape CardOutlineRectangle(Vector2f corner)
         {
-            return new RectangleShape(new Vector2f { X = 200f, Y = 320f }) { OutlineColor = Color.Green, OutlineThickness = 1, FillColor = Color.Transparent, Position = new Vector2f { X = corner.X, Y = corner.Y } };
+            return new RectangleShape(new Vector2f { X = 200f, Y = 320f }) { OutlineColor = Color.Green, OutlineThickness = 2, FillColor = Color.Transparent, Position = new Vector2f { X = corner.X, Y = corner.Y } };
         }
     }
 }
