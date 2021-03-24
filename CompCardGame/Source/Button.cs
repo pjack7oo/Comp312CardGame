@@ -37,27 +37,64 @@ namespace CompCardGame.Source
 
         private Text text;
         //this is kind of a mess ima clean it later //TODO
-        public Button(String text, uint charSize, Vector2f location, int width, int height, Color textColor, Action action)
+        public Button(String text, uint charSize, Vector2f location, Color textColor, Action action, Vector2f scale)
         {
             this.text = new Text(text, HelperFunctions.font, charSize) { FillColor = textColor};
-            Position = location;
-            shape = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Cyan};
-            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 1, OutlineColor = Color.Red };
            
+
+            //load in the sprites
+            defaultSprite = new Sprite(new Texture("Media/Images/GenericBtn.png"));
+
+            pressedSprite = new Sprite(new Texture("Media/Images/GenericBtnPressed.png"));
+            
+            defaultSprite.Scale = scale;
+            pressedSprite.Scale = scale;
+            Origin = new Vector2f(defaultSprite.GetGlobalBounds().Width / 2, defaultSprite.GetGlobalBounds().Height / 2);
+            Position = location;
+            //shape = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Cyan};
+            boundingBox = new RectangleShape(new Vector2f(defaultSprite.GetGlobalBounds().Width, defaultSprite.GetGlobalBounds().Height)) { FillColor = Color.Transparent, OutlineThickness = 1, OutlineColor = Color.Red };
+            boundingBox.Origin = Origin;
+            boundingBox.Position = Position;
 
             this.action = action;
 
+
+
             
+            this.text.Position = HelperFunctions.GetCenteredPosition(new Vector2f(defaultSprite.GetGlobalBounds().Width, defaultSprite.GetGlobalBounds().Height), new Vector2f(this.text.GetGlobalBounds().Width, this.text.GetGlobalBounds().Height));
+
+            ButtonState = ButtonState.Default;
+
+            
+        }
+
+        public Button(String text, uint charSize, Vector2f location, Color textColor, Action action )
+        {
+            this.text = new Text(text, HelperFunctions.font, charSize) { FillColor = textColor };
+            
+
             //load in the sprites
             defaultSprite = new Sprite(new Texture("Media/Images/GenericBtn.png"));
 
             pressedSprite = new Sprite(new Texture("Media/Images/GenericBtnPressed.png"));
 
-            this.text.Position = GetCenteredPosition(new Vector2f(defaultSprite.GetGlobalBounds().Width, defaultSprite.GetGlobalBounds().Height), new Vector2f(this.text.GetGlobalBounds().Width, this.text.GetGlobalBounds().Height));
+            Origin = new Vector2f(defaultSprite.GetGlobalBounds().Width / 2, defaultSprite.GetGlobalBounds().Height / 2);
+            Position = location;
+            //shape = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Cyan};
+            boundingBox = new RectangleShape(new Vector2f(defaultSprite.GetGlobalBounds().Width, defaultSprite.GetGlobalBounds().Height)) { FillColor = Color.Transparent, OutlineThickness = 1, OutlineColor = Color.Red };
+            boundingBox.Origin = Origin;
+            boundingBox.Position = Position;
+
+            this.action = action;
+
+
+
+
+            this.text.Position = HelperFunctions.GetCenteredPosition(new Vector2f(defaultSprite.GetGlobalBounds().Width, defaultSprite.GetGlobalBounds().Height), new Vector2f(this.text.GetGlobalBounds().Width, this.text.GetGlobalBounds().Height));
 
             ButtonState = ButtonState.Default;
 
-            UpdatePositions();
+
         }
 
         public Button(String text, uint charSize, Vector2f location, Shape shape)
@@ -69,15 +106,11 @@ namespace CompCardGame.Source
 
         public Boolean Contains(Vector2f mouse)
         {
+            return boundingBox.GetGlobalBounds().Contains(mouse.X, mouse.Y)? true : false;
+        }
+
+
         
-            return (boundingBox.GetGlobalBounds().Contains(mouse.X, mouse.Y))? true : false;
-        }
-
-
-        public void UpdatePositions()
-        {
-            boundingBox.Position = Position;
-        }
         public void Draw(RenderTarget target, RenderStates states)
         {
             states.Transform = Transform;
@@ -126,16 +159,7 @@ namespace CompCardGame.Source
             action();
             
         }
-        //center the text
-        private static Vector2f GetCenteredPosition(Vector2f buttonSize, Vector2f textSize)
-        {
-            Console.WriteLine(textSize); 
-            int x = ((int)buttonSize.X >> 1) - ((int)textSize.X >> 1);//bitshift is faster than division only works for evens this case we divide by 2
-            var y = buttonSize.Y / 2 - (textSize.Y );
-            Vector2f result = new Vector2f(x,y);//TODO calculate center
-
-            return result;
-        }
+        
 
         
     }
