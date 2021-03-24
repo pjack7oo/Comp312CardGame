@@ -97,14 +97,16 @@ namespace CompCardGame.Source
 
         public void CheckButtonClick(Vector2f mouse)
         {
-            foreach (var button in buttons)
+            for(int i = 0; i <buttons.Count; i++)
             {
-                if (button.Contains(mouse))
+                if (buttons[i] != null)
                 {
-                    
-                    button.DoAction();
+                    if (buttons[i].Contains(mouse))
+                    {
+
+                        buttons[i].DoAction();
+                    }
                 }
-                
             }
         }
 
@@ -121,7 +123,7 @@ namespace CompCardGame.Source
                 {
                     case GameState.MainPage://TODO check if click on a button
                         worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
-                        CheckButtonClick(worldPos);
+                        CheckButtonClick(new Vector2f(e.X, e.Y));
                         break;
                     case GameState.Match:
                         worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
