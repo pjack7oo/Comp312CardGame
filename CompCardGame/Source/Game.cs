@@ -40,6 +40,8 @@ namespace CompCardGame.Source
         private static Stopwatch stopwatch;//used to get time passed
         public void Initialize()
         {
+            stopwatch = new Stopwatch();
+            stopwatch.Start();
             //boiler plate setup for SFML
             ScreenWidth = 1920f;
             ScreenHeight = 1080f;
@@ -71,16 +73,16 @@ namespace CompCardGame.Source
 
             //window.SetView(fieldView);//for testing views
 
-            GameState = GameState.Match;
+            GameState = GameState.Loading;
             //temporary this will be later connected to a button on the main page screen
-            match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
-            
+            //match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
 
-            InputHandler.SetMatch(match);
 
-            stopwatch = new Stopwatch();
-            stopwatch.Start();
-    
+            //InputHandler.SetMatch(match);
+
+            InitiallizeLoadingShapes();
+
+
         }
         //get current time
         public static TimeSpan GetTimeStamp()
@@ -109,7 +111,12 @@ namespace CompCardGame.Source
             switch (GameState)
             {
                 case GameState.Loading:
-                    window.Draw(new RectangleShape(new SFML.System.Vector2f(ScreenWidth, ScreenHeight)));
+                    if (time > TimeSpan.FromSeconds(5) )
+                    {
+                        GameState = GameState.MainPage;
+                        InitiallizeMainPageShapes();
+                        InitiallizeMainPage();
+                    }
                     break;
                 case GameState.MainPage:
                     break;
@@ -143,10 +150,12 @@ namespace CompCardGame.Source
             {
                 case GameState.Loading:
                     window.SetView(defaultView);
-                    window.Draw(new RectangleShape(new SFML.System.Vector2f(ScreenWidth, ScreenHeight)));
+                    window.Draw(new RectangleShape(new Vector2f(ScreenWidth, ScreenHeight)) { FillColor = Color.White});
+                    DrawLoadingScreen();
                     break;
                 case GameState.MainPage:
                     window.SetView(defaultView);
+                    DrawMainPageScreen();
                     window.Draw(InputHandler);
                     
                     break;
@@ -176,6 +185,8 @@ namespace CompCardGame.Source
             window.Display();
         }
 
+
+
         //this is the event handler method called earlier
         private void OnClose(object sender, EventArgs e)
         {
@@ -196,16 +207,119 @@ namespace CompCardGame.Source
             sideView.Viewport = new FloatRect(0f, 0f, 0.2f, 1f);
             SideViewWidth = 400;
         }
-        
-        
 
+        private void InitiallizeMainPage()
+        {
+            InputHandler.ClearButtons();
+            InputHandler.AddButton(new Button("Play", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2), Color.Black, InitiallizeMatch, new Vector2f(1.25f, 1.25f)));
+            InputHandler.AddButton(new Button("Online", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2+ 100), Color.Black, InitiallizeOnlineMatchPage, new Vector2f(1.25f, 1.25f)));
+            
+            InputHandler.AddButton(new Button("Card Manager", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 200), Color.Black, InitiallizeCardManager, new Vector2f(1.25f, 1.25f)));
+            InputHandler.AddButton(new Button("Settings", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 300), Color.Black, InitiallizeSettingsPage, new Vector2f(1.25f, 1.25f)));
+            InputHandler.AddButton(new Button("Exit", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 400), Color.Black, Exit, new Vector2f(1.25f, 1.25f)));
+        } 
+
+        private void Exit()
+        {
+            //TODO destroy everything
+            
+            window.Close();
+        }
+
+        private void InitiallizeSettingsPage()
+        {
+            Console.WriteLine("TODO Settings");
+        }
+
+        private void InitiallizeOnlineMatchPage()
+        {
+            Console.WriteLine("TODO Online Match");
+        }
+
+        private void InitiallizeCardManager()
+        {
+            Console.WriteLine("TODO Card Manager");
+        }
+
+        private void InitiallizeMatch()
+        {
+            InputHandler.ClearButtons();
+
+            match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
+
+            InputHandler.SetMatch(match);
+
+            GameState = GameState.Match;
+        }
+
+        #region LoadingPageDrawing 
+        private Shape[] loadingShapes = new Shape[3];
+        private Text[] loadingText = new Text[2];
+        private void InitiallizeLoadingShapes()
+        {
+            loadingShapes[0] = new RectangleShape(new Vector2f(Card.width, Card.height)) { FillColor = Color.Cyan };
+            loadingShapes[0].Origin = new Vector2f(Card.width/2, Card.height/2);
+            loadingShapes[0].Position = new Vector2f(ScreenWidth / 2, ScreenHeight / 2);
+            loadingShapes[1] = new RectangleShape(new Vector2f(Card.width, Card.height)) { FillColor = Color.Cyan };
+            loadingShapes[1].Origin = new Vector2f(Card.width / 2, Card.height / 2-50);
+            loadingShapes[1].Position = new Vector2f(ScreenWidth / 2-200, ScreenHeight / 2);
+            loadingShapes[1].Rotation = -45;
+            loadingShapes[2] = new RectangleShape(new Vector2f(Card.width, Card.height)) { FillColor = Color.Cyan };
+            loadingShapes[2].Origin = new Vector2f(Card.width / 2 , Card.height / 2-50);
+            loadingShapes[2].Position = new Vector2f(ScreenWidth / 2+200, ScreenHeight / 2);
+            loadingShapes[2].Rotation = 45;
+            loadingText[0] = new Text("Crystal Wars", HelperFunctions.font, 50) {  Color = Color.Magenta};
+            loadingText[0].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight), new Vector2f(loadingText[0].GetGlobalBounds().Width, loadingText[0].GetGlobalBounds().Height));
+            loadingText[1] = new Text("Loading...", HelperFunctions.font, 50) { Color = Color.Black };
+            loadingText[1].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight+ScreenHeight - 200), new Vector2f(loadingText[1].GetGlobalBounds().Width, loadingText[1].GetGlobalBounds().Height));
+        }
         
+        private void DrawLoadingScreen()
+        {
+            foreach(var shape in loadingShapes)
+            {
+                window.Draw(shape);
+            }
+            foreach (var text in loadingText)
+            {
+                window.Draw(text);
+            }
+        }
 
 
-        
 
-        
-        
+
+        #endregion
+
+        #region MainPageDrawing
+        //private Shape[] mainPageShapes = new Shape[3];
+        private Text mainPageText;
+
+        private void InitiallizeMainPageShapes()
+        {
+            //loadingShapes[0] = new RectangleShape(new Vector2f(Card.width, Card.height)) { FillColor = Color.Cyan };
+            //loadingShapes[0].Origin = new Vector2f(Card.width / 2, Card.height / 2);
+            //loadingShapes[0].Position = new Vector2f(ScreenWidth / 2, ScreenHeight / 2);
+
+
+            mainPageText = new Text("Crystal Wars", HelperFunctions.font, 70) { Color = Color.Magenta };
+            mainPageText.Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight- 400), new Vector2f(mainPageText.GetGlobalBounds().Width, mainPageText.GetGlobalBounds().Height));
+            //loadingText[1] = new Text("Loading...", HelperFunctions.font, 50) { Color = Color.Black };
+            //loadingText[1].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight + ScreenHeight / 2), new Vector2f(loadingText[1].GetGlobalBounds().Width, loadingText[1].GetGlobalBounds().Height));
+        }
+
+        private void DrawMainPageScreen()
+        {
+            //foreach (var shape in loadingShapes)
+            //{
+            //    window.Draw(shape);
+            //}
+            
+            window.Draw(mainPageText);
+            
+        }
+        #endregion
+
     }
 }
 
