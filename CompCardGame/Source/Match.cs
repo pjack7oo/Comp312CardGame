@@ -69,7 +69,7 @@ namespace CompCardGame.Source
             
             
             //add button used by match will need also settings button
-            Game.InputHandler.AddButton(new Button("Next Phase",20, new Vector2f(Game.ScreenWidth -400, Game.ScreenHeight / 2-40), 200, 100, Color.Black,NextTurnState));
+            Game.InputHandler.AddButton(new Button("Next Phase",20, new Vector2f(Game.ScreenWidth-400, Game.ScreenHeight / 2), Color.Black,NextTurnState));
         }
 
         public void RenderSideView()
