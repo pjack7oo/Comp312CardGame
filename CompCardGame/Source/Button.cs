@@ -36,6 +36,8 @@ namespace CompCardGame.Source
         private Sprite hoverSprite;
 
         private Text text;
+
+        private Boolean active = false;
         //this is kind of a mess ima clean it later //TODO
         public Button(String text, uint charSize, Vector2f location, Color textColor, Action action, Vector2f scale)
         {
@@ -139,6 +141,13 @@ namespace CompCardGame.Source
         //update based on passed time
         public void Update(System.TimeSpan time)
         {
+            if (active)
+            {
+                if (time - pressedTime >= TimeSpan.FromSeconds(1))
+                {
+                    active = false;
+                }
+            }
             if (ButtonState == ButtonState.Pressed)
             {
                 Console.WriteLine(time);
@@ -153,10 +162,15 @@ namespace CompCardGame.Source
         //to make sure it can be used at that moment that way this just calls the action
         public void DoAction()
         {
-            pressedTime = Game.GetTimeStamp();
-            ButtonState = ButtonState.Pressed;
+            if (!active)
+            {
+                pressedTime = Game.GetTimeStamp();
+                ButtonState = ButtonState.Pressed;
+
+                action();
+                active = true;
+            }
             
-            action();
             
         }
         
