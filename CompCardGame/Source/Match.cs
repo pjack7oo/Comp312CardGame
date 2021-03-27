@@ -30,9 +30,9 @@ namespace CompCardGame.Source
     class Match
     {
 
-        
+
         private RenderWindow window;
-        
+
         private readonly Player[] players;
         private readonly Field field;
 
@@ -42,9 +42,9 @@ namespace CompCardGame.Source
         private Card selectedCard;
 
         private Card lastSelectedCard;//used for drawing the zoom up 
-        
 
-        
+        public static Effect selectedEffect;
+
 
         //this is has the system done an update to the field/cards/player for that match phase
         //will be reset every switch of the turnstate
@@ -53,8 +53,9 @@ namespace CompCardGame.Source
         {
             //initialize field and players by setting positions and drawing 3 cards
             this.window = window;
-            players = new Player[2] {player1, player2};
-            TurnState = TurnState.Primary;
+            players = new Player[2] { player1, player2 };
+            TurnState = TurnState.Drawing;
+            MatchState = MatchState.Player;
             hasDoneUpdate = false;
             field = new Field(window);
 
@@ -66,10 +67,10 @@ namespace CompCardGame.Source
                     player.DrawACardFromDeck();
                 }
             }
-            
-            
+
+
             //add button used by match will need also settings button
-            Game.InputHandler.AddButton(new Button("Next Phase",20, new Vector2f(Game.ScreenWidth-400, Game.ScreenHeight / 2), Color.Black,NextTurnState));
+            Game.InputHandler.AddButton(new Button("Next Phase", 20, new Vector2f(Game.ScreenWidth - 400, Game.ScreenHeight / 2), Color.Black, NextTurnState));
         }
 
         public void RenderSideView()
@@ -105,12 +106,12 @@ namespace CompCardGame.Source
                 window.Draw(player);
             }
 
-            
+
         }
         //go to next turn state and reset has done update and call to update text
         public void NextTurnState()
         {
-            TurnState ++;
+            TurnState++;
             if (TurnState > TurnState.End)
             {
                 NextMatchState();
@@ -134,25 +135,25 @@ namespace CompCardGame.Source
             if (MatchState == MatchState.Player)
             {
 
-            
-            switch(TurnState)
-            {
-                
-                default:
-                    players[0].HandleMouseMovement(mouse);
 
-                    if (selectedCard != null && selectedCard.Location == CardLocation.Moving)
-                    {
-                        //needs to be shifted so mouse in middle of the card
-                        selectedCard.UpdatePositions(mouse);
-                    }
-                    break;
-            }
+                switch (TurnState)
+                {
+
+                    default:
+                        players[0].HandleMouseMovement(mouse);
+
+                        if (selectedCard != null && selectedCard.Location == CardLocation.Moving)
+                        {
+                            //needs to be shifted so mouse in middle of the card
+                            selectedCard.UpdatePositions(mouse);
+                        }
+                        break;
+                }
             }
             else
             {
                 players[0].HandleMouseMovement(mouse);
-               
+
             }
 
         }
@@ -162,72 +163,101 @@ namespace CompCardGame.Source
             if (MatchState == MatchState.Player)
             {
 
-            
-            switch(TurnState)
-            {
-                case TurnState.Primary:
-                    Tuple<PlayerType, FieldPosition> target = field.GetTarget(mouse);
 
-                    if (selectedCard != null && target != null)//
-                    {
-                        //handle releasing on player field position this will include spell handling
-                        if (target.Item1 == PlayerType.Player)
+                switch (TurnState)
+                {
+                    case TurnState.Primary:
+                        Tuple<PlayerType, FieldPosition> target = field.GetTarget(mouse);
+
+                        if (selectedCard != null && target != null)//
                         {
-                            if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
+                            //handle releasing on player field position this will include spell handling
+                            if (target.Item1 == PlayerType.Player)
                             {
-                                field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
-                                players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
-                                target.Item2.Card = selectedCard;
-                                selectedCard.Location = CardLocation.Field;
-                                selectedCard.Active = false;
-                                players[0].AddCardToRemoveQueue(selectedCard);
-                                //cardsToRemove.Enqueue(selectedCard);
-                                //players[0].RemoveCard(selectedCard);
-                                selectedCard = null;
+                                if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
+                                {
+                                    if (target.Item2.fieldType == FieldType.Monster && selectedCard is MonsterCard)
+                                    {
+                                        field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                        players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
+                                        target.Item2.Card = selectedCard;
+                                        selectedCard.Location = CardLocation.Field;
+                                        selectedCard.Selected = false;
+                                        players[0].AddCardToRemoveQueue(selectedCard);
+                                        //cardsToRemove.Enqueue(selectedCard);
+                                        //players[0].RemoveCard(selectedCard);
+                                        selectedCard = null;
+                                    }
+                                    else if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard)
+                                    {
+                                        field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                        players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
+                                        target.Item2.Card = selectedCard;
+                                        selectedCard.Location = CardLocation.Field;
+                                        selectedCard.Selected = false;
+                                        players[0].AddCardToRemoveQueue(selectedCard);
+                                        //cardsToRemove.Enqueue(selectedCard);
+                                        //players[0].RemoveCard(selectedCard);
+                                        selectedCard = null;
+                                    }
+                                    else
+                                    {
+                                        if (selectedCard.Location == CardLocation.Moving)
+                                        {
+                                            selectedCard.Selected = false;
+                                            selectedCard.Location = CardLocation.Hand;
+                                            //player1.ResetCardPosition(selectedCard);
+                                            selectedCard.ResetCard();
+                                            selectedCard = null;
+                                            //Console.WriteLine("released");
 
+                                            //player1.ResetCards();
+                                        }
+                                    }
+
+                                }
+
+                            }
+                            else //handle release on opponent field in necessary
+                            {
 
                             }
                         }
-                        else //handle release on opponent field in necessary
+                        else if (selectedCard != null && target == null) //check where to place card when mouse is released and if no valid slot is selected then drop the card back to previous spot
                         {
+                            if (selectedCard.Location == CardLocation.Moving)
+                            {
+                                selectedCard.Selected = false;
+                                selectedCard.Location = CardLocation.Hand;
+                                //player1.ResetCardPosition(selectedCard);
+                                selectedCard.ResetCard();
+                                selectedCard = null;
+                                //Console.WriteLine("released");
+
+                                //player1.ResetCards();
+                            }
 
                         }
-                    }
-                    else if (selectedCard != null && target == null) //check where to place card when mouse is released and if no valid slot is selected then drop the card back to previous spot
-                    {
-                        if (selectedCard.Location == CardLocation.Moving)
-                        {
-                            selectedCard.Active = false;
-                            selectedCard.Location = CardLocation.Hand;
-                            //player1.ResetCardPosition(selectedCard);
-                            selectedCard.ResetCard();
-                            selectedCard = null;
-                            //Console.WriteLine("released");
+                        break;
 
-                            //player1.ResetCards();
+                    default:
+                        if (selectedCard != null)
+                        {
+                            if (selectedCard.Location == CardLocation.Moving)
+                            {
+                                selectedCard.Selected = false;
+                                selectedCard.Location = CardLocation.Hand;
+                                //player1.ResetCardPosition(selectedCard);
+                                selectedCard.ResetCard();
+                                selectedCard = null;
+                                //Console.WriteLine("released");
+
+                                //player1.ResetCards();
+                            }
                         }
 
-                    }
-                    break;
-
-                default:
-                    if (selectedCard != null)
-                    {
-                        if (selectedCard.Location == CardLocation.Moving)
-                        {
-                            selectedCard.Active = false;
-                            selectedCard.Location = CardLocation.Hand;
-                            //player1.ResetCardPosition(selectedCard);
-                            selectedCard.ResetCard();
-                            selectedCard = null;
-                            //Console.WriteLine("released");
-
-                            //player1.ResetCards();
-                        }
-                    }
-                    
-                    break;
-            }
+                        break;
+                }
             }
 
         }
@@ -253,23 +283,73 @@ namespace CompCardGame.Source
                         {
                             lastSelectedCard = selectedCard;
                         }
-                        
+
                         break;
                     case TurnState.Primary:
-
+                        
 
                         selectedCard = players[0].HandleMouseClick(mouse);
                         if (selectedCard != null)
                         {
                             lastSelectedCard = selectedCard;
+                            if (players[0].Crystals >= selectedCard.CrystalCost)
+                            {
+                                selectedCard.Location = CardLocation.Moving;
+                                
+                            }
+                            else
+                            {
+                                selectedCard = null;
+                            }
+                            
                         }
-                        
+
                         break;
                     case TurnState.Attack:
                         var selectedCard2 = players[0].HandleMouseClickForOppenentTurn(mouse);
                         if (selectedCard2 != null)
                         {
                             lastSelectedCard = selectedCard2;
+                        }
+                        if (selectedEffect != null)//button will make the selected = the effect
+                        {
+                            Tuple<PlayerType, FieldPosition> target;
+                            target = field.GetTarget(mouse);
+                            if (selectedEffect.TargetPlayer == PlayerType.Player && target.Item1 == PlayerType.Player)
+                            {
+                                if (selectedEffect.TargetCard == FieldType.Monster && target.Item2.Card is MonsterCard)// target is player monster
+                                {
+                                    selectedEffect.ActivateEffect(target.Item2.Card);
+                                }
+                                else if (selectedEffect.TargetCard == FieldType.Spell && target.Item2.Card is SpellCard) // target is player spell
+                                {
+                                    selectedEffect.ActivateEffect(target.Item2.Card);
+                                }
+                                else //effect on self
+                                {
+                                    selectedEffect.ActivateEffect(players[0]);
+                                }
+                            }
+                            else if (selectedEffect.TargetPlayer == PlayerType.Enemy && target.Item1 == PlayerType.Enemy)//enemy
+                            {
+                                if (selectedEffect.TargetCard == FieldType.Monster && target.Item2.Card is MonsterCard)
+                                {
+                                    selectedEffect.ActivateEffect(target.Item2.Card);
+                                }
+                                else if (selectedEffect.TargetCard == FieldType.Spell && target.Item2.Card is SpellCard) // target is enemy spell
+                                {
+                                    selectedEffect.ActivateEffect(target.Item2.Card);
+                                }
+                                else //effect on opponent
+                                {
+                                    selectedEffect.ActivateEffect(players[1]);
+                                }
+                            }
+
+                        }
+                        else
+                        {
+
                         }
                         var temp = field.SelectPlayerCard(mouse);
                         if (temp != null)
@@ -282,12 +362,30 @@ namespace CompCardGame.Source
                         }
                         else
                         {
-                            Tuple<PlayerType, FieldPosition> target;
-                            target = field.GetTarget(mouse);
-                            if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null) //handle attacking card
+                            if (selectedCard is MonsterCard)
                             {
-                                CalculateCardAttack(selectedCard, target);
+                                //Console.WriteLine(selectedCard is MonsterCard);
+                                Tuple<PlayerType, FieldPosition> target;
+                                target = field.GetTarget(mouse);
+                                if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
+                                {
+
+                                    CalculateCardAttack((MonsterCard)selectedCard, target);
+                                }
                             }
+                            else if (selectedCard is SpellCard)//spell card
+                            {
+                                
+                                
+                                
+                                
+                                //if (target != null && target.Item1 == selectedEffect.targetPlayer  && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
+                                //{
+
+                                //    //CalculateCardAttack((MonsterCard)selectedCard, target);
+                                //}
+                            }
+
                             //else if (false)//TODO check area on top to attack health of player //attack hp directly
                             //{
                             //    Console.WriteLine("Attack health");
@@ -321,24 +419,24 @@ namespace CompCardGame.Source
                 {
                     lastSelectedCard = selectedCard;
                 }
-                
+
             }
-            
+
 
 
         }
 
         public void Update()//multi player match might have to override this
         {
-            
-            foreach(var player in players)//do player updates that arent based on turn state
+
+            foreach (var player in players)//do player updates that arent based on turn state
             {
                 player.Update();
             }
-            switch(MatchState)//TODO 
+            switch (MatchState)//TODO 
             {
                 case MatchState.Player:
-                    switch(TurnState)
+                    switch (TurnState)
                     {
                         case TurnState.Drawing://draw a card and give crystals to player and update card mana
                             if (!hasDoneUpdate)
@@ -356,6 +454,7 @@ namespace CompCardGame.Source
                         case TurnState.Primary://player can place down cards check if he has crystals, use spells
                             break;
                         case TurnState.Attack://player can attack, use spells
+                            
                             break;
                         case TurnState.Secondary://player can use spells
                             break;
@@ -385,32 +484,64 @@ namespace CompCardGame.Source
                             if (!hasDoneUpdate)//temporary computer class will handle this in future
                             {
                                 var done = false;
-                                while (players[(int)MatchState].Crystals>0 && !done)
+                                while (players[(int)MatchState].Crystals > 0 && !done)
                                 {
+                                    players[1].Update();
                                     var card = players[(int)MatchState].GrabRandomCard();//temporary later it will be ai playing 
-                                                                                         //return a field position if one cannot be found it will tell the CPU to possibly sacrifice to summon
+                                                                                    //return a field position if one cannot be found it will tell the CPU to possibly sacrifice to summon
                                                                                          //stronger monters
-                                    var fieldPosition = field.GetRandomUnusedFieldPosition();
-                                    //for now if field is full it will not play any cards except spells
-                                    if (fieldPosition != null)
-                                    {
-                                        field.PlaceCardOnField(PlayerType.Enemy, fieldPosition, card);
-                                        card.Location = CardLocation.Field;
-                                        card.Active = false;
-                                        players[(int)MatchState].RemoveCrystals(card.CrystalCost);
-                                        players[(int)MatchState].AddCardToRemoveQueue(card);
-                                        card = null;
-                                    } else
+                                    if (card == null)
                                     {
                                         done = true;
+                                        break;
                                     }
-                                    
+                                    if (card is MonsterCard)
+                                    {
+                                        var fieldPosition = field.GetRandomUnusedMonsterFieldPosition();
+                                        //for now if field is full it will not play any cards except spells
+                                        if (fieldPosition != null)
+                                        {
+                                            field.PlaceCardOnField(PlayerType.Enemy, fieldPosition, card);
+                                            card.Location = CardLocation.Field;
+                                            card.Selected = false;
+                                            players[(int)MatchState].RemoveCrystals(card.CrystalCost);
+                                            players[(int)MatchState].AddCardToRemoveQueue(card);
+                                            card = null;
+                                            
+                                        }
+                                        else
+                                        {
+                                            done = true;
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var fieldPosition = field.GetRandomUnusedSpellFieldPosition();
+                                        if (fieldPosition != null)
+                                        {
+                                            field.PlaceCardOnField(PlayerType.Enemy, fieldPosition, card);
+                                            card.Location = CardLocation.Field;
+                                            card.Selected = false;
+                                            players[(int)MatchState].RemoveCrystals(card.CrystalCost);
+                                            players[(int)MatchState].AddCardToRemoveQueue(card);
+                                            card = null;
+
+
+                                        }
+                                        else
+                                        {
+                                            done = true;
+                                            break;
+                                        }
+                                    }
+
                                 }
-                                
-                                
-                                
+
+
+
                                 //target.Item2.Card = selectedCard;
-                                
+
                                 //players[0].RemoveCard(selectedCard);
                                 //card = null;
 
@@ -418,10 +549,10 @@ namespace CompCardGame.Source
                             }
                             else
                             {
-                                
+
 
                             }
-                            
+
                             break;
                         case TurnState.Attack://player can attack, use spells
 
@@ -439,14 +570,14 @@ namespace CompCardGame.Source
                 default:
                     break;
             }
-            
+
         }
 
-        private void CalculateCardAttack(Card card1, Tuple<PlayerType, FieldPosition> target) // handle attack between cards 
+        private void CalculateCardAttack(MonsterCard card1, Tuple<PlayerType, FieldPosition> target) // handle attack between cards 
         {
-            var card2 = target.Item2.Card;
+            MonsterCard card2 = (MonsterCard)target.Item2.Card;
             Console.WriteLine($"{card1} attacked {card2}");
-            if (card1.Mana -card1.attackManaCost>=0)
+            if (card1.Mana - card1.attackManaCost >= 0)
             {
                 if (card1.Attack > card2.Defense)//attack worked, send card2 to graveyard and deal difference of attack - defense to opponent
                 {
@@ -462,10 +593,10 @@ namespace CompCardGame.Source
                 }
                 card1.Mana -= card1.attackManaCost;
             }
-            
+
         }
 
 
-       
+
     }
 }

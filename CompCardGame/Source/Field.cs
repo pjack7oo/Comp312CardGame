@@ -100,12 +100,20 @@ namespace CompCardGame.Source
         }
 
         //used by cpu to get random spot to place card
-        public FieldPosition GetRandomUnusedFieldPosition()
+        public FieldPosition GetRandomUnusedMonsterFieldPosition()
         {
 
-            return player2Field.GetRandomUnusedFieldPosition();
+            return player2Field.GetRandomUnusedMonsterFieldPosition();
             
             
+        }
+
+        public FieldPosition GetRandomUnusedSpellFieldPosition()
+        {
+
+            return player2Field.GetRandomUnusedSpellFieldPosition();
+
+
         }
 
         public Boolean PlaceCardOnField(PlayerType player, FieldPosition fieldPosition, Card card)
@@ -114,6 +122,10 @@ namespace CompCardGame.Source
             {
                 if (!fieldPosition.HasCard)
                 {
+                    if (card is SpellCard)
+                    {
+                        card.State = CardState.Back;
+                    }
                     fieldPosition.Card = card;
                     card.UpdatePositions();
                     return true;
@@ -127,7 +139,15 @@ namespace CompCardGame.Source
             {
                 if (!fieldPosition.HasCard)
                 {
-                    card.State = CardState.Front;
+                    if (card is MonsterCard)
+                    {
+                        card.State = CardState.Front;
+                    }
+                    else
+                    {
+                        card.State = CardState.Back;
+                    }
+                    
                     fieldPosition.Card = card;
                     card.UpdatePositions();
                     return true;

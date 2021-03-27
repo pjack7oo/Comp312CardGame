@@ -77,14 +77,26 @@ namespace CompCardGame.Source
             //temporary for loop for testing later wont be needed because it will load in the players cards
             for (int i = 0; i < 30; i++)
             {
-                var card = new Card();
-                
-                if (playerType == PlayerType.Player && temp)//temporary for testing
+                if (i%2 ==0)
                 {
-                    card.Attack = 110;
-                    temp = false;
+                    var card = new SpellCard();
+
+                    card.cardName.DisplayedString = $"{i}";
+                    cards.Enqueue(card);
+                } 
+                else
+                {
+                    var card = new MonsterCard();
+                    card.cardName.DisplayedString = $"{i}";
+                    if (playerType == PlayerType.Player && temp)//temporary for testing
+                    {
+                        card.Attack = 110;
+                        
+                        temp = false;
+                    }
+                    cards.Enqueue(card);
                 }
-                cards.Enqueue(card);
+                
             }
             cards.Shuffle();
             
@@ -327,6 +339,10 @@ namespace CompCardGame.Source
         public Card GrabRandomCard()//might be used by somecard abilities and using it for testing opponent will stillo need AI
         {
             var random = new Random();
+            if (hand.Count == 0 )
+            {
+                return null;
+            }
             var card = hand[random.Next(0, hand.Count)];
             foreach(var cardToBeRemoved in cardsToRemove)
             {
@@ -349,9 +365,9 @@ namespace CompCardGame.Source
             foreach(var card in hand)
             {
                 
-                if (card.Contains(mouse) && card.Location == CardLocation.Hand && Crystals >= card.CrystalCost)
+                if (card.Contains(mouse) && card.Location == CardLocation.Hand)
                 {
-                    card.Location = CardLocation.Moving;
+                   
                     return card;
                 }
             }
@@ -397,15 +413,15 @@ namespace CompCardGame.Source
                     //var pos = new Vector2f(0, -30);
                     
                     //lift card to view it
-                    hand[i].liftCardUp();
+                    hand[i].LiftCardUp();
                     
                 } 
                 else
                 {
-                    if (hand[i].Active)
+                    if (hand[i].Selected)
                     {
                         //lower card when no longer hovering over it
-                        hand[i].setCardDown();
+                        hand[i].SetCardDown();
                     }
                     //Console.WriteLine(false);
                 }

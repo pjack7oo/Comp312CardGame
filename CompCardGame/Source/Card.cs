@@ -8,39 +8,29 @@ using System.Threading.Tasks;
 
 namespace CompCardGame.Source
 {
-    
-    public enum CardState
-    {
-        Front,
-        Back
-    }
 
-    public enum CardLocation
+
+    class Card : Transformable, Drawable, ICard
     {
-        Deck,
-        Hand,
-        Field,
-        Graveyard,
-        Moving
-    }
-    class Card: Transformable, Drawable
-    {
-        
-        
+
+
         //shapes used to draw the card
-        Shape[] shapes;
+        private Shape[] shapes;
 
         public RectangleShape boundingBox;
+        //might need getter and a setter so we can modify card color that is displayed when this is changed
+        //public Color color;
+        //public Color accentColor;
 
         RectangleShape backSide;
         //card attributes
-        Text cardName;
+        public Text cardName;
         Text cardDescription;
-        Text cardAttackText;
-        Text cardDefenseText;
-        Text cardManaText;
-        Text cardMaxManaText;
-        Text cardCrystalCostText;
+        //Text cardAttackText;
+        //Text cardDefenseText;
+        //Text cardManaText;
+        //Text cardMaxManaText;
+        //Text cardCrystalCostText;
 
         public Vector2f previousPosition;
         //used to know which side to draw
@@ -48,68 +38,76 @@ namespace CompCardGame.Source
 
         public ViewType viewType = ViewType.FieldView;
 
-        private int attack;
-        private int defense;
-        private int mana;
-        private int maxMana;
+        //private int attack;
+        //private int defense;
+        //private int mana;
+        //private int maxMana
         private int crystalCost;
-        public int attackManaCost;
+        //public int attackManaCost;
 
-        private CircleShape[] crystals;
-        
+        private List<CircleShape> crystals;
+
         public const float width = 200f;
         public const float height = 320f;
 
 
         //Active is only true when mouse is hovered over the card in hand or if selected while on the field
-        public Boolean Active { get; set; }
+        public Boolean Selected { get; set; }
         //card location can be either deck, hand, field, or graveyard
         public CardLocation Location { get; set; }
-        
+
+
         public CardState State { get { return state; } set { state = value; } }
-        public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
-        public int Defense { get { return defense; } set { defense = value; cardDefenseText.DisplayedString = "Defense: " + value.ToString(); } }
+        //public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
+        //public int Defense { get { return defense; } set { defense = value; cardDefenseText.DisplayedString = "Defense: " + value.ToString(); } }
 
-        public int Mana { get { return mana; } set { mana = value; cardManaText.DisplayedString = "ManaPool: " + value.ToString(); } }
+        //public int Mana { get { return mana; } set { mana = value; cardManaText.DisplayedString = "ManaPool: " + value.ToString(); } }
 
-        public int MaxMana { get { return maxMana; } set { maxMana = value; cardMaxManaText.DisplayedString = "MaxMana: " + value.ToString(); } }//future it will be shown by top filled mana pool icon
+        //public int MaxMana { get { return maxMana; } set { maxMana = value; cardMaxManaText.DisplayedString = "MaxMana: " + value.ToString(); } }//future it will be shown by top filled mana pool icon
 
-        public int CrystalCost { get { return crystalCost; } set { crystalCost = value; cardCrystalCostText.DisplayedString = "CrystalCost: " + value.ToString(); } }
+        public int CrystalCost
+        {
+            get { return crystalCost; }
+            set { crystalCost = value; SetCrystals(value); }
+        }
         //generic constructor will be rarely used was mainly for testing
         public Card()
         {
             //creating the shapes of the card
-            shapes = CardShapes(Position, Color.Cyan, Color.Black);
+            var color = Color.Cyan;
+            var accentColor = Color.Black;
+            shapes = CardShapes(Position, color, accentColor);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
             boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 2, OutlineColor = Color.Red };
             //filling in the name and description
-            cardName = HelperFunctions.NewText("Card Name", 15,new Vector2f {X = 10f, Y = 10f }, Color.Black);
+            cardName = HelperFunctions.NewText("Card Name", 15, new Vector2f { X = 10f, Y = 10f }, Color.Black);
             cardDescription = HelperFunctions.NewText("Description", 10, new Vector2f { X = 10f, Y = 235f }, Color.Black);
-            cardAttackText = HelperFunctions.NewText("Attack: ", 15, new Vector2f { X = 5f, Y = height - 20f }, Color.Black);
-            cardDefenseText = HelperFunctions.NewText("Defense: ", 15,  new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
-            cardManaText = HelperFunctions.NewText("ManaPool: ", 15,  new Vector2f { X = 5f, Y = height - 35f }, Color.Black);
-            cardMaxManaText = HelperFunctions.NewText("MaxMana: ", 15,  new Vector2f { X = 100f, Y = height - 35f }, Color.Black);
-            cardCrystalCostText = HelperFunctions.NewText("CrystalCost: ", 15, new Vector2f { X = 10f, Y = 30f }, Color.Black);
+            //cardAttackText = HelperFunctions.NewText("Attack: ", 15, new Vector2f { X = 5f, Y = height - 20f }, Color.Black);
+            //cardDefenseText = HelperFunctions.NewText("Defense: ", 15,  new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
+            //cardManaText = HelperFunctions.NewText("ManaPool: ", 15,  new Vector2f { X = 5f, Y = height - 35f }, Color.Black);
+            //cardMaxManaText = HelperFunctions.NewText("MaxMana: ", 15,  new Vector2f { X = 100f, Y = height - 35f }, Color.Black);
+            //cardCrystalCostText = HelperFunctions.NewText("CrystalCost: ", 15, new Vector2f { X = 10f, Y = 30f }, Color.Black);
             //attributes for dealing damage and defense yugioh does in hundreds, Hearthstone is in singles digits not sure which to use
-            Attack  = 100;
-            Defense = 100;
-            Mana = 1;
-            MaxMana = 1;
+            //Attack  = 100;
+            //Defense = 100;
+            //Mana = 1;
+            //MaxMana = 1;
+            crystals = new List<CircleShape>();
             CrystalCost = 2;
-            crystals = new CircleShape[CrystalCost];
-            attackManaCost = 1;
-
-            for(int i = 0; i <CrystalCost;i++)
-            {
-                crystals[i] = new CircleShape(5f, 4) { Position = new Vector2f(10f + i * 15f, 35f), FillColor = Color.Magenta, OutlineColor = new Color(169, 169, 169), OutlineThickness = 1 }; 
-            }
-
-            Active = false;
-            Location = CardLocation.Deck;
             
+            //attackManaCost = 1;
+
+            //for (int i = 0; i < CrystalCost; i++)
+            //{
+            //    crystals.Add(new CircleShape(5f, 4) { Position = new Vector2f(10f + i * 15f, 35f), FillColor = Color.Magenta, OutlineColor = new Color(169, 169, 169), OutlineThickness = 1 });
+            //}
+
+            Selected = false;
+            Location = CardLocation.Deck;
+
         }
-        
-        public Card(String name, String discription, int attack, int defense)
+
+        public Card(String name, String discription)
         {
             //creating the shapes of the card
             shapes = CardShapes(Position, Color.Cyan, Color.Black);
@@ -118,26 +116,25 @@ namespace CompCardGame.Source
             //filling in the name and description
             cardName = HelperFunctions.NewText(name, 15, Position + new Vector2f { X = 10f, Y = 10f }, Color.Black);
             cardDescription = HelperFunctions.NewText(discription, 10, Position + new Vector2f { X = 10f, Y = 235f }, Color.Black);
-            cardAttackText = HelperFunctions.NewText("Attack: ", 15, Position + new Vector2f { X = 10f, Y = height - 20f }, Color.Black);
-            cardDefenseText = HelperFunctions.NewText("Defense: ", 15, Position + new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
+            //cardAttackText = HelperFunctions.NewText("Attack: ", 15, Position + new Vector2f { X = 10f, Y = height - 20f }, Color.Black);
+            //cardDefenseText = HelperFunctions.NewText("Defense: ", 15, Position + new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
 
 
-            Attack = attack;
-            Defense = defense;
-            Active = false;
+            //Attack = attack;
+            //Defense = defense;
+            Selected = false;
             Location = CardLocation.Deck;
         }
 
-        
-        
-        
-        public void Draw(RenderTarget target, RenderStates states)
+
+
+
+        public virtual void Draw(RenderTarget target, RenderStates states)
         {
             if (viewType == ViewType.SideView)
             {
-                if (state == CardState.Front)
-                {
-                    states.Transform.Translate(new Vector2f(Game.SideViewWidth - Card.width*1.4f, Game.ScreenHeight - Card.height*1.4f - 50));
+                
+                    states.Transform.Translate(new Vector2f(Game.SideViewWidth - Card.width * 1.4f, Game.ScreenHeight - Card.height * 1.4f - 50));
                     //drawing each of the shapes
                     foreach (var shape in shapes)
                     {
@@ -146,17 +143,17 @@ namespace CompCardGame.Source
                     //drawing the text
                     target.Draw(cardName, states);
                     target.Draw(cardDescription, states);
-                    target.Draw(cardAttackText, states);
-                    target.Draw(cardDefenseText, states);
-                    target.Draw(cardManaText, states);
-                    target.Draw(cardMaxManaText, states);
+                    //target.Draw(cardAttackText, states);
+                    //target.Draw(cardDefenseText, states);
+                    //target.Draw(cardManaText, states);
+                    //target.Draw(cardMaxManaText, states);
 
-                    for (int i = 0; i < crystals.Length; i++)
+                    for (int i = 0; i < crystals.Count; i++)
                     {
                         target.Draw(crystals[i], states);
                     }
                     //target.Draw(cardCrystalCostText, states);
-                }
+                
             }
             else
             {
@@ -175,12 +172,12 @@ namespace CompCardGame.Source
                     //drawing the text
                     target.Draw(cardName, states);
                     target.Draw(cardDescription, states);
-                    target.Draw(cardAttackText, states);
-                    target.Draw(cardDefenseText, states);
-                    target.Draw(cardManaText, states);
-                    target.Draw(cardMaxManaText, states);
+                    //target.Draw(cardAttackText, states);
+                    //target.Draw(cardDefenseText, states);
+                    //target.Draw(cardManaText, states);
+                    //target.Draw(cardMaxManaText, states);
 
-                    for (int i = 0; i < crystals.Length; i++)
+                    for (int i = 0; i < crystals.Count; i++)
                     {
                         target.Draw(crystals[i], states);
                     }
@@ -190,7 +187,7 @@ namespace CompCardGame.Source
                 {
                     target.Draw(backSide, states);
                 }
-                if (Active)
+                if (Selected)
                 {
                     target.Draw(boundingBox);
                 }
@@ -199,14 +196,45 @@ namespace CompCardGame.Source
         //this is for checking bounding box of card
         public Boolean Contains(Vector2f point)
         {
-            
-            return (boundingBox.GetGlobalBounds().Contains(point.X, point.Y)) ? true : false;
-            
+
+            return boundingBox.GetGlobalBounds().Contains(point.X, point.Y);
+
         }
+
+        public void SetCrystals(int crystalCount)
+        {
+            crystals.Clear();
+            for (int i = 0; i < crystalCount; i++)
+            {
+                crystals.Add(new CircleShape(5f, 4)
+                { Position = new Vector2f(10f + i * 15f, 35f), FillColor = Color.Magenta, OutlineColor = new Color(169, 169, 169), OutlineThickness = 1 });
+            }
+        }
+
+        public void SetColors(Color baseColor, Color accentColor, Color textColor)
+        {
+
+            shapes[0].FillColor = baseColor;
+            foreach (var shape in shapes)
+            {
+                shape.OutlineColor = accentColor;
+            }
+        }
+
+        public void SetColors(Color baseColor, Color accentColor)
+        {
+
+            shapes[0].FillColor = baseColor;
+            foreach (var shape in shapes)
+            {
+                shape.OutlineColor = accentColor;
+            }
+        }
+
         //this is to update the boundingbox might do more in the future
         public void UpdatePositions(Vector2f mouse)//position is mouse + offset of card so grabbing center of card
         {
-            this.Position = new Vector2f(mouse.X-width/2, mouse.Y - height/2);
+            this.Position = new Vector2f(mouse.X - width / 2, mouse.Y - height / 2);
             boundingBox.Position = Position;
         }
         public void UpdatePositions()
@@ -214,14 +242,14 @@ namespace CompCardGame.Source
             boundingBox.Position = Position;
         }
         //raise card up when being looked at
-        public void liftCardUp()
+        public void LiftCardUp()
         {
             //this is only done when card is inactive and it is in the hand
-            if (!Active && Location == CardLocation.Hand)
+            if (!Selected && Location == CardLocation.Hand)
             {
-                Position -= new Vector2f(0, height/1.5f+20);
+                Position -= new Vector2f(0, height / 1.5f + 20);
                 UpdatePositions();
-                Active = true;
+                Selected = true;
             }
 
         }
@@ -232,22 +260,22 @@ namespace CompCardGame.Source
             UpdatePositions();
         }
         //lower card back down after looking at it
-        public void setCardDown()
+        public void SetCardDown()
         {
             if (Location == CardLocation.Hand)
             {
-                Position += new Vector2f(0, height/1.5f + 20);
+                Position += new Vector2f(0, height / 1.5f + 20);
                 UpdatePositions();
-                Active = false;
+                Selected = false;
             }
-            
+
         }
 
         private static Shape[] CardShapes(Vector2f position, Color fillColor, Color accentColor)
         {
             Shape[] shapes = new Shape[3];
             //creating the shapes of the card
-            shapes[0] = new RectangleShape(new Vector2f { X = width, Y = height }) { FillColor = fillColor };
+            shapes[0] = new RectangleShape(new Vector2f { X = width, Y = height }) { FillColor = fillColor, OutlineColor = accentColor, OutlineThickness = 2f };
             shapes[1] = new RectangleShape(new Vector2f { X = width - 20f, Y = 20f }) { OutlineColor = accentColor, OutlineThickness = 2f, Position = position + new Vector2f { X = 10f, Y = 10f } };
             shapes[2] = new RectangleShape(new Vector2f { X = width - 20f, Y = width - 20f }) { OutlineColor = accentColor, OutlineThickness = 2f, Position = position + new Vector2f { X = 10f, Y = 50f } };
 

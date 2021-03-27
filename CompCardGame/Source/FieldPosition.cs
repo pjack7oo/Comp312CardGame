@@ -8,14 +8,15 @@ using System.Threading.Tasks;
 
 namespace CompCardGame.Source
 {
-    public enum  FieldType
+    public enum FieldType
     {
         Monster,
         Spell
     }
-    class FieldPosition: Drawable
+    class FieldPosition : Drawable
     {
         private Card card;
+        public FieldType fieldType;
         public Card Card { get { return card; } set { card = value; card.Position = topLeftCorner; } }
         public int position; //temporary way of store card position it might be changed
         public Boolean HasCard { get { return (this.card != null) ? true : false; } }
@@ -26,6 +27,7 @@ namespace CompCardGame.Source
 
         public FieldPosition(PlayerType playerType, int position, FieldType fieldType)
         {
+            this.fieldType = fieldType;
             if (fieldType == FieldType.Monster)
             {
                 this.position = position;
@@ -47,28 +49,22 @@ namespace CompCardGame.Source
                 //setting the corner for top field and bottom field
                 if (playerType == PlayerType.Enemy)
                 {
-                    topLeftCorner = new Vector2f((position - 6) * (Card.width + 20) +200, -170);
+                    topLeftCorner = new Vector2f((position - 6) * (Card.width + 20) + 200, -170);
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
                 else//player
                 {
-                    topLeftCorner = new Vector2f((position - 1) * (Card.width + 20) +200, Game.ScreenHeight  - 150);
+                    topLeftCorner = new Vector2f((position - 1) * (Card.width + 20) + 200, Game.ScreenHeight - 150);
                 }
                 this.outline = CardOutlineRectangle(topLeftCorner);
             }
-            
+
         }
         //simply to check if mouse is in the fieldposition
         public Boolean Contains(Vector2f point)
         {
-            if(outline.GetGlobalBounds().Contains(point.X, point.Y))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return outline.GetGlobalBounds().Contains(point.X, point.Y);
+            
         }
 
         public void Draw(RenderTarget target, RenderStates states)
@@ -89,7 +85,7 @@ namespace CompCardGame.Source
         //This is a helper to reduce the annoyance of drawing the outlines
         public static RectangleShape CardOutlineRectangle(float x, float y)
         {
-           return new RectangleShape(new Vector2f(200f, 320f)) { OutlineColor = Color.Green, OutlineThickness = 2, FillColor = Color.Transparent, Position = new Vector2f { X = x, Y = y } };
+            return new RectangleShape(new Vector2f(200f, 320f)) { OutlineColor = Color.Green, OutlineThickness = 2, FillColor = Color.Transparent, Position = new Vector2f { X = x, Y = y } };
         }
         public static RectangleShape CardOutlineRectangle(Vector2f corner)
         {

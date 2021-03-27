@@ -54,14 +54,18 @@
   <ItemGroup>
     <Compile Include="Source\Button.cs" />
     <Compile Include="Source\Card.cs" />
+    <Compile Include="Source\Effect.cs" />
     <Compile Include="Source\Field.cs" />
     <Compile Include="Source\FieldPosition.cs" />
     <Compile Include="Source\Game.cs" />
     <Compile Include="Source\HelperFunctions.cs" />
+    <Compile Include="Source\ICard.cs" />
     <Compile Include="Source\Match.cs" />
     <Compile Include="Source\InputHandler.cs" />
+    <Compile Include="Source\MonsterCard.cs" />
     <Compile Include="Source\Player.cs" />
     <Compile Include="Source\PlayerField.cs" />
+    <Compile Include="Source\SpellCard.cs" />
     <Compile Include="Source\Start.cs" />
   </ItemGroup>
   <ItemGroup>

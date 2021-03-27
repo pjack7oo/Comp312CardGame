@@ -268,9 +268,9 @@ namespace CompCardGame.Source
             loadingShapes[2].Origin = new Vector2f(Card.width / 2 , Card.height / 2-50);
             loadingShapes[2].Position = new Vector2f(ScreenWidth / 2+200, ScreenHeight / 2);
             loadingShapes[2].Rotation = 45;
-            loadingText[0] = new Text("Crystal Wars", HelperFunctions.font, 50) {  Color = Color.Magenta};
+            loadingText[0] = new Text("Crystal Wars", HelperFunctions.font, 50) {  FillColor = Color.Magenta};
             loadingText[0].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight), new Vector2f(loadingText[0].GetGlobalBounds().Width, loadingText[0].GetGlobalBounds().Height));
-            loadingText[1] = new Text("Loading...", HelperFunctions.font, 50) { Color = Color.Black };
+            loadingText[1] = new Text("Loading...", HelperFunctions.font, 50) { FillColor = Color.Black };
             loadingText[1].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight+ScreenHeight - 200), new Vector2f(loadingText[1].GetGlobalBounds().Width, loadingText[1].GetGlobalBounds().Height));
         }
         
@@ -302,7 +302,7 @@ namespace CompCardGame.Source
             //loadingShapes[0].Position = new Vector2f(ScreenWidth / 2, ScreenHeight / 2);
 
 
-            mainPageText = new Text("Crystal Wars", HelperFunctions.font, 70) { Color = Color.Magenta };
+            mainPageText = new Text("Crystal Wars", HelperFunctions.font, 70) { FillColor = Color.Magenta };
             mainPageText.Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight- 400), new Vector2f(mainPageText.GetGlobalBounds().Width, mainPageText.GetGlobalBounds().Height));
             //loadingText[1] = new Text("Loading...", HelperFunctions.font, 50) { Color = Color.Black };
             //loadingText[1].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight + ScreenHeight / 2), new Vector2f(loadingText[1].GetGlobalBounds().Width, loadingText[1].GetGlobalBounds().Height));

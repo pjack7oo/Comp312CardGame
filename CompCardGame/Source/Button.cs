@@ -27,6 +27,7 @@ namespace CompCardGame.Source
         private readonly Shape shape;
         private readonly Shape boundingBox;
 
+        private readonly bool noSprite;//temporary later there will be a sprite for everything
 
         private System.TimeSpan pressedTime;
 
@@ -42,8 +43,8 @@ namespace CompCardGame.Source
         public Button(String text, uint charSize, Vector2f location, Color textColor, Action action, Vector2f scale)
         {
             this.text = new Text(text, HelperFunctions.font, charSize) { FillColor = textColor};
-           
 
+            noSprite = false;
             //load in the sprites
             defaultSprite = new Sprite(new Texture("Media/Images/GenericBtn.png"));
 
@@ -73,7 +74,7 @@ namespace CompCardGame.Source
         public Button(String text, uint charSize, Vector2f location, Color textColor, Action action )
         {
             this.text = new Text(text, HelperFunctions.font, charSize) { FillColor = textColor };
-            
+            noSprite = false;
 
             //load in the sprites
             defaultSprite = new Sprite(new Texture("Media/Images/GenericBtn.png"));
@@ -101,6 +102,7 @@ namespace CompCardGame.Source
 
         public Button(String text, uint charSize, Vector2f location, Shape shape)
         {
+            noSprite = true;
             this.shape = shape;
             this.text = new Text(text, HelperFunctions.font);
             Position = location;
@@ -162,6 +164,7 @@ namespace CompCardGame.Source
         //to make sure it can be used at that moment that way this just calls the action
         public void DoAction()
         {
+           
             if (!active)
             {
                 pressedTime = Game.GetTimeStamp();

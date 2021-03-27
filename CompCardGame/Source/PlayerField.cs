@@ -54,7 +54,7 @@ namespace CompCardGame.Source
             
         }
 
-        public FieldPosition GetRandomUnusedFieldPosition()
+        public FieldPosition GetRandomUnusedMonsterFieldPosition()
         {
             var randomInt = random.Next(0, playerMonsterField.Length);
             if (!playerMonsterField[randomInt].HasCard)
@@ -75,6 +75,29 @@ namespace CompCardGame.Source
                 return null;
             }
         }
+
+
+        public FieldPosition GetRandomUnusedSpellFieldPosition()
+        {
+            var randomInt = random.Next(0, playerSpellField.Length);
+            if (!playerSpellField[randomInt].HasCard)
+            {
+                return playerSpellField[randomInt];
+            }
+            else
+            {
+
+                foreach (var fieldPos in playerSpellField)
+                {
+                    if (!fieldPos.HasCard)
+                    {
+                        return fieldPos;
+                    }
+
+                }
+                return null;
+            }
+        }
         //remove the red outline of any selected card
         public void ResetCardSelection()
         {
@@ -82,7 +105,16 @@ namespace CompCardGame.Source
             {
                 if (fieldPos.HasCard)
                 {
-                    fieldPos.Card.Active = false;
+                    fieldPos.Card.Selected = false;
+                }
+            }
+            foreach (var fieldPos in playerSpellField)//make not selected cards inactive
+            {
+                if (fieldPos.HasCard)
+                {
+                    ((SpellCard)fieldPos.Card).DrawEffectButtons = false;
+                    fieldPos.Card.State = CardState.Back;
+                    fieldPos.Card.Selected = false;
                 }
             }
         }
@@ -94,18 +126,42 @@ namespace CompCardGame.Source
             {
                 if (fieldPos.HasCard && fieldPos.Contains(mouse))
                 {
-                    fieldPos.Card.Active = true;
+                    fieldPos.Card.Selected = true;
+                    result = fieldPos.Card;
+                }
+
+            }
+            
+            foreach (var fieldPos in playerSpellField)//go through field and select the card that contains mouse
+            {
+                if (fieldPos.HasCard && fieldPos.Contains(mouse))
+                {
+                    fieldPos.Card.Selected = true;
+                    fieldPos.Card.State = CardState.Front;
+                    ((SpellCard)fieldPos.Card).AddEffectButtons();
+                    ((SpellCard)fieldPos.Card).DrawEffectButtons = true;
+                    
                     result = fieldPos.Card;
                 }
 
             }
             if (result != null)
             {
+                foreach (var fieldPos in playerSpellField)//make not selected cards inactive
+                {
+                    if (result != fieldPos.Card && fieldPos.HasCard)
+                    {
+                        ((SpellCard)fieldPos.Card).DrawEffectButtons = false;
+                        fieldPos.Card.State = CardState.Back;
+                        ((SpellCard)fieldPos.Card).RemoveButtons();
+                        fieldPos.Card.Selected = false;
+                    }
+                }
                 foreach (var fieldPos in playerMonsterField)//make not selected cards inactive
                 {
                     if (result != fieldPos.Card && fieldPos.HasCard)
                     {
-                        fieldPos.Card.Active = false;
+                        fieldPos.Card.Selected = false;
                     }
                 }
             }
@@ -125,7 +181,17 @@ namespace CompCardGame.Source
                 }
 
             }
-            
+            foreach (var fieldPos in playerSpellField)//go through field and select the card that contains mouse
+            {
+                if (fieldPos.HasCard && fieldPos.Contains(mouse) && (fieldPos.Card.State == CardState.Front || playerType == PlayerType.Player))
+                {
+
+
+                    result = fieldPos.Card;
+                }
+
+            }
+
             return result;
         }
 
@@ -154,6 +220,13 @@ namespace CompCardGame.Source
                 if (playerMonsterField[i].Contains(mouse))
                 {
                     return new Tuple<PlayerType, FieldPosition>(playerType, playerMonsterField[i]);
+                }
+            }
+            for (int i = 0; i < playerSpellField.Count(); i++)
+            {
+                if (playerSpellField[i].Contains(mouse))
+                {
+                    return new Tuple<PlayerType, FieldPosition>(playerType, playerSpellField[i]);
                 }
             }
             //for (int i = 0; i < player2Field.Count(); i++)//check if we clicked on opponent field
