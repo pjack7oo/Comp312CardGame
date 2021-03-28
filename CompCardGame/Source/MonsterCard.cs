@@ -18,6 +18,7 @@ namespace CompCardGame.Source
         private int defense;
         private int mana;
         private int maxMana;
+        private int hp;
         public int attackManaCost;
 
 
@@ -25,9 +26,11 @@ namespace CompCardGame.Source
         Text cardDefenseText;
         Text cardManaText;
         Text cardMaxManaText;
+        Text cardHpText;
 
         public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
         public int Defense { get { return defense; } set { defense = value; cardDefenseText.DisplayedString = "Defense: " + value.ToString(); } }
+        public int Hp { get { return hp; } set { hp = value; cardHpText.DisplayedString = "Hp: " + value.ToString(); } }
         public int Mana { get { return mana; } set { mana = value; cardManaText.DisplayedString = "ManaPool: " + value.ToString(); } }
 
         public int MaxMana { get { return maxMana; } set { maxMana = value; cardMaxManaText.DisplayedString = "MaxMana: " + value.ToString(); } }//future it will be shown by top filled mana pool icon
@@ -38,8 +41,24 @@ namespace CompCardGame.Source
             cardDefenseText = HelperFunctions.NewText("Defense: ", 15, new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
             cardManaText = HelperFunctions.NewText("ManaPool: ", 15, new Vector2f { X = 5f, Y = height - 35f }, Color.Black);
             cardMaxManaText = HelperFunctions.NewText("MaxMana: ", 15, new Vector2f { X = 100f, Y = height - 35f }, Color.Black);
+            cardHpText = HelperFunctions.NewText("Hp: ", 15, new Vector2f { X = 10f, Y = height - 35f }, Color.Black);
 
+            Attack = 100;
+            Defense = 100;
+            Mana = 1;
+            MaxMana = 1;
+            attackManaCost = 1;
+        }
+        public MonsterCard(int id) : base(id)
+        {
+            this.SetColors(new Color(210, 180, 140), Color.Black);
+            cardAttackText = HelperFunctions.NewText("Attack: ", 15, new Vector2f { X = 5f, Y = height - 20f }, Color.Black);
+            cardDefenseText = HelperFunctions.NewText("Defense: ", 15, new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
+            cardManaText = HelperFunctions.NewText("ManaPool: ", 15, new Vector2f { X = 5f, Y = height - 35f }, Color.Black);
+            cardMaxManaText = HelperFunctions.NewText("MaxMana: ", 15, new Vector2f { X = 100f, Y = height - 35f }, Color.Black);
+            cardHpText = HelperFunctions.NewText("Hp: ", 15, new Vector2f { X = width - 60f, Y = height - 90 }, Color.Black);
 
+            Hp = 10;
             Attack = 100;
             Defense = 100;
             Mana = 1;
@@ -67,9 +86,9 @@ namespace CompCardGame.Source
                     target.Draw(cardDefenseText, states);
                     target.Draw(cardManaText, states);
                     target.Draw(cardMaxManaText, states);
+                    target.Draw(cardHpText, states);
 
-                    
-                    
+
                 }
             }
             else
@@ -87,9 +106,10 @@ namespace CompCardGame.Source
                     target.Draw(cardDefenseText, states);
                     target.Draw(cardManaText, states);
                     target.Draw(cardMaxManaText, states);
+                    target.Draw(cardHpText, states);
 
-                    
-                    
+
+
                 }
                
             }

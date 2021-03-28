@@ -116,6 +116,8 @@ namespace CompCardGame.Source
 
         }
 
+        
+
         public Boolean PlaceCardOnField(PlayerType player, FieldPosition fieldPosition, Card card)
         {
             if (player == PlayerType.Player)
@@ -228,7 +230,12 @@ namespace CompCardGame.Source
             //target.Draw(CardOutlineRectangle(1400,600));
         }
 
+        public void RemoveCard(Card card)
+        {
+            player1Field.RemoveCard(card);
 
+            player2Field.RemoveCard(card);
+        }
         private void DrawGrid(ViewType viewType)
         {
             if (viewType == ViewType.FieldView)

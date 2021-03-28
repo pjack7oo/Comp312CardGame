@@ -79,14 +79,14 @@ namespace CompCardGame.Source
             {
                 if (i%2 ==0)
                 {
-                    var card = new SpellCard();
+                    var card = new SpellCard(i);
 
                     card.cardName.DisplayedString = $"{i}";
                     cards.Enqueue(card);
                 } 
                 else
                 {
-                    var card = new MonsterCard();
+                    var card = new MonsterCard(i);
                     card.cardName.DisplayedString = $"{i}";
                     if (playerType == PlayerType.Player && temp)//temporary for testing
                     {
@@ -124,6 +124,7 @@ namespace CompCardGame.Source
 
         }
 
+        
         //position the decks on their field
         public void SetDeckPosition()
         {

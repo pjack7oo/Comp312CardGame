@@ -39,6 +39,8 @@ namespace CompCardGame.Source
         private Text text;
 
         private Boolean active = false;
+
+        public Boolean IsUsable { get; set; }
         //this is kind of a mess ima clean it later //TODO
         public Button(String text, uint charSize, Vector2f location, Color textColor, Action action, Vector2f scale)
         {
@@ -60,7 +62,7 @@ namespace CompCardGame.Source
             boundingBox.Position = Position;
 
             this.action = action;
-
+            IsUsable = true;
 
 
             
@@ -90,7 +92,7 @@ namespace CompCardGame.Source
 
             this.action = action;
 
-
+            IsUsable = true;
 
 
             this.text.Position = HelperFunctions.GetCenteredPosition(new Vector2f(defaultSprite.GetGlobalBounds().Width, defaultSprite.GetGlobalBounds().Height), new Vector2f(this.text.GetGlobalBounds().Width, this.text.GetGlobalBounds().Height));
@@ -100,79 +102,128 @@ namespace CompCardGame.Source
 
         }
 
-        public Button(String text, uint charSize, Vector2f location, Shape shape)
+        public Button(String text, uint charSize, Vector2f location, Shape shape, Action action)
         {
             noSprite = true;
             this.shape = shape;
-            this.text = new Text(text, HelperFunctions.font);
+            
+            this.text = new Text(text, HelperFunctions.font) { FillColor = Color.Black};
+            Origin = new Vector2f(this.shape.GetGlobalBounds().Width / 2, this.shape.GetGlobalBounds().Height / 2);
             Position = location;
+            //shape = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Cyan};
+            boundingBox = new RectangleShape(new Vector2f(this.shape.GetGlobalBounds().Width, this.shape.GetGlobalBounds().Height)) { FillColor = Color.Transparent, OutlineThickness = 3, OutlineColor = Color.Red };
+            boundingBox.Origin = Origin;
+            boundingBox.Position = Position;
+
+            this.action = action;
+
+            IsUsable = true;
+
+            if (shape is RectangleShape)
+            {
+                this.text.Position = HelperFunctions.GetCenteredPosition(new Vector2f(this.shape.GetGlobalBounds().Width, this.shape.GetGlobalBounds().Height), new Vector2f(this.text.GetGlobalBounds().Width, this.text.GetGlobalBounds().Height));
+            }
+            else
+            {
+                this.text.Position = new Vector2f(Origin.X-12f, Origin.Y-19f);
+            }
+            
+
+            ButtonState = ButtonState.Default;
         }
 
         public Boolean Contains(Vector2f mouse)
         {
-            return boundingBox.GetGlobalBounds().Contains(mouse.X, mouse.Y)? true : false;
+            return boundingBox.GetGlobalBounds().Contains(mouse.X, mouse.Y);
         }
 
 
         
         public void Draw(RenderTarget target, RenderStates states)
         {
-            states.Transform = Transform;
             
-            switch(ButtonState)
+            if (IsUsable)
             {
-                case ButtonState.Default://draw sprite for default
-                    target.Draw(defaultSprite, states);
-                    break;
-                case ButtonState.Hover://draw sprite for hover
-                    target.Draw(defaultSprite, states);
-                    break;
-                case ButtonState.Pressed://draw sprite for pressed //or animation
-                    target.Draw(pressedSprite, states);
+                if (noSprite)
+                {
+                    states.Transform = Transform;
+                    target.Draw(shape, states);
                     
-                    break;
-                default:
-                    break;
+                    target.Draw(text, states);
+                    target.Draw(boundingBox);
+                }
+                else
+                {
+                    states.Transform = Transform;
+                    switch (ButtonState)
+                    {
+
+                        case ButtonState.Default://draw sprite for default
+                            target.Draw(defaultSprite, states);
+                            target.Draw(text, states);
+                            break;
+                        case ButtonState.Hover://draw sprite for hover
+                            target.Draw(defaultSprite, states);
+                            target.Draw(text, states);
+                            break;
+                        case ButtonState.Pressed://draw sprite for pressed //or animation
+                            target.Draw(pressedSprite, states);
+                            target.Draw(text, states);
+
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+
+
+                
             }
             
-            
-            target.Draw(text, states);
             //draw image or shape
 
         }
         //update based on passed time
         public void Update(System.TimeSpan time)
         {
-            if (active)
+            if (IsUsable)
             {
-                if (time - pressedTime >= TimeSpan.FromSeconds(1))
+                if (active)
                 {
-                    active = false;
+                    if (time - pressedTime >= TimeSpan.FromSeconds(1))
+                    {
+                        active = false;
+                    }
+                }
+                if (ButtonState == ButtonState.Pressed)
+                {
+                    Console.WriteLine(time);
+                    if (time - pressedTime >= duration)
+                    {
+                        ButtonState = ButtonState.Default;
+                    }
                 }
             }
-            if (ButtonState == ButtonState.Pressed)
-            {
-                Console.WriteLine(time);
-                if (time - pressedTime >= duration)
-                {
-                    ButtonState = ButtonState.Default;
-                }
-            }
+            
         }
 
         //important any action passed must have its own checks
         //to make sure it can be used at that moment that way this just calls the action
         public void DoAction()
         {
-           
-            if (!active)
+           if (IsUsable)
             {
-                pressedTime = Game.GetTimeStamp();
-                ButtonState = ButtonState.Pressed;
+                if (!active)
+                {
+                    pressedTime = Game.GetTimeStamp();
+                    ButtonState = ButtonState.Pressed;
 
-                action();
-                active = true;
+                    action();
+                    active = true;
+                }
             }
+            
             
             
         }

@@ -119,6 +119,32 @@ namespace CompCardGame.Source
             }
         }
 
+        public void RemoveCard(Card card)
+        {
+            foreach(var pos in playerMonsterField)
+            {
+                if (pos.HasCard)
+                {
+                    if (!pos.Card.Equals(card))
+                    {
+                        continue;
+                    }
+                    pos.ResetCard();
+                }
+            }
+            foreach (var pos in playerSpellField)
+            {
+                if (pos.HasCard)
+                {
+                    if (!pos.Card.Equals(card))
+                    {
+                        continue;
+                    }
+                    pos.ResetCard();
+                }
+            }
+        }
+
         public Card SelectCard(Vector2f mouse)
         {
             Card result = null;
@@ -138,9 +164,9 @@ namespace CompCardGame.Source
                 {
                     fieldPos.Card.Selected = true;
                     fieldPos.Card.State = CardState.Front;
-                    ((SpellCard)fieldPos.Card).AddEffectButtons();
-                    ((SpellCard)fieldPos.Card).DrawEffectButtons = true;
-                    
+                    ((SpellCard)fieldPos.Card).ActivateEffectButtons();
+                    //((SpellCard)fieldPos.Card).DrawEffectButtons = true;
+                    Match.AlertText.DisplayedString = "Select A Effect On The Card";
                     result = fieldPos.Card;
                 }
 
@@ -149,13 +175,18 @@ namespace CompCardGame.Source
             {
                 foreach (var fieldPos in playerSpellField)//make not selected cards inactive
                 {
-                    if (result != fieldPos.Card && fieldPos.HasCard)
+                    if (fieldPos.HasCard)
                     {
-                        ((SpellCard)fieldPos.Card).DrawEffectButtons = false;
-                        fieldPos.Card.State = CardState.Back;
-                        ((SpellCard)fieldPos.Card).RemoveButtons();
-                        fieldPos.Card.Selected = false;
+                        if (!result.Equals(fieldPos.Card)  && fieldPos.Card.Selected)
+                        {
+                            ((SpellCard)fieldPos.Card).DrawEffectButtons = false;
+                            fieldPos.Card.State = CardState.Back;
+                            ((SpellCard)fieldPos.Card).DeactivateEffectButtons();
+                            Match.ClearAlertText();
+                            fieldPos.Card.Selected = false;
+                        }
                     }
+                    
                 }
                 foreach (var fieldPos in playerMonsterField)//make not selected cards inactive
                 {

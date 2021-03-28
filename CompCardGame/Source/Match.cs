@@ -45,6 +45,8 @@ namespace CompCardGame.Source
 
         public static Effect selectedEffect;
 
+        public static Text AlertText = HelperFunctions.NewText("",50, new Vector2f(Game.ScreenWidth/2-600, Game.ScreenHeight/2-40), Color.Red);
+        
 
         //this is has the system done an update to the field/cards/player for that match phase
         //will be reset every switch of the turnstate
@@ -73,6 +75,11 @@ namespace CompCardGame.Source
             Game.InputHandler.AddButton(new Button("Next Phase", 20, new Vector2f(Game.ScreenWidth - 400, Game.ScreenHeight / 2), Color.Black, NextTurnState));
         }
 
+        public static void ClearAlertText()
+        {
+            AlertText.DisplayedString = "";
+        }
+
         public void RenderSideView()
         {
             field.Draw(ViewType.SideView);
@@ -93,7 +100,7 @@ namespace CompCardGame.Source
         public void RenderFieldView()
         {
             field.Draw(ViewType.FieldView);
-
+            
             if (selectedCard != null)
             {
                 selectedCard.viewType = ViewType.FieldView;
@@ -105,7 +112,7 @@ namespace CompCardGame.Source
                 player.viewType = ViewType.FieldView;
                 window.Draw(player);
             }
-
+            window.Draw(AlertText);
 
         }
         //go to next turn state and reset has done update and call to update text
@@ -191,6 +198,7 @@ namespace CompCardGame.Source
                                     else if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard)
                                     {
                                         field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                        ((SpellCard)selectedCard).AddEffectButtons();
                                         players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
                                         target.Item2.Card = selectedCard;
                                         selectedCard.Location = CardLocation.Field;
@@ -313,84 +321,142 @@ namespace CompCardGame.Source
                         }
                         if (selectedEffect != null)//button will make the selected = the effect
                         {
+                           
                             Tuple<PlayerType, FieldPosition> target;
                             target = field.GetTarget(mouse);
-                            if (selectedEffect.TargetPlayer == PlayerType.Player && target.Item1 == PlayerType.Player)
+                            if (target != null)
                             {
-                                if (selectedEffect.TargetCard == FieldType.Monster && target.Item2.Card is MonsterCard)// target is player monster
+                                if (selectedEffect.TargetPlayer == PlayerType.Player && target.Item1 == PlayerType.Player)
                                 {
-                                    selectedEffect.ActivateEffect(target.Item2.Card);
+                                    if (selectedEffect.TargetCard == FieldType.Monster)
+                                    {
+                                        if (target.Item2.Card is MonsterCard)
+                                        {
+                                            selectedEffect.ActivateEffect(target.Item2.Card);
+                                        }
+                                        else
+                                        {
+                                            return;
+                                        }
+                                    }
+                                    
+                                    else if (selectedEffect.TargetCard == FieldType.Spell) // target is player spell
+                                    {
+                                        if (target.Item2.Card is SpellCard)
+                                        {
+                                            selectedEffect.ActivateEffect(target.Item2.Card);
+                                        }
+                                        else
+                                        {
+                                            return;
+                                        }
+                                        
+                                    }
+                                    else if (selectedEffect.TargetCard == null)//effect on self
+                                    {
+                                        selectedEffect.ActivateEffect(players[0]);
+                                    }
+                                    
                                 }
-                                else if (selectedEffect.TargetCard == FieldType.Spell && target.Item2.Card is SpellCard) // target is player spell
+                                else if (selectedEffect.TargetPlayer == PlayerType.Enemy && target.Item1 == PlayerType.Enemy)//enemy
                                 {
-                                    selectedEffect.ActivateEffect(target.Item2.Card);
+                                    if (selectedEffect.TargetCard == FieldType.Monster)
+                                    {
+                                        if (target.Item2.Card is MonsterCard)
+                                        {
+                                            selectedEffect.ActivateEffect(target.Item2.Card);
+                                        }
+                                        else
+                                        {
+                                            return;
+                                        }
+                                    }
+                                    
+                                    else if (selectedEffect.TargetCard == FieldType.Spell) // target is enemy spell
+                                    {
+                                        if (target.Item2.Card is SpellCard)
+                                        {
+                                            selectedEffect.ActivateEffect(target.Item2.Card);
+                                        }
+                                        else
+                                        {
+                                            return;
+                                        }
+                                    }
+                                    else if (selectedEffect.TargetCard == null)//effect on opponent
+                                    {
+                                        selectedEffect.ActivateEffect(players[1]);
+                                    }
                                 }
-                                else //effect on self
-                                {
-                                    selectedEffect.ActivateEffect(players[0]);
-                                }
+                                players[0].SendCardToGraveyard(selectedCard);
+                                selectedEffect.DeactivateButtons();
+                                selectedEffect = null;
+                                selectedCard.Selected = false;
+                                field.RemoveCard(selectedCard);
+                                selectedCard = null;
+                                ClearAlertText();
+                                return;
                             }
-                            else if (selectedEffect.TargetPlayer == PlayerType.Enemy && target.Item1 == PlayerType.Enemy)//enemy
+                            else
                             {
-                                if (selectedEffect.TargetCard == FieldType.Monster && target.Item2.Card is MonsterCard)
-                                {
-                                    selectedEffect.ActivateEffect(target.Item2.Card);
-                                }
-                                else if (selectedEffect.TargetCard == FieldType.Spell && target.Item2.Card is SpellCard) // target is enemy spell
-                                {
-                                    selectedEffect.ActivateEffect(target.Item2.Card);
-                                }
-                                else //effect on opponent
-                                {
-                                    selectedEffect.ActivateEffect(players[1]);
-                                }
+                                //check cancel button
                             }
 
                         }
                         else
                         {
-
-                        }
-                        var temp = field.SelectPlayerCard(mouse);
-                        if (temp != null)
-                        {
-                            selectedCard = temp;
-                            if (selectedCard != null)
+                           
+                            if (selectedCard != null && selectedCard is SpellCard card)
                             {
-                                lastSelectedCard = selectedCard;
-                            }
-                        }
-                        else
-                        {
-                            if (selectedCard is MonsterCard)
-                            {
-                                //Console.WriteLine(selectedCard is MonsterCard);
-                                Tuple<PlayerType, FieldPosition> target;
-                                target = field.GetTarget(mouse);
-                                if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
+                                if (card.CheckButtonClick(mouse))
                                 {
-
-                                    CalculateCardAttack((MonsterCard)selectedCard, target);
+                                    
+                                    return;
+                                }
+                                
+                            }
+                            var temp = field.SelectPlayerCard(mouse);
+                            if (temp != null)
+                            {
+                                selectedCard = temp;
+                                if (selectedCard != null)
+                                {
+                                    lastSelectedCard = selectedCard;
                                 }
                             }
-                            else if (selectedCard is SpellCard)//spell card
+                            else
                             {
-                                
-                                
-                                
-                                
-                                //if (target != null && target.Item1 == selectedEffect.targetPlayer  && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
+                                if (selectedCard is MonsterCard)
+                                {
+                                    //Console.WriteLine(selectedCard is MonsterCard);
+                                    Tuple<PlayerType, FieldPosition> target;
+                                    target = field.GetTarget(mouse);
+                                    if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
+                                    {
+
+                                        CalculateCardAttack((MonsterCard)selectedCard, target);
+                                    }
+                                }
+                                else if (selectedCard is SpellCard)//spell card
+                                {
+
+                                    
+
+
+                                    //if (target != null && target.Item1 == selectedEffect.targetPlayer  && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
+                                    //{
+
+                                    //    //CalculateCardAttack((MonsterCard)selectedCard, target);
+                                    //}
+                                }
+
+                                //else if (false)//TODO check area on top to attack health of player //attack hp directly
                                 //{
-
-                                //    //CalculateCardAttack((MonsterCard)selectedCard, target);
+                                //    Console.WriteLine("Attack health");
                                 //}
                             }
-
-                            //else if (false)//TODO check area on top to attack health of player //attack hp directly
-                            //{
-                            //    Console.WriteLine("Attack health");
-                            //}
                         }
+                        
 
                         break;
                     case TurnState.Secondary:

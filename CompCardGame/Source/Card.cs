@@ -50,7 +50,7 @@ namespace CompCardGame.Source
         public const float width = 200f;
         public const float height = 320f;
 
-
+        private int id;
         //Active is only true when mouse is hovered over the card in hand or if selected while on the field
         public Boolean Selected { get; set; }
         //card location can be either deck, hand, field, or graveyard
@@ -106,6 +106,42 @@ namespace CompCardGame.Source
             Location = CardLocation.Deck;
 
         }
+        public Card(int i)
+        {
+            id = i;
+            //creating the shapes of the card
+            var color = Color.Cyan;
+            var accentColor = Color.Black;
+            shapes = CardShapes(Position, color, accentColor);
+            backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
+            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 2, OutlineColor = Color.Red };
+            //filling in the name and description
+            cardName = HelperFunctions.NewText("Card Name", 15, new Vector2f { X = 10f, Y = 10f }, Color.Black);
+            cardDescription = HelperFunctions.NewText("Description", 10, new Vector2f { X = 10f, Y = 235f }, Color.Black);
+            //cardAttackText = HelperFunctions.NewText("Attack: ", 15, new Vector2f { X = 5f, Y = height - 20f }, Color.Black);
+            //cardDefenseText = HelperFunctions.NewText("Defense: ", 15,  new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
+            //cardManaText = HelperFunctions.NewText("ManaPool: ", 15,  new Vector2f { X = 5f, Y = height - 35f }, Color.Black);
+            //cardMaxManaText = HelperFunctions.NewText("MaxMana: ", 15,  new Vector2f { X = 100f, Y = height - 35f }, Color.Black);
+            //cardCrystalCostText = HelperFunctions.NewText("CrystalCost: ", 15, new Vector2f { X = 10f, Y = 30f }, Color.Black);
+            //attributes for dealing damage and defense yugioh does in hundreds, Hearthstone is in singles digits not sure which to use
+            //Attack  = 100;
+            //Defense = 100;
+            //Mana = 1;
+            //MaxMana = 1;
+            crystals = new List<CircleShape>();
+            CrystalCost = 2;
+
+            //attackManaCost = 1;
+
+            //for (int i = 0; i < CrystalCost; i++)
+            //{
+            //    crystals.Add(new CircleShape(5f, 4) { Position = new Vector2f(10f + i * 15f, 35f), FillColor = Color.Magenta, OutlineColor = new Color(169, 169, 169), OutlineThickness = 1 });
+            //}
+
+            Selected = false;
+            Location = CardLocation.Deck;
+
+        }
 
         public Card(String name, String discription)
         {
@@ -127,7 +163,10 @@ namespace CompCardGame.Source
         }
 
 
-
+        public bool Equals(Card obj)
+        {
+            return obj.id == this.id;
+        }
 
         public virtual void Draw(RenderTarget target, RenderStates states)
         {
