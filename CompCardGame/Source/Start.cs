@@ -13,6 +13,11 @@ namespace CompCardGame.Source
         {
             Game game = new Game();
             game.Initialize();
+
+            //for listing databases test
+            Database test = new Database();
+            test.DBConnectionTest();
+
             game.Run();
         }
     }
