@@ -127,6 +127,7 @@ namespace CompCardGame.Source
             hasDoneUpdate = false;
             field.UpdateTurnStateText();
             field.ResetCardSelection();
+            ClearAlertText();
 
         }
         //next match state and update text
@@ -134,6 +135,7 @@ namespace CompCardGame.Source
         {
             MatchState = 1 - MatchState;//flip between 0 and 1
             field.UpdateMatchStateText();
+            ClearAlertText();
         }
 
         //control mouse movement in a match
@@ -185,20 +187,37 @@ namespace CompCardGame.Source
                                 {
                                     if (target.Item2.fieldType == FieldType.Monster && selectedCard is MonsterCard)
                                     {
-                                        field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
-                                        players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
-                                        target.Item2.Card = selectedCard;
-                                        selectedCard.Location = CardLocation.Field;
-                                        selectedCard.Selected = false;
-                                        players[0].AddCardToRemoveQueue(selectedCard);
-                                        //cardsToRemove.Enqueue(selectedCard);
-                                        //players[0].RemoveCard(selectedCard);
-                                        selectedCard = null;
+                                        if (selectedCard is EffectMonster card)
+                                        {
+                                            field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                            card.AddEffectButtons();
+                                            players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
+                                            target.Item2.Card = selectedCard;
+                                            selectedCard.Location = CardLocation.Field;
+                                            selectedCard.Selected = false;
+                                            players[0].AddCardToRemoveQueue(selectedCard);
+                                            //cardsToRemove.Enqueue(selectedCard);
+                                            //players[0].RemoveCard(selectedCard);
+                                            selectedCard = null;
+                                        }
+                                        else
+                                        {
+                                            field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                            players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
+                                            target.Item2.Card = selectedCard;
+                                            selectedCard.Location = CardLocation.Field;
+                                            selectedCard.Selected = false;
+                                            players[0].AddCardToRemoveQueue(selectedCard);
+                                            //cardsToRemove.Enqueue(selectedCard);
+                                            //players[0].RemoveCard(selectedCard);
+                                            selectedCard = null;
+                                        }
+                                        
                                     }
-                                    else if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard)
+                                    else if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard card)
                                     {
                                         field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
-                                        ((SpellCard)selectedCard).AddEffectButtons();
+                                        card.AddEffectButtons();
                                         players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
                                         target.Item2.Card = selectedCard;
                                         selectedCard.Location = CardLocation.Field;
@@ -319,7 +338,7 @@ namespace CompCardGame.Source
                         {
                             lastSelectedCard = selectedCard2;
                         }
-                        if (selectedEffect != null)//button will make the selected = the effect
+                        if (selectedEffect != null)//button will make the selected = the effect there will be cancel button or space bar
                         {
                            
                             Tuple<PlayerType, FieldPosition> target;
@@ -360,7 +379,7 @@ namespace CompCardGame.Source
                                 }
                                 else if (selectedEffect.TargetPlayer == PlayerType.Enemy && target.Item1 == PlayerType.Enemy)//enemy
                                 {
-                                    if (selectedEffect.TargetCard == FieldType.Monster)
+                                    if (selectedEffect.TargetCard == FieldType.Monster)//enemy monster
                                     {
                                         if (target.Item2.Card is MonsterCard)
                                         {
@@ -388,11 +407,30 @@ namespace CompCardGame.Source
                                         selectedEffect.ActivateEffect(players[1]);
                                     }
                                 }
-                                players[0].SendCardToGraveyard(selectedCard);
                                 selectedEffect.DeactivateButtons();
-                                selectedEffect = null;
                                 selectedCard.Selected = false;
-                                field.RemoveCard(selectedCard);
+                                if (selectedCard is SpellCard card)
+                                {
+                                    if (!card.isFieldType)
+                                    {
+                                        players[0].SendCardToGraveyard(selectedCard);
+                                        field.RemoveCard(selectedCard);
+                                    }
+                                    
+                                }
+                                selectedEffect = null;
+                                
+
+                                //players[0].SendCardToGraveyard(selectedCard);
+                                //selectedEffect.DeactivateButtons();
+                                //selectedEffect = null;
+                                //selectedCard.Selected = false;
+                                //field.RemoveCard(selectedCard);
+                                //selectedCard = null;
+                                //ClearAlertText();
+
+
+
                                 selectedCard = null;
                                 ClearAlertText();
                                 return;
@@ -408,6 +446,7 @@ namespace CompCardGame.Source
                            
                             if (selectedCard != null && selectedCard is SpellCard card)
                             {
+                                
                                 if (card.CheckButtonClick(mouse))
                                 {
                                     
@@ -415,14 +454,24 @@ namespace CompCardGame.Source
                                 }
                                 
                             }
+                            else if (selectedCard != null && selectedCard is EffectMonster monster)
+                            {
+                                //Console.WriteLine("check button");
+                                if (monster.CheckButtonClick(mouse))
+                                {
+
+                                    return;
+                                }
+
+                            }
                             var temp = field.SelectPlayerCard(mouse);
                             if (temp != null)
                             {
                                 selectedCard = temp;
-                                if (selectedCard != null)
-                                {
-                                    lastSelectedCard = selectedCard;
-                                }
+                                
+                                
+                                lastSelectedCard = selectedCard;
+                                
                             }
                             else
                             {
@@ -439,9 +488,6 @@ namespace CompCardGame.Source
                                 }
                                 else if (selectedCard is SpellCard)//spell card
                                 {
-
-                                    
-
 
                                     //if (target != null && target.Item1 == selectedEffect.targetPlayer  && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
                                     //{
@@ -509,7 +555,7 @@ namespace CompCardGame.Source
                             {
                                 players[(int)MatchState].DrawACardFromDeck();
                                 players[(int)MatchState].GetCrystals();
-
+                                field.GiveCardsMana(MatchState.Player);
                                 hasDoneUpdate = true;
                             }
                             else
@@ -652,14 +698,16 @@ namespace CompCardGame.Source
                     players[(int)target.Item1].ApplyDamage(card1.Attack - card2.Defense);
 
                     target.Item2.ResetCard();
+                    
                 }
                 else //attack failed you get dealt difference of defense -attack
                 {
                     players[(int)target.Item1 - 1].ApplyDamage(card2.Defense - card1.Attack);
                 }
                 card1.Mana -= card1.attackManaCost;
+                
             }
-
+            selectedCard = null;
         }
 
 

@@ -17,22 +17,24 @@ namespace CompCardGame.Source
         private int attack;
         private int defense;
         private int mana;
+        
         private int maxMana;
         private int hp;
         public int attackManaCost;
 
 
-        Text cardAttackText;
-        Text cardDefenseText;
-        Text cardManaText;
-        Text cardMaxManaText;
-        Text cardHpText;
+        private readonly Text cardAttackText;
+        private readonly Text cardDefenseText;
+        private readonly Text cardManaText;
+        private readonly Text cardMaxManaText;
+        private readonly Text cardHpText;
 
         public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
         public int Defense { get { return defense; } set { defense = value; cardDefenseText.DisplayedString = "Defense: " + value.ToString(); } }
         public int Hp { get { return hp; } set { hp = value; cardHpText.DisplayedString = "Hp: " + value.ToString(); } }
         public int Mana { get { return mana; } set { mana = value; cardManaText.DisplayedString = "ManaPool: " + value.ToString(); } }
 
+        public int ManaGain { get; set; }
         public int MaxMana { get { return maxMana; } set { maxMana = value; cardMaxManaText.DisplayedString = "MaxMana: " + value.ToString(); } }//future it will be shown by top filled mana pool icon
         public MonsterCard(): base()
         {
@@ -48,6 +50,7 @@ namespace CompCardGame.Source
             Mana = 1;
             MaxMana = 1;
             attackManaCost = 1;
+            ManaGain = 1;
         }
         public MonsterCard(int id) : base(id)
         {
@@ -64,6 +67,7 @@ namespace CompCardGame.Source
             Mana = 1;
             MaxMana = 1;
             attackManaCost = 1;
+            ManaGain = 1;
         }
 
         public override void Draw(RenderTarget target, RenderStates states)
@@ -112,6 +116,18 @@ namespace CompCardGame.Source
 
                 }
                
+            }
+        }
+
+        public void GiveMana()
+        {
+            if (Mana < MaxMana)
+            {
+                Mana += ManaGain;
+            }
+            else if (Mana + ManaGain >= MaxMana)
+            {
+                Mana = MaxMana;
             }
         }
 

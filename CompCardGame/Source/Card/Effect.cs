@@ -20,18 +20,19 @@ namespace CompCardGame.Source
 
         public CustomAction action;
 
-        private Text effectText;
+        private readonly Text effectText;
 
         private int pos;//pos on the card
-
+        private int id;
         private Button button;
 
-        private Card card;
-
+        private readonly Card card;
+        Random random = new Random();
         public Effect(Card card)
         {
             this.card = card;
             pos = 1;
+            id = random.Next();
             action = (card2, player) => { Console.WriteLine($"{card2}, {player} Effect activated"); };
             TargetCard = null;
             TargetPlayer = PlayerType.Player;
@@ -44,6 +45,7 @@ namespace CompCardGame.Source
             TargetCard = null;
             TargetPlayer = PlayerType.Player;
             pos = i;
+            id = random.Next();
             effectText = HelperFunctions.NewText("Generic effect", 10, new Vector2f(10, 250 + 20 * pos), Color.Black);
             //AddButton();
         }
@@ -54,17 +56,19 @@ namespace CompCardGame.Source
             TargetCard = null;
             TargetPlayer = PlayerType.Player;
             pos = i;
+            id = random.Next();
             effectText = HelperFunctions.NewText("Generic effect", 10, new Vector2f(10, 250 + 20 * pos), Color.Black);
             //AddButton();
         }
 
-        public Effect(int i, Card card,FieldType targetCard, PlayerType targetPlayer, string text, CustomAction action)
+        public Effect(int i, Card card,FieldType? targetCard, PlayerType? targetPlayer, string text, CustomAction action)
         {
             this.card = card;
             this.action = action;
             this.TargetCard = targetCard;
             this.TargetPlayer = targetPlayer;
             pos = i;
+            id = random.Next();
             effectText = HelperFunctions.NewText(text, 10, new Vector2f(10, 250 + 20 * pos), Color.Black);
         }
 
@@ -75,7 +79,16 @@ namespace CompCardGame.Source
 
         public void ActivateEffect(Card card)
         {
-            action(card: card);
+            if (card is EffectMonster monster)
+            {
+                
+                action(card: card);
+            }
+            else
+            {
+                action(card: card);
+            }
+            
         }
 
         public void ActivateEffect(Player player, Card card)
@@ -105,10 +118,27 @@ namespace CompCardGame.Source
 
         }
 
+        public void DoAction()
+        {
+            button.DoAction();
+        }
+
         public void SetSelectedEffect()
         {
-            Match.selectedEffect = this;
-            Match.AlertText.DisplayedString = (this.TargetCard == null) ? $"Please select {this.TargetPlayer}." : $"Please select {this.TargetCard} on {this.TargetPlayer} field.";
+            if (card is EffectMonster monster)
+            {
+                Console.WriteLine(monster.CanUseEffect(this));
+                if (monster.CanUseEffect(this))
+                {
+                    Match.selectedEffect = this;
+                    Match.AlertText.DisplayedString = (this.TargetCard == null) ? $"Please select {this.TargetPlayer}." : $"Please select {this.TargetCard} on {this.TargetPlayer} field.";
+                }
+            }
+            else
+            {
+                Match.selectedEffect = this;
+                Match.AlertText.DisplayedString = (this.TargetCard == null) ? $"Please select {this.TargetPlayer}." : $"Please select {this.TargetCard} on {this.TargetPlayer} field.";
+            }
         }
 
         //public void RemoveButton()
@@ -127,17 +157,21 @@ namespace CompCardGame.Source
             {
                 target.Draw(effectText, states);
             }
-            else if (button != null)
+            else 
             {
                 target.Draw(effectText, states);
-
-                if (button.IsUsable)
+                if (button != null)
                 {
-                    
-                    target.Draw(button, states);
+                    if (button.IsUsable)
+                    {
+
+                        target.Draw(button, states);
+                    }
                 }
+                    
 
             }
+           
 
         }
 
@@ -145,21 +179,34 @@ namespace CompCardGame.Source
         {
             if (button.Contains(mouse))
             {
-                button.DoAction();
+                
                 return true;
             }
             return false;
 
         }
+
+        public bool Equals(Effect effect)
+        {
+            return id == effect.id && card.Equals(effect.card);
+            
+        }
         public static Effect HealAllyCard(int amount, Card ownerCard)
         {
-            var effect = new Effect(1, ownerCard,FieldType.Monster, PlayerType.Player,$"Heal an Ally Card {amount} HP",(card, player) => { ((MonsterCard)card).Hp += amount; });
-            effect.TargetCard = FieldType.Monster;
-            effect.TargetPlayer = PlayerType.Player;
-           
+            var effect = new Effect(1, ownerCard, FieldType.Monster, PlayerType.Player, $"Heal an Ally Card {amount} HP", (card, player) => { ((MonsterCard)card).Hp += amount; });
+            
+
             return effect;
         }
 
-        
+        public static Effect HealPlayer(int amount, Card ownerCard)
+        {
+            var effect = new Effect(1, ownerCard, null, PlayerType.Player, $"Heal your Self {amount} HP", (card, player) => { player.Health += amount; });
+            
+
+            return effect;
+        }
+
+
     }
 }

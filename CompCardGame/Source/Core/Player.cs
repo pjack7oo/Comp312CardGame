@@ -20,7 +20,7 @@ namespace CompCardGame.Source
 
         
         
-        Queue<Card> cards;//deck
+        Queue<Card> cards;//deck will probably switch to stack which makes more sense for a deck
         List<Card> hand;
         List<Card> graveYard;
 
@@ -30,7 +30,7 @@ namespace CompCardGame.Source
         //object target;
 
         private int health;
-        public int Health { get { return health; } private set { health = value; healthText.DisplayedString = $"Health: {value}"; } }
+        public int Health { get { return health; }  set { health = value; healthText.DisplayedString = $"Health: {value}"; } }
 
         
         //help with drawing location on the board
@@ -86,19 +86,35 @@ namespace CompCardGame.Source
                 } 
                 else
                 {
-                    var card = new MonsterCard(i);
-                    card.cardName.DisplayedString = $"{i}";
-                    if (playerType == PlayerType.Player && temp)//temporary for testing
+                    if (i == 3)
                     {
-                        card.Attack = 110;
+                        var card = new EffectMonster(i) { MaxMana = 2};
+                        card.SetEffect(Effect.HealPlayer(5, card),2);
+                        card.cardName.DisplayedString = $"{i}";
                         
-                        temp = false;
+                        card.Attack = 110;
+
+                        cards.Enqueue(card);
+
                     }
-                    cards.Enqueue(card);
+                    else
+                    {
+                        var card = new MonsterCard(i);
+                        card.cardName.DisplayedString = $"{i}";
+                        if (playerType == PlayerType.Player && temp)//temporary for testing
+                        {
+                            card.Attack = 110;
+
+                            temp = false;
+                        }
+                        cards.Enqueue(card);
+                    }
+                    
+                    
                 }
                 
             }
-            cards.Shuffle();
+            //cards = cards.Shuffle();
             
 
 
@@ -280,7 +296,19 @@ namespace CompCardGame.Source
             foreach (var card in hand)
             {
                 card.viewType = ViewType.FieldView;
-                target.Draw(card);
+                if (card is SpellCard)
+                {
+                    target.Draw(((SpellCard)card));
+                }
+                else if (card is EffectMonster)
+                {
+                    target.Draw(((EffectMonster)card));
+                }
+                else
+                {
+                    target.Draw(card);
+                }
+                
             }
 
         }

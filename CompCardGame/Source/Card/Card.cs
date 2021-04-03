@@ -51,7 +51,7 @@ namespace CompCardGame.Source
         public const float height = 320f;
 
         private int id;
-        //Active is only true when mouse is hovered over the card in hand or if selected while on the field
+        //Selected is only true when mouse is hovered over the card in hand or if selected while on the field
         public Boolean Selected { get; set; }
         //card location can be either deck, hand, field, or graveyard
         public CardLocation Location { get; set; }
@@ -170,6 +170,7 @@ namespace CompCardGame.Source
 
         public virtual void Draw(RenderTarget target, RenderStates states)
         {
+           
             if (viewType == ViewType.SideView)
             {
                 

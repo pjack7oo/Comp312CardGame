@@ -176,6 +176,19 @@ namespace CompCardGame.Source
             return null;
         }
 
+        public void GiveCardsMana(MatchState player)
+        {
+            if (player == MatchState.Player)
+            {
+                player1Field.GiveCardsMana();
+            }
+            else
+            {
+                player2Field.GiveCardsMana();
+            }
+            
+            
+        }
 
         public void UpdateTurnStateText()
         {

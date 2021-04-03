@@ -10,33 +10,36 @@ namespace CompCardGame.Source
 {
     class SpellCard: Card
     {
-        private readonly bool isFieldType;
-        public readonly List<Effect> effects = new List<Effect>();
+        public readonly bool isFieldType;
+        public readonly Effect[] effects;
 
         private readonly Text fieldTypeText;//temporary later this will be a symbol on the card
         public Boolean Active { get; private set; }
 
-        public bool DrawEffectButtons { get; set; }
+        //public bool DrawEffectButtons { get; set; }
         public SpellCard(): base()
         {
             SetColors(new Color(208,0,208), Color.Black);
-            isFieldType = true;
+            isFieldType = false;
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82,30)};
-            effects.Add(new Effect(this));    
+            effects = new Effect[1];
+            effects[0] = new Effect(this);    
         }
         public SpellCard(int i) : base(i)
         {
             
             SetColors(new Color(208, 0, 208), Color.Black);
-            isFieldType = true;
+            isFieldType = false;
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82, 30) };
-            effects.Add(Effect.HealAllyCard(5, this));
+            effects = new Effect[1];
+            effects[0] = Effect.HealAllyCard(5, this);//temporary for testing
         }
         public SpellCard(Effect effect,bool isFieldType) : base()
         {
             SetColors(new Color(208, 0, 208), Color.Black);
             this.isFieldType = isFieldType;
-            effects.Add(effect);
+            effects = new Effect[1];
+            effects[0] = effect;
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
             
         }
@@ -45,13 +48,14 @@ namespace CompCardGame.Source
         {
             SetColors(new Color(208, 0, 208), Color.Black);
             this.isFieldType = isFieldType;
-            this.effects.AddRange(effects);
+            this.effects = effects;
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
             
         }
 
         public override void Draw(RenderTarget target, RenderStates states)
         {
+            
             base.Draw(target, states);
            
             if (viewType == ViewType.SideView)
@@ -76,12 +80,13 @@ namespace CompCardGame.Source
             else
             {
 
-
+               
                 //applying object transform to the states transform for drawing uniformly
                 states.Transform = Transform;
                 //drawing based on the state
                 if (State == CardState.Front)
                 {
+                    
                     //foreach (var effect in effects)
                     //{
                     //    //target.Draw(effect, states);
@@ -119,7 +124,8 @@ namespace CompCardGame.Source
         }
         public void AddEffectButtons()
         {
-            for (int i = 0; i < effects.Count; i++)
+            var len = effects.Length;
+            for (int i = 0; i < len; i++)
             {
                 effects[i].AddButton();
             }
@@ -127,7 +133,8 @@ namespace CompCardGame.Source
 
         public void ActivateEffectButtons()
         {
-            for (int i = 0; i < effects.Count; i++)
+            var len = effects.Length;
+            for (int i = 0; i < len; i++)
             {
                 effects[i].ActivateButton();
             }
@@ -135,7 +142,8 @@ namespace CompCardGame.Source
 
         public void DeactivateEffectButtons()
         {
-            for (int i = 0; i < effects.Count; i++)
+            var len = effects.Length;
+            for (int i = 0; i < len; i++)
             {
                 effects[i].DeactivateButtons();
             }
