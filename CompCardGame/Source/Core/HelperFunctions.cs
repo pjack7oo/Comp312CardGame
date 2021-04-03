@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SFML.Graphics;
 using SFML.System;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Core
 {
     class HelperFunctions
     {

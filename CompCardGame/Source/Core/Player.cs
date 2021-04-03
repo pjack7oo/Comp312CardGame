@@ -5,8 +5,10 @@ using SFML.System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CompCardGame.Source.Objects;
+using CompCardGame.Source.Field;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Core
 {
     public enum PlayerType
     {
@@ -74,15 +76,30 @@ namespace CompCardGame.Source
             hand = new List<Card>();
             graveYard = new List<Card>();
             Boolean temp = true;
+            int tempI = 0;
             //temporary for loop for testing later wont be needed because it will load in the players cards
             for (int i = 0; i < 30; i++)
             {
+                
                 if (i%2 ==0)
                 {
-                    var card = new SpellCard(i);
+                    if (tempI == 0)
+                    {
+                        var card = new SpellCard(i);
 
-                    card.cardName.DisplayedString = $"{i}";
-                    cards.Enqueue(card);
+                        card.cardName.DisplayedString = $"{i}";
+                        cards.Enqueue(card);
+                        tempI = 1;
+                    }
+                    else
+                    {
+                        var card = new SpellCard(i);
+                        card.SetEffect(Effect.OverloadCardMana(2, card));
+                        card.cardName.DisplayedString = $"Overload Mana";
+                        cards.Enqueue(card);
+                        tempI = 0;
+                    }
+                    
                 } 
                 else
                 {

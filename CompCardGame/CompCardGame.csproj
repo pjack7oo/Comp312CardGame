@@ -137,22 +137,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Core\Button.cs" />
-    <Compile Include="Source\Card\Card.cs" />
+    <Compile Include="Source\Objects\Card.cs" />
     <Compile Include="Source\Core\CardHandler.cs" />
-    <Compile Include="Source\Database\Database.cs" />
-    <Compile Include="Source\Card\Effect.cs" />
-    <Compile Include="Source\Card\EffectMonster.cs" />
+    <Compile Include="Source\Core\Database.cs" />
+    <Compile Include="Source\Objects\Effect.cs" />
+    <Compile Include="Source\Objects\EffectMonster.cs" />
     <Compile Include="Source\Field\Field.cs" />
     <Compile Include="Source\Field\FieldPosition.cs" />
     <Compile Include="Source\Core\Game.cs" />
     <Compile Include="Source\Core\HelperFunctions.cs" />
-    <Compile Include="Source\Card\ICard.cs" />
+    <Compile Include="Source\Objects\ICard.cs" />
     <Compile Include="Source\Core\Match.cs" />
     <Compile Include="Source\Core\InputHandler.cs" />
-    <Compile Include="Source\Card\MonsterCard.cs" />
+    <Compile Include="Source\Objects\MonsterCard.cs" />
     <Compile Include="Source\Core\Player.cs" />
     <Compile Include="Source\Field\PlayerField.cs" />
-    <Compile Include="Source\Card\SpellCard.cs" />
+    <Compile Include="Source\Objects\SpellCard.cs" />
     <Compile Include="Source\Start.cs" />
   </ItemGroup>
   <ItemGroup>

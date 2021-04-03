@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CompCardGame.Source.Objects;
+using CompCardGame.Source.Core;
+using CompCardGame.Source.Field;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Field
 {
     enum ViewType
     {

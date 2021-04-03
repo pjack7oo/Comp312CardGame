@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CompCardGame.Source.Field;
+using CompCardGame.Source.Core;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Objects
 {
     class EffectMonster:MonsterCard
     {
@@ -93,7 +95,7 @@ namespace CompCardGame.Source
                     if (CanUseEffect(effect)) {
                         
                         effect.DoAction();
-                        UseMana(effect);
+                        
                         return true;
                     }
                     

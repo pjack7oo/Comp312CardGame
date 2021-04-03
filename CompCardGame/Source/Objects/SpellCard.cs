@@ -5,13 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CompCardGame.Source.Field;
+using CompCardGame.Source.Core;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Objects
 {
     class SpellCard: Card
     {
         public readonly bool isFieldType;
-        public readonly Effect[] effects;
+        public Effect[] effects;
 
         private readonly Text fieldTypeText;//temporary later this will be a symbol on the card
         public Boolean Active { get; private set; }
@@ -34,14 +36,25 @@ namespace CompCardGame.Source
             effects = new Effect[1];
             effects[0] = Effect.HealAllyCard(5, this);//temporary for testing
         }
-        public SpellCard(Effect effect,bool isFieldType) : base()
+        public SpellCard(bool isFieldType) : base()
         {
             SetColors(new Color(208, 0, 208), Color.Black);
             this.isFieldType = isFieldType;
             effects = new Effect[1];
-            effects[0] = effect;
+            
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
             
+        }
+
+        public void SetEffect(Effect effect)
+        {
+            effects = new Effect[1];
+            effects[0] = effect;
+            
+        }
+        public void SetEffects(Effect[] effects)
+        {
+            this.effects = effects;
         }
 
         public SpellCard(Effect[] effects, bool isFieldType) : base()
@@ -116,7 +129,7 @@ namespace CompCardGame.Source
                 if (effect.CheckClick(mouse))
                 {
                     //Console.WriteLine("true");
-                    
+                    effect.DoAction();
                     return true;
                 }
             }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Objects
 {
     public enum CardState
     {

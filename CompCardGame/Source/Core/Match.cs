@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 using SFML.Window;
 using SFML.Graphics;
 using SFML.System;
+using CompCardGame.Source.Objects;
+using CompCardGame.Source.Field;
 
-namespace CompCardGame.Source
+
+namespace CompCardGame.Source.Core
 {
 
     #region StateMachine Enumerators
@@ -34,7 +37,7 @@ namespace CompCardGame.Source
         private RenderWindow window;
 
         private readonly Player[] players;
-        private readonly Field field;
+        private readonly Field.Field field;
 
         public static TurnState TurnState;
         public static MatchState MatchState;
@@ -59,7 +62,7 @@ namespace CompCardGame.Source
             TurnState = TurnState.Drawing;
             MatchState = MatchState.Player;
             hasDoneUpdate = false;
-            field = new Field(window);
+            field = new Field.Field(window);
 
             foreach (var player in players)
             {
@@ -417,6 +420,10 @@ namespace CompCardGame.Source
                                         field.RemoveCard(selectedCard);
                                     }
                                     
+                                }
+                                else if (selectedCard is EffectMonster monster)
+                                {
+                                    monster.UseMana(selectedEffect);
                                 }
                                 selectedEffect = null;
                                 

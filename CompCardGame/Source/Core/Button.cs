@@ -7,7 +7,7 @@ using SFML.Window;
 using SFML.Graphics;
 using SFML.System;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Core
 {
     public enum ButtonState
     {

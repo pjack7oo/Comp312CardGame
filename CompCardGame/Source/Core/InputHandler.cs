@@ -7,7 +7,7 @@ using SFML.Window;
 using SFML.Graphics;
 using SFML.System;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Core
 {
     class InputHandler:Drawable //TODO hold all the functions for movement and control the buttons 
     {

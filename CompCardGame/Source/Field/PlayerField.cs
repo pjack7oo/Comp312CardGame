@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using SFML.Graphics;
 using SFML.System;
-
-namespace CompCardGame.Source
+using CompCardGame.Source.Objects;
+using CompCardGame.Source.Core;
+namespace CompCardGame.Source.Field
 {
     class PlayerField
     {

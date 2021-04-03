@@ -4,13 +4,16 @@ using SFML.Graphics;
 using SFML.System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using CompCardGame.Source.Objects;
 
-namespace CompCardGame.Source
+
+namespace CompCardGame.Source.Core
 {
     enum GameState
     {
         Loading,
         MainPage,
+        CardHandler,
         Match,
         Settings
     }
@@ -38,6 +41,8 @@ namespace CompCardGame.Source
         public static float StretchedScreenHeight { get { return ScreenWidth * 1.5f;}  }
 
         private static Stopwatch stopwatch;//used to get time passed
+
+        private CardHandler cardHandler;
         public void Initialize()
         {
             stopwatch = new Stopwatch();
@@ -77,7 +82,7 @@ namespace CompCardGame.Source
             //temporary this will be later connected to a button on the main page screen
             //match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
 
-
+            cardHandler = new CardHandler(window);
             //InputHandler.SetMatch(match);
 
             InitiallizeLoadingShapes();
@@ -120,11 +125,14 @@ namespace CompCardGame.Source
                     break;
                 case GameState.MainPage:
                     break;
+                case GameState.CardHandler:
+                    break;
                 case GameState.Match:
                     match.Update();
                     break;
                 case GameState.Settings:
                     break;
+                
                 default:
                     break;
             }
@@ -167,6 +175,9 @@ namespace CompCardGame.Source
                     window.SetView(sideView);//draw sideview like zoom up of cards and display stats
                     match.RenderSideView();
 
+                    break;
+                case GameState.CardHandler:
+                    
                     break;
                 case GameState.Settings:
                     window.SetView(defaultView);

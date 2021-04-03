@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Bson;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Core
 {
     class Database
     {

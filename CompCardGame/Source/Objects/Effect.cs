@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CompCardGame.Source.Objects;
+using CompCardGame.Source.Core;
+using CompCardGame.Source.Field;
 
-namespace CompCardGame.Source
+namespace CompCardGame.Source.Objects
 {
     class Effect : Drawable
     {
@@ -194,7 +197,10 @@ namespace CompCardGame.Source
         public static Effect HealAllyCard(int amount, Card ownerCard)
         {
             var effect = new Effect(1, ownerCard, FieldType.Monster, PlayerType.Player, $"Heal an Ally Card {amount} HP", (card, player) => { ((MonsterCard)card).Hp += amount; });
-            
+            if (ownerCard is EffectMonster)
+            {
+                effect.effectText.DisplayedString = $"2 Mana: Heal an Ally Card {amount} HP";
+            }
 
             return effect;
         }
@@ -202,11 +208,21 @@ namespace CompCardGame.Source
         public static Effect HealPlayer(int amount, Card ownerCard)
         {
             var effect = new Effect(1, ownerCard, null, PlayerType.Player, $"Heal your Self {amount} HP", (card, player) => { player.Health += amount; });
-            
+            if (ownerCard is EffectMonster)
+            {
+                effect.effectText.DisplayedString = $"2 Mana: Heal your Self {amount} HP";
+            }
 
             return effect;
         }
 
+        public static Effect OverloadCardMana(int amount, Card ownerCard)
+        {
+            var effect = new Effect(1, ownerCard, FieldType.Monster, PlayerType.Player, $"Give Monster {amount} Mana", (card, player) => { ((MonsterCard)card).Mana += amount; });
+
+
+            return effect;
+        }
 
     }
 }
