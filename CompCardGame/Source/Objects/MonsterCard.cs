@@ -45,8 +45,9 @@ namespace CompCardGame.Source.Objects
             cardDefenseText = HelperFunctions.NewText("Defense: ", 15, new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
             cardManaText = HelperFunctions.NewText("ManaPool: ", 15, new Vector2f { X = 5f, Y = height - 35f }, Color.Black);
             cardMaxManaText = HelperFunctions.NewText("MaxMana: ", 15, new Vector2f { X = 100f, Y = height - 35f }, Color.Black);
-            cardHpText = HelperFunctions.NewText("Hp: ", 15, new Vector2f { X = 10f, Y = height - 35f }, Color.Black);
+            cardHpText = HelperFunctions.NewText("Hp: ", 15, new Vector2f { X = width - 60f, Y = height - 90 }, Color.Black);
 
+            Hp = 10;
             Attack = 100;
             Defense = 100;
             Mana = 1;
@@ -54,7 +55,7 @@ namespace CompCardGame.Source.Objects
             attackManaCost = 1;
             ManaGain = 1;
         }
-        public MonsterCard(int id) : base(id)
+        public MonsterCard(int name) : base()
         {
             this.SetColors(new Color(210, 180, 140), Color.Black);
             cardAttackText = HelperFunctions.NewText("Attack: ", 15, new Vector2f { X = 5f, Y = height - 20f }, Color.Black);

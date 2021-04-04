@@ -19,15 +19,15 @@ namespace CompCardGame.Source.Objects
         public Boolean Active { get; private set; }
 
         //public bool DrawEffectButtons { get; set; }
-        public SpellCard(): base()
-        {
-            SetColors(new Color(208,0,208), Color.Black);
-            isFieldType = false;
-            fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82,30)};
-            effects = new Effect[1];
-            effects[0] = new Effect(this);    
-        }
-        public SpellCard(int i) : base(i)
+        //public SpellCard(): base()
+        //{
+        //    SetColors(new Color(208,0,208), Color.Black);
+        //    isFieldType = false;
+        //    fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82,30)};
+        //    effects = new Effect[1];
+        //    effects[0] = new Effect(this);    
+        //}
+        public SpellCard() : base()
         {
             
             SetColors(new Color(208, 0, 208), Color.Black);

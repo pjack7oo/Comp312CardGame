@@ -23,7 +23,7 @@ namespace CompCardGame.Source.Core
         //center the text
         public static Vector2f GetCenteredPosition(Vector2f buttonSize, Vector2f textSize)
         {
-            Console.WriteLine(textSize);
+            //Console.WriteLine(textSize);
             int x = ((int)buttonSize.X >> 1) - ((int)textSize.X >> 1);//bitshift is faster than division only works for evens this case we divide by 2
             var y = buttonSize.Y / 2 - (textSize.Y);
             Vector2f result = new Vector2f(x, y);//TODO calculate center

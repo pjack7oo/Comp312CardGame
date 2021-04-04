@@ -52,13 +52,15 @@ namespace CompCardGame.Source.Objects
         public const float width = 200f;
         public const float height = 320f;
 
-        private int id;
+        public readonly int id;
+
+        private readonly int ingameID;
         //Selected is only true when mouse is hovered over the card in hand or if selected while on the field
         public Boolean Selected { get; set; }
         //card location can be either deck, hand, field, or graveyard
         public CardLocation Location { get; set; }
 
-
+        private Random random = new Random();
         public CardState State { get { return state; } set { state = value; } }
         //public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
         //public int Defense { get { return defense; } set { defense = value; cardDefenseText.DisplayedString = "Defense: " + value.ToString(); } }
@@ -110,7 +112,7 @@ namespace CompCardGame.Source.Objects
         }
         public Card(int i)
         {
-            id = i;
+            ingameID = random.Next();
             //creating the shapes of the card
             var color = Color.Cyan;
             var accentColor = Color.Black;
@@ -167,7 +169,7 @@ namespace CompCardGame.Source.Objects
 
         public bool Equals(Card obj)
         {
-            return obj.id == this.id;
+            return obj.ingameID == this.ingameID;
         }
 
         public virtual void Draw(RenderTarget target, RenderStates states)

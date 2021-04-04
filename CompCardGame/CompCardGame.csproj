@@ -138,7 +138,7 @@
   <ItemGroup>
     <Compile Include="Source\Core\Button.cs" />
     <Compile Include="Source\Objects\Card.cs" />
-    <Compile Include="Source\Core\CardHandler.cs" />
+    <Compile Include="Source\Core\CardManager.cs" />
     <Compile Include="Source\Core\Database.cs" />
     <Compile Include="Source\Objects\Effect.cs" />
     <Compile Include="Source\Objects\EffectMonster.cs" />

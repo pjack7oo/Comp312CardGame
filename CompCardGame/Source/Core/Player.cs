@@ -20,9 +20,12 @@ namespace CompCardGame.Source.Core
         //to make sure player never has more than 5 cards
         public static int MaxCardsInHand = 5;
 
+        public int id;//to be used by database
 
+        public List<Card> cards;//all cards owned by the player
+        public List<List<Card>> decks;//player decks
 
-        Queue<Card> cards;//deck will probably switch to stack which makes more sense for a deck
+        private Queue<Card> activeDeck;//deck will probably switch to stack which makes more sense for a deck
         List<Card> hand;
         List<Card> graveYard;
 
@@ -72,7 +75,7 @@ namespace CompCardGame.Source.Core
         public Player(PlayerType playerType)
         {
             PlayerType = playerType;
-            cards = new Queue<Card>();
+            activeDeck = new Queue<Card>();
             hand = new List<Card>();
             graveYard = new List<Card>();
             Boolean temp = true;
@@ -85,18 +88,18 @@ namespace CompCardGame.Source.Core
                 {
                     if (tempI == 0)
                     {
-                        var card = new SpellCard(i);
+                        var card = new SpellCard();
 
                         card.cardName.DisplayedString = $"{i}";
-                        cards.Enqueue(card);
+                        activeDeck.Enqueue(card);
                         tempI = 1;
                     }
                     else
                     {
-                        var card = new SpellCard(i);
+                        var card = new SpellCard();
                         card.SetEffect(Effect.OverloadCardMana(2, card));
                         card.cardName.DisplayedString = $"Overload Mana";
-                        cards.Enqueue(card);
+                        activeDeck.Enqueue(card);
                         tempI = 0;
                     }
 
@@ -105,7 +108,7 @@ namespace CompCardGame.Source.Core
                 {
                     if (i == 3)
                     {
-                        var card = new EffectMonster(i) { MaxMana = 2 };
+                        var card = new EffectMonster() { MaxMana = 2 };
                         var effects = new Effect[2];
                         effects[0] = Effect.HealPlayer(5, card, 1,2);
                         effects[1] = Effect.OverloadCardMana(1, card, 2, 0, true);
@@ -116,12 +119,12 @@ namespace CompCardGame.Source.Core
 
                         card.Attack = 110;
 
-                        cards.Enqueue(card);
+                        activeDeck.Enqueue(card);
 
                     }
                     else
                     {
-                        var card = new MonsterCard(i);
+                        var card = new MonsterCard();
                         card.cardName.DisplayedString = $"{i}";
                         if (playerType == PlayerType.Player && temp)//temporary for testing
                         {
@@ -129,7 +132,7 @@ namespace CompCardGame.Source.Core
 
                             temp = false;
                         }
-                        cards.Enqueue(card);
+                        activeDeck.Enqueue(card);
                     }
 
 
@@ -182,7 +185,7 @@ namespace CompCardGame.Source.Core
                 //{
                 //    cards[i].Position = position;
                 //}
-                foreach (var card in cards)
+                foreach (var card in activeDeck)
                 {
                     card.Position = position;
                 }
@@ -203,7 +206,7 @@ namespace CompCardGame.Source.Core
                 //{
                 //    cards[i].Position = position;
                 //}
-                foreach (var card in cards)
+                foreach (var card in activeDeck)
                 {
                     card.Position = position;
                 }
@@ -329,7 +332,7 @@ namespace CompCardGame.Source.Core
         //drawing the deck of cards
         private void DrawDeck(RenderTarget target, RenderStates states)
         {
-            foreach (var card in cards)
+            foreach (var card in activeDeck)
             {
                 card.viewType = ViewType.FieldView;
                 target.Draw(card);
@@ -340,7 +343,7 @@ namespace CompCardGame.Source.Core
         {
             if (hand.Count < MaxCardsInHand)
             {
-                hand.Add(cards.Dequeue());
+                hand.Add(activeDeck.Dequeue());
                 //cards.RemoveAt(0);
                 SetPositionsOfHand();
             }

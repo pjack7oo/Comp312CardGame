@@ -198,7 +198,7 @@ namespace CompCardGame.Source.Core
                 }
                 if (ButtonState == ButtonState.Pressed)
                 {
-                    Console.WriteLine(time);
+                    //Console.WriteLine(time);
                     if (time - pressedTime >= duration)
                     {
                         ButtonState = ButtonState.Default;
