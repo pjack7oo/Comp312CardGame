@@ -42,7 +42,7 @@ namespace CompCardGame.Source.Core
 
         private static Stopwatch stopwatch;//used to get time passed
 
-        private CardManager cardHandler;
+        private CardManager cardManager;
         public void Initialize()
         {
             stopwatch = new Stopwatch();
@@ -82,7 +82,7 @@ namespace CompCardGame.Source.Core
             //temporary this will be later connected to a button on the main page screen
             //match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
             var player = new Player(PlayerType.Player);
-            cardHandler = new CardManager(window, player);
+            cardManager = new CardManager(window, player);
             //InputHandler.SetMatch(match);
 
             InitiallizeLoadingShapes();
@@ -177,7 +177,7 @@ namespace CompCardGame.Source.Core
 
                     break;
                 case GameState.CardManager:
-
+                    cardManager.Render();
                     break;
                 case GameState.Settings:
                     window.SetView(defaultView);
@@ -251,6 +251,7 @@ namespace CompCardGame.Source.Core
         {
             InputHandler.ClearButtons();
             Console.WriteLine("TODO Card Manager");
+            
             GameState = GameState.CardManager;
         }
 
