@@ -10,40 +10,39 @@ using CompCardGame.Source.Core;
 
 namespace CompCardGame.Source.Objects
 {
-    class EffectMonster:MonsterCard
+    class EffectMonster : MonsterCard
     {
-        public  Effect[] effects;
-        public  int[] effectsCost;
+        public Effect[] effects;
 
-        public EffectMonster():base()
+
+        public EffectMonster() : base()
         {
             SetColors(new Color(192, 192, 192), Color.Black);
             effects = new Effect[1];
             effects[0] = new Effect(this);
-            effectsCost = new int[1];
-            effectsCost[0] = 1;
+
         }
 
-        public EffectMonster(int id): base(id)
+        public EffectMonster(int id) : base(id)
         {
             SetColors(new Color(192, 192, 192), Color.Black);
-            
-            
+
+
         }
 
-        public void SetEffect(Effect effect, int effectCost)
+        public void SetEffect(Effect effect)
         {
             effects = new Effect[1];
             effects[0] = effect;
-            effectsCost = new int[1];
-            effectsCost[0] = effectCost;
+
+
         }
-        public void SetEffects(Effect[] effects, int[] effectsCost)
+        public void SetEffects(Effect[] effects)
         {
             this.effects = effects;
 
-            this.effectsCost = effectsCost;
-            
+
+
         }
 
 
@@ -55,7 +54,7 @@ namespace CompCardGame.Source.Objects
             {
 
                 states.Transform.Translate(new Vector2f(Game.SideViewWidth - Card.width * 1.4f, Game.ScreenHeight - Card.height * 1.4f - 50));
-                
+
 
                 foreach (var effect in effects)
                 {
@@ -74,7 +73,7 @@ namespace CompCardGame.Source.Objects
                 //drawing based on the state
                 if (State == CardState.Front)
                 {
-                    
+
                     foreach (var effect in effects)
                     {
                         effect.viewType = viewType;
@@ -85,20 +84,37 @@ namespace CompCardGame.Source.Objects
             }
         }
 
+        public override void GiveMana()
+        {
+            foreach (var effect in effects)
+            {
+                effect.ResetUseAmount();
+            }
+            if (Mana < MaxMana)
+            {
+                Mana += ManaGain;
+            }
+            else if (Mana + ManaGain >= MaxMana)
+            {
+                Mana = MaxMana;
+            }
+        }
+
         public bool CheckButtonClick(Vector2f mouse)
         {
             foreach (var effect in effects)
             {
                 if (effect.CheckClick(mouse))
                 {
-                    
-                    if (CanUseEffect(effect)) {
-                        
+
+                    if (effect.CanUseEffect())
+                    {
+
                         effect.DoAction();
-                        
+
                         return true;
                     }
-                    
+
                 }
             }
 
@@ -131,32 +147,34 @@ namespace CompCardGame.Source.Objects
             }
         }
 
-        public void UseMana(Effect effect)
-        {
-            var len = effects.Length;
-            for (int i = 0; i < len; i++)
-            {
-                if (effects[i].Equals(effect))
-                {
-                    Mana -= effectsCost[i];
-                }
-            }
-        }
+        //public void UseMana(Effect effect)
+        //{
+        //    var len = effects.Length;
+        //    for (int i = 0; i < len; i++)
+        //    {
+        //        if (effects[i].Equals(effect))
+        //        {
+        //            Console.WriteLine(effects[i].Equals(effect));
+        //            Mana -= effectsCost[i];
+        //            return;
+        //        }
+        //    }
+        //}
 
-        public Boolean CanUseEffect(Effect effect)
-        {
-            var len = effects.Length;
-            for (int i = 0; i < len;i++)
-            {
-                if (effects[i].Equals(effect))
-                {
-                    if (Mana - effectsCost[i] >=0)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+        //public Boolean CanUseEffect(Effect effect)
+        //{
+        //    var len = effects.Length;
+        //    for (int i = 0; i < len;i++)
+        //    {
+        //        if (effects[i].Equals(effect))
+        //        {
+        //            if (Mana - effects[i].effectCost >=0)
+        //            {
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    return false;
+        //}
     }
 }

@@ -20,8 +20,8 @@ namespace CompCardGame.Source.Core
         //to make sure player never has more than 5 cards
         public static int MaxCardsInHand = 5;
 
-        
-        
+
+
         Queue<Card> cards;//deck will probably switch to stack which makes more sense for a deck
         List<Card> hand;
         List<Card> graveYard;
@@ -32,13 +32,13 @@ namespace CompCardGame.Source.Core
         //object target;
 
         private int health;
-        public int Health { get { return health; }  set { health = value; healthText.DisplayedString = $"Health: {value}"; } }
+        public int Health { get { return health; } set { health = value; healthText.DisplayedString = $"Health: {value}"; } }
 
-        
+
         //help with drawing location on the board
         public PlayerType PlayerType { get; private set; }
         private int crystals;
-        public int Crystals { get { return crystals; } private set { crystals = value; crystalsText.DisplayedString= $"Crystals: {value}"; } }
+        public int Crystals { get { return crystals; } private set { crystals = value; crystalsText.DisplayedString = $"Crystals: {value}"; } }
         //this is for when a card increases the amount of crystals to be received for the turn
         public int CrystalsToAdd { get; set; }
 
@@ -80,8 +80,8 @@ namespace CompCardGame.Source.Core
             //temporary for loop for testing later wont be needed because it will load in the players cards
             for (int i = 0; i < 30; i++)
             {
-                
-                if (i%2 ==0)
+
+                if (i % 2 == 0)
                 {
                     if (tempI == 0)
                     {
@@ -99,16 +99,21 @@ namespace CompCardGame.Source.Core
                         cards.Enqueue(card);
                         tempI = 0;
                     }
-                    
-                } 
+
+                }
                 else
                 {
                     if (i == 3)
                     {
-                        var card = new EffectMonster(i) { MaxMana = 2};
-                        card.SetEffect(Effect.HealPlayer(5, card),2);
-                        card.cardName.DisplayedString = $"{i}";
+                        var card = new EffectMonster(i) { MaxMana = 2 };
+                        var effects = new Effect[2];
+                        effects[0] = Effect.HealPlayer(5, card, 1,2);
+                        effects[1] = Effect.OverloadCardMana(1, card, 2, 0, true);
                         
+                        //card.SetEffect(Effect.HealPlayer(5, card), 2);
+                        card.SetEffects(effects);
+                        card.cardName.DisplayedString = $"{i}";
+
                         card.Attack = 110;
 
                         cards.Enqueue(card);
@@ -126,21 +131,21 @@ namespace CompCardGame.Source.Core
                         }
                         cards.Enqueue(card);
                     }
-                    
-                    
+
+
                 }
-                
+
             }
             //cards = cards.Shuffle();
-            
 
 
-            
-            
+
+
+
 
             if (playerType == PlayerType.Player)
             {
-                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 80f, Y = Game.ScreenHeight-140f }, Color.Red);
+                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 80f, Y = Game.ScreenHeight - 140f }, Color.Red);
                 crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 180f, Y = Game.ScreenHeight - 140f }, Color.Blue);
             }
             else
@@ -157,42 +162,42 @@ namespace CompCardGame.Source.Core
 
         }
 
-        
+
         //position the decks on their field
         public void SetDeckPosition()
         {
             //will stager these in the future so it looks like the deck has height, will also need shadows
             // bottom field deck position
-            if (PlayerType == PlayerType.Player) 
+            if (PlayerType == PlayerType.Player)
             {
-                
-                Vector2f position = new Vector2f(Game.ScreenWidth - Card.width * 2 - 220, Game.ScreenHeight - Card.height  - 170);
-                graveyardOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position, OutlineColor = Color.Red, OutlineThickness = 2, FillColor = Color.Transparent};
+
+                Vector2f position = new Vector2f(Game.ScreenWidth - Card.width * 2 - 220, Game.ScreenHeight - Card.height - 170);
+                graveyardOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position, OutlineColor = Color.Red, OutlineThickness = 2, FillColor = Color.Transparent };
 
 
 
-                position = new Vector2f(Game.ScreenWidth - Card.width*2 - 220, Game.ScreenHeight  - 150);
-                deckOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position =position  };
+                position = new Vector2f(Game.ScreenWidth - Card.width * 2 - 220, Game.ScreenHeight - 150);
+                deckOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position };
                 //for (int i = 0; i < cards.Count; i++)
                 //{
                 //    cards[i].Position = position;
                 //}
-                foreach(var card in cards)
+                foreach (var card in cards)
                 {
                     card.Position = position;
                 }
             }
             else //top field deck position
             {
-                
-                
-                Vector2f position = new Vector2f(-20, Card.height/2 + 10);
 
-                graveyardOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position, OutlineColor = Color.Red, OutlineThickness= 2, FillColor = Color.Transparent }; 
 
-                
+                Vector2f position = new Vector2f(-20, Card.height / 2 + 10);
 
-                position = new Vector2f(-20,  -170);
+                graveyardOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position, OutlineColor = Color.Red, OutlineThickness = 2, FillColor = Color.Transparent };
+
+
+
+                position = new Vector2f(-20, -170);
                 deckOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position };
                 //for (int i = 0; i < cards.Count; i++)
                 //{
@@ -235,14 +240,14 @@ namespace CompCardGame.Source.Core
                 Vector2f position = new Vector2f(Game.ScreenWidth - Card.width * 2 - 220, Game.ScreenHeight - Card.height - 170);
 
                 card.Position = position;
-                
-            } 
+
+            }
             else
             {
                 Vector2f position = new Vector2f(-20, Card.height / 2 + 10);
 
                 card.Position = position;
-                
+
             }
         }
 
@@ -294,13 +299,13 @@ namespace CompCardGame.Source.Core
                 target.Draw(healthText);//temporary later will have a drawing and sprite 
                 target.Draw(crystalsText);//^^^^^
             }
-            
-            
+
+
         }
 
         public void DrawGraveyard(RenderTarget target, RenderStates states)
         {
-            foreach(var card in graveYard)
+            foreach (var card in graveYard)
             {
                 card.viewType = ViewType.FieldView;
                 target.Draw(card, states);
@@ -313,25 +318,16 @@ namespace CompCardGame.Source.Core
             foreach (var card in hand)
             {
                 card.viewType = ViewType.FieldView;
-                if (card is SpellCard)
-                {
-                    target.Draw(((SpellCard)card));
-                }
-                else if (card is EffectMonster)
-                {
-                    target.Draw(((EffectMonster)card));
-                }
-                else
-                {
-                    target.Draw(card);
-                }
-                
+
+                target.Draw(card);
+
+
             }
 
         }
 
         //drawing the deck of cards
-        private void DrawDeck(RenderTarget target, RenderStates states) 
+        private void DrawDeck(RenderTarget target, RenderStates states)
         {
             foreach (var card in cards)
             {
@@ -360,12 +356,12 @@ namespace CompCardGame.Source.Core
             if (PlayerType == PlayerType.Player)
             {
                 Update();//make sure things are updated
-                for (int i = 0; i < hand.Count;i++)
+                for (int i = 0; i < hand.Count; i++)
                 {
-                    
+
                     hand[i].Location = CardLocation.Hand;
                     hand[i].State = CardState.Front;
-                    hand[i].Position = hand[i].previousPosition = new Vector2f(i * (Card.width + 20) + 200, Game.ScreenHeight + Card.height/2 +20);
+                    hand[i].Position = hand[i].previousPosition = new Vector2f(i * (Card.width + 20) + 200, Game.ScreenHeight + Card.height / 2 + 20);
                     hand[i].UpdatePositions();
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
@@ -375,7 +371,7 @@ namespace CompCardGame.Source.Core
                 for (int i = 0; i < hand.Count; i++)
                 {
                     hand[i].Location = CardLocation.Hand;
-                    hand[i].Position = new Vector2f(i * (Card.width + 20) + 200, 0-Card.height*1.5f-20);
+                    hand[i].Position = new Vector2f(i * (Card.width + 20) + 200, 0 - Card.height * 1.5f - 20);
                     hand[i].UpdatePositions();
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
@@ -385,16 +381,16 @@ namespace CompCardGame.Source.Core
         public Card GrabRandomCard()//might be used by somecard abilities and using it for testing opponent will stillo need AI
         {
             var random = new Random();
-            if (hand.Count == 0 )
+            if (hand.Count == 0)
             {
                 return null;
             }
             var card = hand[random.Next(0, hand.Count)];
-            foreach(var cardToBeRemoved in cardsToRemove)
+            foreach (var cardToBeRemoved in cardsToRemove)
             {
                 if (card == cardToBeRemoved)
                 {
-                    foreach( var card2 in hand)
+                    foreach (var card2 in hand)
                     {
                         if (card != card2)
                         {
@@ -408,12 +404,12 @@ namespace CompCardGame.Source.Core
         //check if click on cards in hand
         public Card HandleMouseClick(Vector2f mouse)
         {
-            foreach(var card in hand)
+            foreach (var card in hand)
             {
-                
+
                 if (card.Contains(mouse) && card.Location == CardLocation.Hand)
                 {
-                   
+
                     return card;
                 }
             }
@@ -425,7 +421,7 @@ namespace CompCardGame.Source.Core
             foreach (var card in hand)
             {
 
-                if (card.Contains(mouse) && card.Location == CardLocation.Hand )
+                if (card.Contains(mouse) && card.Location == CardLocation.Hand)
                 {
                     //card.Location = CardLocation.Moving;
                     return card;
@@ -437,31 +433,31 @@ namespace CompCardGame.Source.Core
         //this will be updates that are independent of matchstate so for example removing cards from hand/graveyard
         public void Update()
         {
-            
-                while (cardsToRemove.Count > 0)
-                {
-                    var card = cardsToRemove.Dequeue();
-                    RemoveCard(card);
-                }
-            
+
+            while (cardsToRemove.Count > 0)
+            {
+                var card = cardsToRemove.Dequeue();
+                RemoveCard(card);
+            }
+
         }
-        
+
         //handle when card is hovered over by player
         public void HandleMouseMovement(Vector2f mouse)
         {
-            
+
             //checking if mouse moves over the cards in the hand
-            for(int i = 0; i < hand.Count;i++)
+            for (int i = 0; i < hand.Count; i++)
             {
                 //Console.WriteLine(hand[i].Position);
                 if (hand[i].Contains(mouse))
                 {
                     //var pos = new Vector2f(0, -30);
-                    
+
                     //lift card to view it
                     hand[i].LiftCardUp();
-                    
-                } 
+
+                }
                 else
                 {
                     if (hand[i].Selected)
@@ -475,7 +471,7 @@ namespace CompCardGame.Source.Core
             //if when mouse is clicked and moving a card
             //if (selectedCard != null)
             //{
-                //needs to be shifted so mouse in middle of the card
+            //needs to be shifted so mouse in middle of the card
             //    selectedCard.Position = mouse;
             //}
         }

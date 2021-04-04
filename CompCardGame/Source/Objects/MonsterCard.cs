@@ -121,7 +121,7 @@ namespace CompCardGame.Source.Objects
             }
         }
 
-        public void GiveMana()
+        public virtual void GiveMana()
         {
             if (Mana < MaxMana)
             {

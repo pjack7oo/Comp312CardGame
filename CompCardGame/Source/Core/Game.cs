@@ -13,7 +13,7 @@ namespace CompCardGame.Source.Core
     {
         Loading,
         MainPage,
-        CardHandler,
+        CardManager,
         Match,
         Settings
     }
@@ -37,8 +37,8 @@ namespace CompCardGame.Source.Core
         public static float ScreenWidth { get; private set; }
         public static float ScreenHeight { get; private set; }
 
-        public static float StretchedScreenWidth { get { return ScreenWidth * 1.5f; }  }
-        public static float StretchedScreenHeight { get { return ScreenWidth * 1.5f;}  }
+        public static float StretchedScreenWidth { get { return ScreenWidth * 1.5f; } }
+        public static float StretchedScreenHeight { get { return ScreenWidth * 1.5f; } }
 
         private static Stopwatch stopwatch;//used to get time passed
 
@@ -50,7 +50,7 @@ namespace CompCardGame.Source.Core
             //boiler plate setup for SFML
             ScreenWidth = 1920f;
             ScreenHeight = 1080f;
-            var mode = new VideoMode((uint)ScreenWidth,(uint) ScreenHeight);
+            var mode = new VideoMode((uint)ScreenWidth, (uint)ScreenHeight);
             window = new RenderWindow(mode, "SFML works!");
             window.SetFramerateLimit(60);
             //this is how events are handled we will probably just need esc on keyboard and mouse movement/clicking
@@ -71,7 +71,7 @@ namespace CompCardGame.Source.Core
 
             defaultView = new View(new FloatRect(0f, 0f, ScreenWidth, ScreenHeight));//used on main screen
 
-            sideView = new View(new FloatRect(0f, 0f, ScreenWidth/4.8f, ScreenHeight));
+            sideView = new View(new FloatRect(0f, 0f, ScreenWidth / 4.8f, ScreenHeight));
             sideView.Zoom(0.8f);
             sideView.Viewport = new FloatRect(0f, 0f, 0.2f, 1f);
             SideViewWidth = 400;
@@ -101,13 +101,13 @@ namespace CompCardGame.Source.Core
             while (window.IsOpen)
             {
                 window.DispatchEvents();
-                
+
                 Update();//will need timing
                 Render();
             }
         }
-        
-       
+
+
 
         private void Update()
         {
@@ -116,7 +116,7 @@ namespace CompCardGame.Source.Core
             switch (GameState)
             {
                 case GameState.Loading:
-                    if (time > TimeSpan.FromSeconds(5) )
+                    if (time > TimeSpan.FromSeconds(5))
                     {
                         GameState = GameState.MainPage;
                         InitiallizeMainPageShapes();
@@ -125,14 +125,14 @@ namespace CompCardGame.Source.Core
                     break;
                 case GameState.MainPage:
                     break;
-                case GameState.CardHandler:
+                case GameState.CardManager:
                     break;
                 case GameState.Match:
                     match.Update();
                     break;
                 case GameState.Settings:
                     break;
-                
+
                 default:
                     break;
             }
@@ -154,18 +154,18 @@ namespace CompCardGame.Source.Core
             //I think we need to setup a view so that sizing doesn't go weird if you resize the game
             //these are the individual calls to each class for drawing what they need to draw
             //Remember order matters for drawing
-            switch(GameState)
+            switch (GameState)
             {
                 case GameState.Loading:
                     window.SetView(defaultView);
-                    window.Draw(new RectangleShape(new Vector2f(ScreenWidth, ScreenHeight)) { FillColor = Color.White});
+                    window.Draw(new RectangleShape(new Vector2f(ScreenWidth, ScreenHeight)) { FillColor = Color.White });
                     DrawLoadingScreen();
                     break;
                 case GameState.MainPage:
                     window.SetView(defaultView);
                     DrawMainPageScreen();
                     window.Draw(InputHandler);
-                    
+
                     break;
                 case GameState.Match:
                     window.SetView(fieldView);//draw field 
@@ -176,8 +176,8 @@ namespace CompCardGame.Source.Core
                     match.RenderSideView();
 
                     break;
-                case GameState.CardHandler:
-                    
+                case GameState.CardManager:
+
                     break;
                 case GameState.Settings:
                     window.SetView(defaultView);
@@ -186,7 +186,7 @@ namespace CompCardGame.Source.Core
                     break;
             }
             //window.Draw(gameField);
-            
+
             //window.Draw(player2);
             //window.Draw(player1);
             //if (selectedCard != null)
@@ -213,7 +213,7 @@ namespace CompCardGame.Source.Core
             //window.SetView(new View(visibleArea));
             defaultView = new View(new FloatRect(0f, 0f, e.Width, e.Height));//used on main screen
 
-            sideView = new View(new FloatRect(0f, 0f, e.Width/4.8f, e.Height));
+            sideView = new View(new FloatRect(0f, 0f, e.Width / 4.8f, e.Height));
             sideView.Zoom(0.8f);
             sideView.Viewport = new FloatRect(0f, 0f, 0.2f, 1f);
             SideViewWidth = 400;
@@ -223,17 +223,17 @@ namespace CompCardGame.Source.Core
         {
             InputHandler.ClearButtons();
             InputHandler.AddButton(new Button("Play", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2), Color.Black, InitiallizeMatch, new Vector2f(1.25f, 1.25f)));
-            InputHandler.AddButton(new Button("Online", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2+ 100), Color.Black, InitiallizeOnlineMatchPage, new Vector2f(1.25f, 1.25f)));
-            
+            InputHandler.AddButton(new Button("Online", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 100), Color.Black, InitiallizeOnlineMatchPage, new Vector2f(1.25f, 1.25f)));
+
             InputHandler.AddButton(new Button("Card Manager", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 200), Color.Black, InitiallizeCardManager, new Vector2f(1.25f, 1.25f)));
             InputHandler.AddButton(new Button("Settings", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 300), Color.Black, InitiallizeSettingsPage, new Vector2f(1.25f, 1.25f)));
             InputHandler.AddButton(new Button("Exit", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 400), Color.Black, Exit, new Vector2f(1.25f, 1.25f)));
-        } 
+        }
 
         private void Exit()
         {
             //TODO destroy everything
-            
+
             window.Close();
         }
 
@@ -249,7 +249,9 @@ namespace CompCardGame.Source.Core
 
         private void InitiallizeCardManager()
         {
+
             Console.WriteLine("TODO Card Manager");
+            GameState = GameState.CardManager;
         }
 
         private void InitiallizeMatch()
@@ -269,25 +271,25 @@ namespace CompCardGame.Source.Core
         private void InitiallizeLoadingShapes()
         {
             loadingShapes[0] = new RectangleShape(new Vector2f(Card.width, Card.height)) { FillColor = Color.Cyan };
-            loadingShapes[0].Origin = new Vector2f(Card.width/2, Card.height/2);
+            loadingShapes[0].Origin = new Vector2f(Card.width / 2, Card.height / 2);
             loadingShapes[0].Position = new Vector2f(ScreenWidth / 2, ScreenHeight / 2);
             loadingShapes[1] = new RectangleShape(new Vector2f(Card.width, Card.height)) { FillColor = Color.Cyan };
-            loadingShapes[1].Origin = new Vector2f(Card.width / 2, Card.height / 2-50);
-            loadingShapes[1].Position = new Vector2f(ScreenWidth / 2-200, ScreenHeight / 2);
+            loadingShapes[1].Origin = new Vector2f(Card.width / 2, Card.height / 2 - 50);
+            loadingShapes[1].Position = new Vector2f(ScreenWidth / 2 - 200, ScreenHeight / 2);
             loadingShapes[1].Rotation = -45;
             loadingShapes[2] = new RectangleShape(new Vector2f(Card.width, Card.height)) { FillColor = Color.Cyan };
-            loadingShapes[2].Origin = new Vector2f(Card.width / 2 , Card.height / 2-50);
-            loadingShapes[2].Position = new Vector2f(ScreenWidth / 2+200, ScreenHeight / 2);
+            loadingShapes[2].Origin = new Vector2f(Card.width / 2, Card.height / 2 - 50);
+            loadingShapes[2].Position = new Vector2f(ScreenWidth / 2 + 200, ScreenHeight / 2);
             loadingShapes[2].Rotation = 45;
-            loadingText[0] = new Text("Crystal Wars", HelperFunctions.font, 50) {  FillColor = Color.Magenta};
+            loadingText[0] = new Text("Crystal Wars", HelperFunctions.font, 50) { FillColor = Color.Magenta };
             loadingText[0].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight), new Vector2f(loadingText[0].GetGlobalBounds().Width, loadingText[0].GetGlobalBounds().Height));
             loadingText[1] = new Text("Loading...", HelperFunctions.font, 50) { FillColor = Color.Black };
-            loadingText[1].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight+ScreenHeight - 200), new Vector2f(loadingText[1].GetGlobalBounds().Width, loadingText[1].GetGlobalBounds().Height));
+            loadingText[1].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight + ScreenHeight - 200), new Vector2f(loadingText[1].GetGlobalBounds().Width, loadingText[1].GetGlobalBounds().Height));
         }
-        
+
         private void DrawLoadingScreen()
         {
-            foreach(var shape in loadingShapes)
+            foreach (var shape in loadingShapes)
             {
                 window.Draw(shape);
             }
@@ -314,7 +316,7 @@ namespace CompCardGame.Source.Core
 
 
             mainPageText = new Text("Crystal Wars", HelperFunctions.font, 70) { FillColor = Color.Magenta };
-            mainPageText.Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight- 400), new Vector2f(mainPageText.GetGlobalBounds().Width, mainPageText.GetGlobalBounds().Height));
+            mainPageText.Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight - 400), new Vector2f(mainPageText.GetGlobalBounds().Width, mainPageText.GetGlobalBounds().Height));
             //loadingText[1] = new Text("Loading...", HelperFunctions.font, 50) { Color = Color.Black };
             //loadingText[1].Position = HelperFunctions.GetCenteredPosition(new Vector2f(ScreenWidth, ScreenHeight + ScreenHeight / 2), new Vector2f(loadingText[1].GetGlobalBounds().Width, loadingText[1].GetGlobalBounds().Height));
         }
@@ -325,13 +327,13 @@ namespace CompCardGame.Source.Core
             //{
             //    window.Draw(shape);
             //}
-            
+
             window.Draw(mainPageText);
-            
+
         }
         #endregion
 
     }
 }
 
-    
+

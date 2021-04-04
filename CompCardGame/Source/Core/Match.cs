@@ -410,10 +410,11 @@ namespace CompCardGame.Source.Core
                                         selectedEffect.ActivateEffect(players[1]);
                                     }
                                 }
-                                selectedEffect.DeactivateButtons();
+                                
                                 selectedCard.Selected = false;
                                 if (selectedCard is SpellCard card)
                                 {
+                                    card.DeactivateEffectButtons();
                                     if (!card.isFieldType)
                                     {
                                         players[0].SendCardToGraveyard(selectedCard);
@@ -423,7 +424,9 @@ namespace CompCardGame.Source.Core
                                 }
                                 else if (selectedCard is EffectMonster monster)
                                 {
-                                    monster.UseMana(selectedEffect);
+                                    monster.DeactivateEffectButtons();
+                                    //monster.UseMana(selectedEffect);
+                                    selectedEffect.DrainMana();
                                 }
                                 selectedEffect = null;
                                 

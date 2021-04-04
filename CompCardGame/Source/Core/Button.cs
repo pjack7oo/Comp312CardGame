@@ -208,6 +208,11 @@ namespace CompCardGame.Source.Core
             
         }
 
+        public void EnableActionUse()
+        {
+            active = false;
+        }
+
         //important any action passed must have its own checks
         //to make sure it can be used at that moment that way this just calls the action
         public void DoAction()
@@ -222,6 +227,7 @@ namespace CompCardGame.Source.Core
                     action();
                     active = true;
                 }
+
             }
             
             
