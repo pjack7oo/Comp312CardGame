@@ -23,9 +23,9 @@ namespace CompCardGame.Source.Core
         public int id;//to be used by database
 
         public List<Card> cards;//all cards owned by the player
-        public List<List<Card>> decks;//player decks
+        public List<Deck> decks;//player decks
 
-        private Queue<Card> activeDeck;//deck will probably switch to stack which makes more sense for a deck
+        private Deck activeDeck;//deck will probably switch to stack which makes more sense for a deck
         List<Card> hand;
         List<Card> graveYard;
 
@@ -75,9 +75,10 @@ namespace CompCardGame.Source.Core
         public Player(PlayerType playerType)
         {
             PlayerType = playerType;
-            activeDeck = new Queue<Card>();
+            activeDeck = new Deck();
             hand = new List<Card>();
             graveYard = new List<Card>();
+            decks = new List<Deck>();
             Boolean temp = true;
             int tempI = 0;
             //temporary for loop for testing later wont be needed because it will load in the players cards
@@ -91,7 +92,7 @@ namespace CompCardGame.Source.Core
                         var card = new SpellCard();
 
                         card.cardName.DisplayedString = $"{i}";
-                        activeDeck.Enqueue(card);
+                        activeDeck.cards.Enqueue(card);
                         tempI = 1;
                     }
                     else
@@ -99,7 +100,7 @@ namespace CompCardGame.Source.Core
                         var card = new SpellCard();
                         card.SetEffect(Effect.OverloadCardMana(2, card));
                         card.cardName.DisplayedString = $"Overload Mana";
-                        activeDeck.Enqueue(card);
+                        activeDeck.cards.Enqueue(card);
                         tempI = 0;
                     }
 
@@ -119,7 +120,7 @@ namespace CompCardGame.Source.Core
 
                         card.Attack = 110;
 
-                        activeDeck.Enqueue(card);
+                        activeDeck.cards.Enqueue(card);
 
                     }
                     else
@@ -132,7 +133,7 @@ namespace CompCardGame.Source.Core
 
                             temp = false;
                         }
-                        activeDeck.Enqueue(card);
+                        activeDeck.cards.Enqueue(card);
                     }
 
 
@@ -185,10 +186,8 @@ namespace CompCardGame.Source.Core
                 //{
                 //    cards[i].Position = position;
                 //}
-                foreach (var card in activeDeck)
-                {
-                    card.Position = position;
-                }
+                
+                activeDeck.SetDeckPosition(position);
             }
             else //top field deck position
             {
@@ -206,10 +205,7 @@ namespace CompCardGame.Source.Core
                 //{
                 //    cards[i].Position = position;
                 //}
-                foreach (var card in activeDeck)
-                {
-                    card.Position = position;
-                }
+                activeDeck.SetDeckPosition(position);
             }
         }
         ////testing things with reseting nicely
@@ -293,7 +289,7 @@ namespace CompCardGame.Source.Core
             {
                 target.Draw(deckOutline);
                 target.Draw(graveyardOutline);
-                DrawDeck(target, states);
+                target.Draw(activeDeck, states);
                 DrawHand(target, states);
                 DrawGraveyard(target, states);
             }
@@ -330,20 +326,20 @@ namespace CompCardGame.Source.Core
         }
 
         //drawing the deck of cards
-        private void DrawDeck(RenderTarget target, RenderStates states)
-        {
-            foreach (var card in activeDeck)
-            {
-                card.viewType = ViewType.FieldView;
-                target.Draw(card);
-            }
-        }
+        //private void DrawDeck(RenderTarget target, RenderStates states)
+        //{
+        //    foreach (var card in activeDeck)
+        //    {
+        //        card.viewType = ViewType.FieldView;
+        //        target.Draw(card);
+        //    }
+        //}
         //draw a card and add to hand
         public void DrawACardFromDeck()
         {
             if (hand.Count < MaxCardsInHand)
             {
-                hand.Add(activeDeck.Dequeue());
+                hand.Add(activeDeck.cards.Dequeue());
                 //cards.RemoveAt(0);
                 SetPositionsOfHand();
             }

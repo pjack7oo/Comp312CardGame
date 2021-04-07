@@ -136,7 +136,7 @@ namespace CompCardGame.Source.Objects
         public void AddButton()//int used to place in right spot in order
         {
             button = new Button($"{pos}", 8,
-                new Vector2f(card.boundingBox.GetGlobalBounds().Left + 40, card.boundingBox.GetGlobalBounds().Top + 50 + 30 * pos),
+                new Vector2f(card.boundingBox.GetGlobalBounds().Left + 40, card.boundingBox.GetGlobalBounds().Top + 50 + 30 * pos),Color.Black,
                 new CircleShape(20) { Scale = new Vector2f(1, .5f), OutlineThickness = 3, FillColor = Color.Transparent, OutlineColor = Color.Black }, SetSelectedEffect)
             { IsUsable = false };
         }

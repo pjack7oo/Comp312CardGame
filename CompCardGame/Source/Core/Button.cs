@@ -102,7 +102,7 @@ namespace CompCardGame.Source.Core
 
         }
 
-        public Button(String text, uint charSize, Vector2f location, Shape shape, Action action)
+        public Button(String text, uint charSize, Vector2f location, Color textColor, Shape shape, Action action)
         {
             noSprite = true;
             this.shape = shape;

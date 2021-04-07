@@ -66,6 +66,7 @@ namespace CompCardGame.Source.Core
                     worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
                     CheckButtonHover(worldPos);
                     break;
+                
                 case GameState.Match:
                     worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
                     match.MouseMovement(worldPos);
@@ -129,6 +130,10 @@ namespace CompCardGame.Source.Core
                         worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
                         CheckButtonClick(worldPos);
                         match.MouseClick(worldPos);
+                        break;
+                    case GameState.CardManager:
+                        var mouse2 = new Vector2f(e.X, e.Y);
+                        Game.cardManager.MouseClick(mouse2);
                         break;
                     default:
                         break;

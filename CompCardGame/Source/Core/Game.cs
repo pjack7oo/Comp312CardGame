@@ -19,7 +19,7 @@ namespace CompCardGame.Source.Core
     }
     class Game
     {
-
+        
         private RenderWindow window; //Essentially what you are drawing too
 
         private Match match;
@@ -42,7 +42,7 @@ namespace CompCardGame.Source.Core
 
         private static Stopwatch stopwatch;//used to get time passed
 
-        private CardManager cardManager;
+        public static CardManager cardManager;
         public void Initialize()
         {
             stopwatch = new Stopwatch();
@@ -126,6 +126,7 @@ namespace CompCardGame.Source.Core
                 case GameState.MainPage:
                     break;
                 case GameState.CardManager:
+                    cardManager.Update(time);
                     break;
                 case GameState.Match:
                     match.Update();
@@ -219,7 +220,7 @@ namespace CompCardGame.Source.Core
             SideViewWidth = 400;
         }
 
-        private void InitiallizeMainPage()
+        public void InitiallizeMainPage()
         {
             InputHandler.ClearButtons();
             InputHandler.AddButton(new Button("Play", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2), Color.Black, InitiallizeMatch, new Vector2f(1.25f, 1.25f)));
@@ -251,7 +252,7 @@ namespace CompCardGame.Source.Core
         {
             InputHandler.ClearButtons();
             Console.WriteLine("TODO Card Manager");
-            
+            Game.cardManager.AddButton(new Button("Exit", 40, new Vector2f(200, 50), Color.Black, () => { InitiallizeMainPage(); GameState = GameState.MainPage; }));
             GameState = GameState.CardManager;
         }
 

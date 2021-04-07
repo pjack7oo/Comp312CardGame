@@ -140,6 +140,7 @@
     <Compile Include="Source\Objects\Card.cs" />
     <Compile Include="Source\Core\CardManager.cs" />
     <Compile Include="Source\Core\Database.cs" />
+    <Compile Include="Source\Objects\Deck.cs" />
     <Compile Include="Source\Objects\Effect.cs" />
     <Compile Include="Source\Objects\EffectMonster.cs" />
     <Compile Include="Source\Field\Field.cs" />
