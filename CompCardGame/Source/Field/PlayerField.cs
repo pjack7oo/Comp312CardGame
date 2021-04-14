@@ -132,22 +132,22 @@ namespace CompCardGame.Source.Field
             {
                 if (pos.HasCard)
                 {
-                    if (!pos.Card.Equals(card))
+                    if (pos.Card.Equals(card))
                     {
-                        continue;
+                        pos.ResetCard();
                     }
-                    pos.ResetCard();
+                    
                 }
             }
             foreach (var pos in playerSpellField)
             {
                 if (pos.HasCard)
                 {
-                    if (!pos.Card.Equals(card))
+                    if (pos.Card.Equals(card))
                     {
-                        continue;
+                        pos.ResetCard();
                     }
-                    pos.ResetCard();
+                    
                 }
             }
         }
@@ -163,6 +163,91 @@ namespace CompCardGame.Source.Field
             }
         }
 
+        public Card SelectSpellCard(Vector2f mouse)
+        {
+            Card result = null;
+            foreach (var fieldPos in playerMonsterField)//go through field and select the card that contains mouse
+            {
+                if (fieldPos.HasCard && fieldPos.Contains(mouse))
+                {
+                    //fieldPos.Card.Selected = true;
+                    //if (fieldPos.Card is EffectMonster card)
+                    //{
+                        //card.ActivateEffectButtons();
+                        //Match.AlertText.DisplayedString = "Select A Effect On The Card Or Attack";
+                    //}
+                    result = fieldPos.Card;
+                }
+
+            }
+            foreach (var fieldPos in playerSpellField)//go through field and select the card that contains mouse
+            {
+                if (fieldPos.HasCard && fieldPos.Contains(mouse))
+                {
+                    fieldPos.Card.Selected = true;
+                    fieldPos.Card.State = CardState.Front;
+                    ((SpellCard)fieldPos.Card).ActivateEffectButtons();
+                    //((SpellCard)fieldPos.Card).DrawEffectButtons = true;
+                    Match.AlertText.DisplayedString = "Select A Effect On The Card";
+                    result = fieldPos.Card;
+                }
+
+            }
+            if (result != null)
+            {
+                foreach (var fieldPos in playerSpellField)//make not selected cards inactive
+                {
+                    if (fieldPos.HasCard)
+                    {
+                        if (!result.Equals(fieldPos.Card) && fieldPos.Card.Selected)
+                        {
+                            //((SpellCard)fieldPos.Card).DrawEffectButtons = false;
+                            fieldPos.Card.State = CardState.Back;
+                            ((SpellCard)fieldPos.Card).DeactivateEffectButtons();
+
+                            fieldPos.Card.Selected = false;
+                        }
+                    }
+
+                }
+            }
+
+            if (result is MonsterCard)
+            {
+                result = null;
+            }
+            if (result is null)
+            {
+                Match.ClearAlertText();
+            }
+            return result;
+            }
+
+        public bool HasUsableSpellCard()
+        {
+            foreach (var fieldPos in playerSpellField)//go through field and select the card that contains mouse
+            {
+                if (fieldPos.HasCard)
+                {
+                    return true;
+                }
+
+            }
+            return false;
+        }
+        public bool HasUsableMonster()
+        {
+            foreach (var fieldPos in playerMonsterField)//go through field and select the card that contains mouse
+            {
+                if (fieldPos.HasCard && ((MonsterCard)fieldPos.Card).Mana > 0)
+                {
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
         public Card SelectCard(Vector2f mouse)
         {
             Card result = null;
@@ -176,7 +261,27 @@ namespace CompCardGame.Source.Field
                         card.ActivateEffectButtons();
                         Match.AlertText.DisplayedString = "Select A Effect On The Card Or Attack";
                     }
+                    else
+                    {
+                        Match.AlertText.DisplayedString = "Attack";
+                    }
                     result = fieldPos.Card;
+                }
+                else if (fieldPos.HasCard && fieldPos.Contains(mouse) && ((MonsterCard)fieldPos.Card).Mana == 0)
+                {
+                    foreach (var fieldPos2 in playerMonsterField)//make not selected cards inactive
+                    {
+                        if (result != fieldPos2.Card && fieldPos2.HasCard)
+                        {
+                            fieldPos2.Card.Selected = false;
+                            if (fieldPos2.Card is EffectMonster card)
+                            {
+                                card.DeactivateEffectButtons();
+                                
+                            }
+                            Match.ClearAlertText();
+                        }
+                    }
                 }
 
             }

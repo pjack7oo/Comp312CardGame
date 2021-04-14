@@ -207,6 +207,35 @@ namespace CompCardGame.Source.Field
         {
             return player1Field.SelectCard(mouse);
         }
+
+        public bool PlayerFieldHasUsableSpellCard(PlayerType type)
+        {
+            if (type == PlayerType.Player)
+            {
+                return player1Field.HasUsableSpellCard();
+            }
+            else
+            {
+                return player2Field.HasUsableSpellCard();
+            }
+        }
+        public bool PlayerFieldHasUsableMonster(PlayerType type)
+        {
+            if (type == PlayerType.Player)
+            {
+                return player1Field.HasUsableMonster();
+            }
+            else
+            {
+                return player2Field.HasUsableMonster();
+            }
+        }
+
+        public Card SelectPlayerSpellCard(Vector2f mouse)
+        {
+            return player1Field.SelectSpellCard(mouse);
+        }
+
         //remove the red outline of any selected card
         public void ResetCardSelection()
         {
