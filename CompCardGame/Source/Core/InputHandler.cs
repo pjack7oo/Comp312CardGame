@@ -51,6 +51,15 @@ namespace CompCardGame.Source.Core
             }
         }
 
+        public void OnKeyPressed(object sender, SFML.Window.KeyEventArgs e)
+        {
+            if (e.Code == Keyboard.Key.Space)
+            {
+                match.ClearCardSelection();
+            }
+        }
+
+
         //handles mouseMovement
         public void MouseMovement(object sender, MouseMoveEventArgs e)
         {
