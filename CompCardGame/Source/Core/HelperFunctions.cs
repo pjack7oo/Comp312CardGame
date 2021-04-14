@@ -10,7 +10,7 @@ namespace CompCardGame.Source.Core
 {
     class HelperFunctions
     {
-
+        public static Random random = new Random();
         //font used by card might be moved to helper class containing stuff like fonts and maybe loading in graphics
         public static Font font = new Font("Media/ARIALBD.TTF");
 
