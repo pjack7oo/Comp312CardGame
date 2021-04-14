@@ -63,6 +63,8 @@ namespace CompCardGame.Source.Core
 
             window.MouseButtonReleased += new EventHandler<MouseButtonEventArgs>(InputHandler.MouseReleased);
 
+            window.KeyPressed += new EventHandler<KeyEventArgs>(InputHandler.OnKeyPressed);
+
             window.Resized += new EventHandler<SizeEventArgs>(OnResize);
 
             fieldView = new View(new FloatRect(0f, 0f, ScreenWidth, ScreenHeight));
