@@ -230,6 +230,32 @@ namespace CompCardGame.Source.Core
         //        }
         //    }
         //}
+        public bool HasPlayableCard()
+        {
+            foreach(var card in hand)
+            {
+                if (this.Crystals - card.CrystalCost >=0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool HasPlayableSpellCard()
+        {
+            foreach (var card in hand)
+            {
+                if (card is SpellCard)
+                {
+                    if (this.Crystals - card.CrystalCost >= 0)
+                    {
+                        return true;
+                    }
+                }
+                
+            }
+            return false;
+        }
 
         public void SendCardToGraveyard(Card card)
         {
