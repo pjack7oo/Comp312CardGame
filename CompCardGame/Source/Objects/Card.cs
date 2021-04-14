@@ -60,7 +60,7 @@ namespace CompCardGame.Source.Objects
         //card location can be either deck, hand, field, or graveyard
         public CardLocation Location { get; set; }
 
-        private Random random = new Random();
+        
         public CardState State { get { return state; } set { state = value; } }
         //public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
         //public int Defense { get { return defense; } set { defense = value; cardDefenseText.DisplayedString = "Defense: " + value.ToString(); } }
@@ -77,6 +77,8 @@ namespace CompCardGame.Source.Objects
         //generic constructor will be rarely used was mainly for testing
         public Card()
         {
+            
+            ingameID = HelperFunctions.random.Next();
             //creating the shapes of the card
             var color = Color.Cyan;
             var accentColor = Color.Black;
@@ -112,7 +114,8 @@ namespace CompCardGame.Source.Objects
         }
         public Card(int i)
         {
-            ingameID = random.Next();
+
+            ingameID = HelperFunctions.random.Next();
             //creating the shapes of the card
             var color = Color.Cyan;
             var accentColor = Color.Black;
@@ -149,6 +152,8 @@ namespace CompCardGame.Source.Objects
 
         public Card(String name, String discription)
         {
+            
+            ingameID = HelperFunctions.random.Next();
             //creating the shapes of the card
             shapes = CardShapes(Position, Color.Cyan, Color.Black);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
@@ -169,6 +174,8 @@ namespace CompCardGame.Source.Objects
 
         public bool Equals(Card obj)
         {
+            Console.WriteLine($"{obj.ingameID} {this.ingameID}");
+
             return obj.ingameID == this.ingameID;
         }
 
