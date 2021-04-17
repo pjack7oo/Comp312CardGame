@@ -89,7 +89,7 @@ namespace CompCardGame.Source.Core
                 {
                     if (tempI == 0)
                     {
-                        var card = new SpellCard();
+                        var card = new SpellCard(i);
 
                         card.cardName.DisplayedString = $"{i}";
                         activeDeck.cards.Enqueue(card);
@@ -97,7 +97,7 @@ namespace CompCardGame.Source.Core
                     }
                     else
                     {
-                        var card = new SpellCard();
+                        var card = new SpellCard(i);
                         card.SetEffect(Effect.OverloadCardMana(2, card));
                         card.cardName.DisplayedString = $"Overload Mana";
                         activeDeck.cards.Enqueue(card);
@@ -109,7 +109,7 @@ namespace CompCardGame.Source.Core
                 {
                     if (i == 3)
                     {
-                        var card = new EffectMonster() { MaxMana = 2 };
+                        var card = new EffectMonster(i) { MaxMana = 2 };
                         var effects = new Effect[2];
                         effects[0] = Effect.HealPlayer(5, card, 1,2);
                         effects[1] = Effect.OverloadCardMana(1, card, 2, 0, true);
@@ -125,7 +125,7 @@ namespace CompCardGame.Source.Core
                     }
                     else
                     {
-                        var card = new MonsterCard();
+                        var card = new MonsterCard(i);
                         card.cardName.DisplayedString = $"{i}";
                         if (playerType == PlayerType.Player && temp)//temporary for testing
                         {
@@ -166,7 +166,26 @@ namespace CompCardGame.Source.Core
 
         }
 
-
+        public List<Card> CopyCards()
+        {
+            var newCards = new List<Card>();
+            foreach (var card in cards)
+            {
+                if (card is EffectMonster effectMonster)
+                {
+                    newCards.Add(new EffectMonster(effectMonster));
+                }
+                else if (card is MonsterCard monster)
+                {
+                    newCards.Add(new MonsterCard(monster));
+                }
+                else if (card is SpellCard spellCard)
+                {
+                    newCards.Add(new SpellCard(spellCard));
+                }
+            }
+            return newCards;
+        }
         //position the decks on their field
         public void SetDeckPosition()
         {

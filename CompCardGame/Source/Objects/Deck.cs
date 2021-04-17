@@ -9,7 +9,7 @@ using CompCardGame.Source.Field;
 
 namespace CompCardGame.Source.Objects
 {
-    class Deck: Drawable
+    class Deck : Drawable
     {
         public Queue<Card> cards;
         private int maxCardCount = 30;
@@ -25,11 +25,16 @@ namespace CompCardGame.Source.Objects
             ID = random.Next();
         }
         //to be used by card manager
-        public void AddCardToSavedDeck(Card card)
+        public bool AddCardToSavedDeck(Card card)
         {
-            if (savedCards.Count<maxCardCount)
+            if (savedCards.Count < maxCardCount)
             {
                 savedCards.Add(card);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -56,7 +61,41 @@ namespace CompCardGame.Source.Objects
                     target.Draw(card);
                 }
             }
+
+        }
+
+        public List<Card> Copy()
+        {
+            var cards = new List<Card>();
+            foreach (var card in savedCards)
+            {
+                if (card is EffectMonster effectMonster)
+                {
+                    cards.Add(new EffectMonster(effectMonster));
+                }
+                else if (card is MonsterCard monster)
+                {
+                    cards.Add(new MonsterCard(monster));
+                }
+                else if (card is SpellCard spellCard)
+                {
+                    cards.Add(new SpellCard(spellCard));
+                }
+            }
+            return cards;
+        }
             
+        //used by card manager
+        public Card CheckMouseClick(Vector2f mouse)
+        {
+            foreach(var card in savedCards)
+            {
+                if (card.Contains(mouse))
+                {
+                    return card;
+                }
+            }
+            return null;
         }
     }
 }

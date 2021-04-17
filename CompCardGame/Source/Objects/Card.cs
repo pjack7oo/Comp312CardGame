@@ -54,7 +54,7 @@ namespace CompCardGame.Source.Objects
 
         public readonly int id;
 
-        private readonly int ingameID;
+        public readonly int ingameID;
         //Selected is only true when mouse is hovered over the card in hand or if selected while on the field
         public Boolean Selected { get; set; }
         //card location can be either deck, hand, field, or graveyard
@@ -79,6 +79,7 @@ namespace CompCardGame.Source.Objects
         {
             
             ingameID = HelperFunctions.random.Next();
+            //Console.WriteLine(ingameID);
             //creating the shapes of the card
             var color = Color.Cyan;
             var accentColor = Color.Black;
@@ -112,9 +113,50 @@ namespace CompCardGame.Source.Objects
             Location = CardLocation.Deck;
 
         }
-        public Card(int i)
-        {
 
+        public Card(Card card)
+        {
+            id = card.id;
+            ingameID = card.ingameID;
+
+            
+            //creating the shapes of the card
+            var color = Color.Cyan;
+            var accentColor = Color.Black;
+            shapes = CardShapes(Position, color, accentColor);
+            backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
+            boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 2, OutlineColor = Color.Red };
+            //filling in the name and description
+            cardName = HelperFunctions.NewText(card.cardName.DisplayedString, 15, new Vector2f { X = 10f, Y = 10f }, Color.Black);
+            cardDescription = HelperFunctions.NewText(card.cardDescription.DisplayedString, 10, new Vector2f { X = 10f, Y = 235f }, Color.Black);
+            //cardAttackText = HelperFunctions.NewText("Attack: ", 15, new Vector2f { X = 5f, Y = height - 20f }, Color.Black);
+            //cardDefenseText = HelperFunctions.NewText("Defense: ", 15,  new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
+            //cardManaText = HelperFunctions.NewText("ManaPool: ", 15,  new Vector2f { X = 5f, Y = height - 35f }, Color.Black);
+            //cardMaxManaText = HelperFunctions.NewText("MaxMana: ", 15,  new Vector2f { X = 100f, Y = height - 35f }, Color.Black);
+            //cardCrystalCostText = HelperFunctions.NewText("CrystalCost: ", 15, new Vector2f { X = 10f, Y = 30f }, Color.Black);
+            //attributes for dealing damage and defense yugioh does in hundreds, Hearthstone is in singles digits not sure which to use
+            //Attack  = 100;
+            //Defense = 100;
+            //Mana = 1;
+            //MaxMana = 1;
+            crystals = card.crystals;
+            CrystalCost = card.CrystalCost;
+            State = card.State;
+            //attackManaCost = 1;
+
+            //for (int i = 0; i < CrystalCost; i++)
+            //{
+            //    crystals.Add(new CircleShape(5f, 4) { Position = new Vector2f(10f + i * 15f, 35f), FillColor = Color.Magenta, OutlineColor = new Color(169, 169, 169), OutlineThickness = 1 });
+            //}
+
+            Selected = false;
+            Location = CardLocation.Deck;
+        }
+
+        
+        public Card(int id)
+        {
+            this.id = id;
             ingameID = HelperFunctions.random.Next();
             //creating the shapes of the card
             var color = Color.Cyan;
@@ -174,7 +216,7 @@ namespace CompCardGame.Source.Objects
 
         public bool Equals(Card obj)
         {
-            Console.WriteLine($"{obj.ingameID} {this.ingameID}");
+            //Console.WriteLine($"{obj.ingameID} {this.ingameID}");
 
             return obj.ingameID == this.ingameID;
         }
@@ -227,7 +269,7 @@ namespace CompCardGame.Source.Objects
                     //target.Draw(cardDefenseText, states);
                     //target.Draw(cardManaText, states);
                     //target.Draw(cardMaxManaText, states);
-
+                    //target.Draw(boundingBox);
                     for (int i = 0; i < crystals.Count; i++)
                     {
                         target.Draw(crystals[i], states);
@@ -285,8 +327,17 @@ namespace CompCardGame.Source.Objects
         //this is to update the boundingbox might do more in the future
         public void UpdatePositions(Vector2f mouse)//position is mouse + offset of card so grabbing center of card
         {
-            this.Position = new Vector2f(mouse.X - width / 2, mouse.Y - height / 2);
-            boundingBox.Position = Position;
+            if (Game.GameState == GameState.CardManager)
+            {
+                this.Position = new Vector2f(mouse.X, mouse.Y);
+                boundingBox.Position = Position;
+            }
+            else
+            {
+                this.Position = new Vector2f(mouse.X - width / 2, mouse.Y - height / 2);
+                boundingBox.Position = Position;
+            }
+           
         }
         public void UpdatePositions()
         {

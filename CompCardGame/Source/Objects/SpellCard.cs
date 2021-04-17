@@ -36,6 +36,25 @@ namespace CompCardGame.Source.Objects
             effects = new Effect[1];
             effects[0] = Effect.HealAllyCard(5, this);//temporary for testing
         }
+
+        public SpellCard(int id) : base(id)
+        {
+
+            SetColors(new Color(208, 0, 208), Color.Black);
+            isFieldType = false;
+            fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82, 30) };
+            effects = new Effect[1];
+            effects[0] = Effect.HealAllyCard(5, this);//temporary for testing
+        }
+
+        public SpellCard(SpellCard card): base(card)
+        {
+            SetColors(new Color(208, 0, 208), Color.Black);
+            isFieldType = card.isFieldType;
+            fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82, 30) };
+            effects = card.effects;
+           
+        }
         public SpellCard(bool isFieldType) : base()
         {
             SetColors(new Color(208, 0, 208), Color.Black);

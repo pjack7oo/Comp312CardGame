@@ -26,8 +26,15 @@ namespace CompCardGame.Source.Objects
         public EffectMonster(int id) : base(id)
         {
             SetColors(new Color(192, 192, 192), Color.Black);
+            effects = new Effect[1];
+            effects[0] = new Effect(this);
 
+        }
 
+        public EffectMonster(EffectMonster card): base(card)
+        {
+            SetColors(new Color(192, 192, 192), Color.Black);
+            effects = card.effects;
         }
 
         public void SetEffect(Effect effect)

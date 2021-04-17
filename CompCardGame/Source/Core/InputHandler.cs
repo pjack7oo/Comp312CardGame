@@ -83,6 +83,9 @@ namespace CompCardGame.Source.Core
                     break;
                 case GameState.Settings:
                     break;
+                case GameState.CardManager:
+                    Game.cardManager.MouseMovement(mouse);
+                    break;
                 default:
                     break;
             }
@@ -141,8 +144,8 @@ namespace CompCardGame.Source.Core
                         match.MouseClick(worldPos);
                         break;
                     case GameState.CardManager:
-                        var mouse2 = new Vector2f(e.X, e.Y);
-                        Game.cardManager.MouseClick(mouse2);
+                        //var mouse2 = new Vector2f(e.X, e.Y);
+                        Game.cardManager.MouseClick(mouse);
                         break;
                     default:
                         break;
@@ -171,6 +174,9 @@ namespace CompCardGame.Source.Core
                     worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
                     match.MouseReleased(worldPos);
                     break;
+                case GameState.CardManager:
+                    Game.cardManager.MouseReleased(mouse);
+                    break;
                 default:
                     break;
             }
@@ -178,6 +184,21 @@ namespace CompCardGame.Source.Core
 
 
         }
+
+
+        public void ScrollWheel(object sender, MouseWheelScrollEventArgs e)
+        {
+
+            switch (Game.GameState)
+            {
+                case GameState.CardManager:
+                    Game.cardManager.ScrollWheel(e);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         //update buttons
         public void Update(System.TimeSpan time)
         {

@@ -67,6 +67,8 @@ namespace CompCardGame.Source.Core
 
             window.Resized += new EventHandler<SizeEventArgs>(OnResize);
 
+            window.MouseWheelScrolled += new EventHandler<MouseWheelScrollEventArgs>(InputHandler.ScrollWheel);
+
             fieldView = new View(new FloatRect(0f, 0f, ScreenWidth, ScreenHeight));
             fieldView.Zoom(1.5f);
             fieldView.Viewport = new FloatRect(0.2f, 0f, 1f, 1f);
@@ -220,6 +222,9 @@ namespace CompCardGame.Source.Core
             sideView.Zoom(0.8f);
             sideView.Viewport = new FloatRect(0f, 0f, 0.2f, 1f);
             SideViewWidth = 400;
+
+            cardManager.OnResize(e);
+
         }
 
         public void InitiallizeMainPage()
@@ -253,9 +258,11 @@ namespace CompCardGame.Source.Core
         private void InitiallizeCardManager()
         {
             InputHandler.ClearButtons();
-            Console.WriteLine("TODO Card Manager");
+            //Console.WriteLine("TODO Card Manager");
             Game.cardManager.AddButton(new Button("Exit", 40, new Vector2f(200, 50), Color.Black, () => { InitiallizeMainPage(); GameState = GameState.MainPage; }));
+            
             GameState = GameState.CardManager;
+
         }
 
         private void InitiallizeMatch()
