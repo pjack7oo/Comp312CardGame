@@ -137,6 +137,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Core\Button.cs" />
+    <Compile Include="Source\Core\Networking.cs" />
+    <Compile Include="Source\Core\NetworkMatch.cs" />
     <Compile Include="Source\Objects\Card.cs" />
     <Compile Include="Source\Core\CardManager.cs" />
     <Compile Include="Source\Core\Database.cs" />

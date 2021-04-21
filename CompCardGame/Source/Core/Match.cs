@@ -34,7 +34,7 @@ namespace CompCardGame.Source.Core
     {
 
 
-        private RenderWindow window;
+        public RenderWindow window;
 
         private readonly Player[] players;
         private readonly Field.Field field;
@@ -78,6 +78,33 @@ namespace CompCardGame.Source.Core
             Game.InputHandler.AddButton(new Button("Next Phase", 20, new Vector2f(Game.ScreenWidth - 400, Game.ScreenHeight / 2), Color.Black, NextTurnState));
         }
 
+        public Match(Player self, RenderWindow window)
+        {
+            this.window = window;
+            players = new Player[2];
+            players[0] = self;
+            TurnState = TurnState.Drawing;
+            MatchState = MatchState.Player;
+            hasDoneUpdate = false;
+            field = new Field.Field(window);
+            //foreach (var player in players)
+            //{
+            //    player.SetDeckPosition();
+            //    for (int i = 0; i < 3; i++)
+            //    {
+            //        player.DrawACardFromDeck();
+            //    }
+            //}
+
+            Game.InputHandler.AddButton(new Button("Next Phase", 20, new Vector2f(Game.ScreenWidth - 400, Game.ScreenHeight / 2), Color.Black, NextTurnState));
+
+        }
+
+        public void AddSecondPlayer(Player player)
+        {
+            players[1] = player;
+        }
+
         public static void ClearAlertText()
         {
             AlertText.DisplayedString = "";
@@ -118,6 +145,18 @@ namespace CompCardGame.Source.Core
             window.Draw(AlertText);
 
         }
+
+
+        public virtual void Render()
+        {
+            window.SetView(Game.fieldView);//draw field 
+            RenderFieldView();
+            window.Draw(Game.InputHandler);
+
+            window.SetView(Game.sideView);//draw sideview like zoom up of cards and display stats
+            RenderSideView();
+        }
+
         //go to next turn state and reset has done update and call to update text
         public void NextTurnState()
         {
@@ -1053,7 +1092,7 @@ namespace CompCardGame.Source.Core
 
         }
 
-        public void Update()//multi player match might have to override this
+        public virtual void Update(System.TimeSpan time)//multi player match might have to override this
         {
 
             foreach (var player in players)//do player updates that arent based on turn state
@@ -1080,7 +1119,8 @@ namespace CompCardGame.Source.Core
                             }
                             break;
                         case TurnState.Primary://player can place down cards check if he has crystals, use spells
-                            if (players[(int)MatchState].Crystals == 0 && !field.PlayerFieldHasUsableSpellCard(PlayerType.Player) && !players[(int)MatchState].HasPlayableCard()) {
+                            if (players[(int)MatchState].Crystals == 0 && !field.PlayerFieldHasUsableSpellCard(PlayerType.Player) && !players[(int)MatchState].HasPlayableCard())
+                            {
                                 NextTurnState();
                             }
                             break;

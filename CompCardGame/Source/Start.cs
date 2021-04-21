@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 using CompCardGame.Source.Core;
 
@@ -19,7 +19,7 @@ namespace CompCardGame.Source
             //for listing databases test
             Database test = new Database();
             test.DBConnectionTest();
-
+          
             game.Run();
         }
     }
