@@ -15,14 +15,15 @@ namespace CompCardGame.Source.Core
         MainPage,
         CardManager,
         Match,
-        Settings
+        Settings,
+        Online
     }
     class Game
     {
         
-        private RenderWindow window; //Essentially what you are drawing too
+        private static RenderWindow window; //Essentially what you are drawing too
 
-        private Match match;
+        public static Match match;
 
         public static GameState GameState;
         public static View defaultView;
@@ -133,11 +134,14 @@ namespace CompCardGame.Source.Core
                     cardManager.Update(time);
                     break;
                 case GameState.Match:
-                    match.Update();
+                    match.Update(time);
                     break;
                 case GameState.Settings:
                     break;
 
+                case GameState.Online:
+                    match.Update(time);
+                    break;
                 default:
                     break;
             }
@@ -173,12 +177,7 @@ namespace CompCardGame.Source.Core
 
                     break;
                 case GameState.Match:
-                    window.SetView(fieldView);//draw field 
-                    match.RenderFieldView();
-                    window.Draw(InputHandler);
-
-                    window.SetView(sideView);//draw sideview like zoom up of cards and display stats
-                    match.RenderSideView();
+                    match.Render();
 
                     break;
                 case GameState.CardManager:
@@ -186,6 +185,9 @@ namespace CompCardGame.Source.Core
                     break;
                 case GameState.Settings:
                     window.SetView(defaultView);
+                    break;
+                case GameState.Online:
+                    match.Render();
                     break;
                 default:
                     break;
@@ -227,7 +229,7 @@ namespace CompCardGame.Source.Core
 
         }
 
-        public void InitiallizeMainPage()
+        public static void InitiallizeMainPage()
         {
             InputHandler.ClearButtons();
             InputHandler.AddButton(new Button("Play", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2), Color.Black, InitiallizeMatch, new Vector2f(1.25f, 1.25f)));
@@ -238,24 +240,29 @@ namespace CompCardGame.Source.Core
             InputHandler.AddButton(new Button("Exit", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 400), Color.Black, Exit, new Vector2f(1.25f, 1.25f)));
         }
 
-        private void Exit()
+        private static void Exit()
         {
             //TODO destroy everything
 
             window.Close();
         }
 
-        private void InitiallizeSettingsPage()
+        private static void InitiallizeSettingsPage()
         {
             Console.WriteLine("TODO Settings");
         }
 
-        private void InitiallizeOnlineMatchPage()
+        private static void InitiallizeOnlineMatchPage()
         {
             Console.WriteLine("TODO Online Match");
+            match = new NetworkMatch(new Player(PlayerType.Player), window);
+            
+            InputHandler.SetMatch(match);
+
+            GameState = GameState.Online;
         }
 
-        private void InitiallizeCardManager()
+        private static void InitiallizeCardManager()
         {
             InputHandler.ClearButtons();
             //Console.WriteLine("TODO Card Manager");
@@ -265,7 +272,7 @@ namespace CompCardGame.Source.Core
 
         }
 
-        private void InitiallizeMatch()
+        private static void InitiallizeMatch()
         {
             InputHandler.ClearButtons();
 
