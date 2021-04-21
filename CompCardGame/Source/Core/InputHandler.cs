@@ -86,6 +86,11 @@ namespace CompCardGame.Source.Core
                 case GameState.CardManager:
                     Game.cardManager.MouseMovement(mouse);
                     break;
+                case GameState.Online:
+                    worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
+                    match.MouseMovement(worldPos);
+                    CheckButtonHover(worldPos);
+                    break;
                 default:
                     break;
             }
@@ -147,6 +152,11 @@ namespace CompCardGame.Source.Core
                         //var mouse2 = new Vector2f(e.X, e.Y);
                         Game.cardManager.MouseClick(mouse);
                         break;
+                    case GameState.Online:
+                        worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
+                        CheckButtonClick(worldPos);
+                        match.MouseClick(worldPos);
+                        break;
                     default:
                         break;
                 }
@@ -176,6 +186,10 @@ namespace CompCardGame.Source.Core
                     break;
                 case GameState.CardManager:
                     Game.cardManager.MouseReleased(mouse);
+                    break;
+                case GameState.Online:
+                    worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
+                    match.MouseReleased(worldPos);
                     break;
                 default:
                     break;
