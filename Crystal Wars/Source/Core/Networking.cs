@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,8 +15,8 @@ namespace Crystal_Wars.Source.Core
     class Networking
     {
         private static Int32 port = 13000;
-        public static TcpClient tcpClient;
-        public static TcpClient client;
+        public static TcpClient tcpClient = null;
+        public static TcpClient client = null;
         public static TcpListener server;
         public static IPAddress localAddr = IPAddress.Parse("127.0.0.1");
         public static NetworkStream netStream;
@@ -27,32 +28,37 @@ namespace Crystal_Wars.Source.Core
         }
 
 
-        public static void Connect(String server, String message)
+        public async static void Connect(String server)
         {
             try
             {
+
                 tcpClient = new TcpClient(server, port);
+                
+                
+                
+                
+                if (tcpClient.Connected)
+                {
+                    netStream = tcpClient.GetStream();
+                    Networking.SendData(JMessage.Serialize(JMessage.FromValue(Game.match.GetPlayer(0))));
+                    //var msg = Serialize("Hello");
+                    //Console.WriteLine(msg.Data.Length);
+                    //var buffer = new ReadOnlyMemory<byte>(msg.Data);
 
-                Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
-                Message hello = Serialize(message);
+                    //netStream.WriteAsync(buffer);
 
-                NetworkStream netStream = tcpClient.GetStream();
 
-                netStream.Write(hello.Data, 0, hello.Data.Length);
+                    //var obj = ReadData();
+                    //ClientUpdate(obj);
 
-                Console.WriteLine("Sent: {0}", message);
 
-                data = new Byte[256];
+                }
+                
+                
 
-                String responseData = String.Empty;
-
-                Int32 bytes = netStream.Read(data, 0, data.Length);
-                responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-                Console.WriteLine("Received: {0}", responseData);
-
-                //netStream.Close();
-                //tcpClient.Close();
-                //EndConnection();
+                
+                
             }
             catch (ArgumentException e)
             {
@@ -63,8 +69,7 @@ namespace Crystal_Wars.Source.Core
                 Console.WriteLine("SocketException: {0}", e);
             }
 
-            Console.WriteLine("\n Press Enter to continue...");
-            Console.Read();
+            
         }
 
         
@@ -74,7 +79,11 @@ namespace Crystal_Wars.Source.Core
             try
             {
                 //netStream.Close();
-                tcpClient.Close();
+                if (tcpClient != null)
+                {
+                    tcpClient.Close();
+                }
+                
 
             }
             catch (ArgumentException e)
@@ -99,45 +108,50 @@ namespace Crystal_Wars.Source.Core
 
 
 
-        public static void Start()
+        public static async void Start()
         {
             server = null;
             try
             {
                 server = new TcpListener(localAddr, port);
                 server.Start();
-
                 
-                String data = null;
+                
+                //String data = null;
 
                 while (true)
                 {
                     Console.Write("Waiting for a connection... ");
 
                     client = server.AcceptTcpClient();
-                    Console.WriteLine("Connected!");
-
-                    data = null;
-
-                    NetworkStream stream = client.GetStream();
                     
-                    int i;
 
-                    while (true)
+                    if (client.Connected)
                     {
-                        
-                        //var obj = Deserialize(message);
-                        data =
-                        //data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                        //Console.WriteLine("Recieved: {0}", data);
-
-                        data = data.ToUpper();
-
-                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
-
-                        stream.Write(msg, 0, msg.Length);
-                        Console.WriteLine("Sent: {0}", data);
+                        Console.WriteLine("Connected!");
+                        netStream = client.GetStream();
+                        Networking.SendData(JMessage.Serialize(JMessage.FromValue(Game.match.GetPlayer(0))));
+                        break;
+                        //byte[] myReadBuffer = new byte[1024];
+                        //var bufferSpan = new Memory<byte>(myReadBuffer);
+                        //int read = await netStream.ReadAsync(bufferSpan);
+                        //if (read > 0)
+                        //{
+                        //    //var obj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
+                        //    //var data = System.Text.Encoding.ASCII.GetString(bufferSpan.ToArray(), 0, bufferSpan.Length);
+                        //    //Console.WriteLine("Received: {0}", obj);
+                        //    //SendData(obj);
+                        //    //var obj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
+                        //    break;
+                        //    //Console.WriteLine(obj);
+                        //}
                     }
+
+                    
+                    
+                    
+
+                   
 
                     //client.Close();
                 }
@@ -151,45 +165,143 @@ namespace Crystal_Wars.Source.Core
                 server.Stop();
             }
 
-            Console.WriteLine("\nHit eneter to contunue...");
-            Console.Read();
+            
         }
 
-        public static void SendData(Message message)
+        public async static void Update()
         {
-            NetworkStream netStream = tcpClient.GetStream();
+            if (client != null)
+            {
+                while (client.Connected)
+                {
+                    try
+                    {
+                        byte[] myReadBuffer = new byte[1024];
+                        var bufferSpan = new Memory<byte>(myReadBuffer);
+                        int read = await netStream.ReadAsync(bufferSpan);
+                        if (read > 0)
+                        {
 
-            netStream.Write(message.Data, 0, message.Data.Length);
+                            //var obj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
+                            var data = System.Text.Encoding.ASCII.GetString(bufferSpan.ToArray());
+                            Console.WriteLine("Received: {0}", data);
+                            JMessage message = JMessage.Deserialize(data);
+                            if (message.Type == typeof(Player))
+                            {
+                                Game.match.AddSecondPlayer(message.Value.ToObject<Player>());
+                            }
+                            //var bj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
+
+                            //Console.WriteLine(obj);
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                    
+
+
+                }
+            }
+            
+        }
+        public async static void ClientUpdate()
+        {
+            if (tcpClient != null)
+            {
+                while (tcpClient.Connected)
+                {
+                    try
+                    {
+                        byte[] myReadBuffer = new byte[1024];
+                        var bufferSpan = new Memory<byte>(myReadBuffer);
+                        int read = await netStream.ReadAsync(bufferSpan);
+                        if (read > 0)
+                        {
+                            var data = System.Text.Encoding.ASCII.GetString(bufferSpan.ToArray());
+                            //var obj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
+                            Console.WriteLine(data);
+                            JMessage message = JMessage.Deserialize(data);
+                            if (message.Type == typeof(Player))
+                            {
+                                Game.match.AddSecondPlayer(message.Value.ToObject<Player>());
+                            }
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                    
+                }
+            }
+            
+        }
+
+        public static void SendData(string obj)
+        {
+            //netStream = tcpClient.GetStream();
+            //var msg = JMessage.Serialize(JMessage.FromValue(obj));
+            Byte[] data = System.Text.Encoding.ASCII.GetBytes(obj);
+            var bufferSpan = new ReadOnlyMemory<byte>(data);
+            netStream.WriteAsync(bufferSpan);
             //netStream.Write();
         }
 
-        public static Message ReadData()
+        public  static JMessage ReadData()
         {
-            NetworkStream stream = client.GetStream();
+            
             byte[] myReadBuffer = new byte[1024];
             var bufferSpan = new Span<byte>(myReadBuffer);
-            return new Message();
+            netStream.Read(bufferSpan);
+            JMessage message = JMessage.Deserialize(bufferSpan.ToString());
+
+
+            return message;
         }
 
 
-        public static Message Serialize(object obj)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                (new BinaryFormatter()).Serialize(memoryStream, obj);
-                return new Message { Data = memoryStream.ToArray() };
-            }
-        }
-        public static object Deserialize(Message message)
-        {
-            using (var memoryStream = new MemoryStream(message.Data))
-                return (new BinaryFormatter()).Deserialize(memoryStream);
-        }
+        //public static Message Serialize(object obj)
+        //{
+        //    //using (var memoryStream = new MemoryStream())
+        //    //{
+        //    //    (new BinaryFormatter()).Serialize(memoryStream, obj);
+        //    //    return new Message { Data = memoryStream.ToArray() };
+        //    //}
+
+        //}
+        //public static object Deserialize(Message message)
+        //{
+        //    //using (var memoryStream = new MemoryStream(message.Data))
+        //    //    return (new BinaryFormatter()).Deserialize(memoryStream);
+        //}
 
     }
 
     public class Message
     {
         public byte[] Data { get; set; }
+    }
+
+    class JMessage
+    {
+        public Type Type { get; set; }
+        public JToken Value { get; set; }
+
+        public static JMessage FromValue<T>(T value)
+        {
+            return new JMessage { Type = typeof(T), Value = JToken.FromObject(value) };
+        }
+
+        public static string Serialize(JMessage message)
+        {
+            return JToken.FromObject(message).ToString();
+        }
+
+        public static JMessage Deserialize(string data)
+        {
+            return JToken.Parse(data).ToObject<JMessage>();
+        }
     }
 }

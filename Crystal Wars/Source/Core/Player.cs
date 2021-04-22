@@ -50,14 +50,14 @@ namespace Crystal_Wars.Source.Core
 
         private Queue<Card> cardsToRemove = new Queue<Card>();
 
-        private Text healthText;
+        [NonSerialized] private Text healthText;
 
-        private Text crystalsText;
+        [NonSerialized] private Text crystalsText;
 
         public ViewType viewType;
 
-        private RectangleShape graveyardOutline;
-        private RectangleShape deckOutline;
+        [NonSerialized] private RectangleShape graveyardOutline;
+        [NonSerialized] private RectangleShape deckOutline;
         //public Player()
         //{
         //    type = PlayerType.Player;

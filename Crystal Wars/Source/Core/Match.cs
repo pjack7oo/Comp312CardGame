@@ -105,6 +105,11 @@ namespace Crystal_Wars.Source.Core
             players[1] = player;
         }
 
+        public Player GetPlayer(int i)
+        {
+            return players[i];
+        }
+
         public static void ClearAlertText()
         {
             AlertText.DisplayedString = "";

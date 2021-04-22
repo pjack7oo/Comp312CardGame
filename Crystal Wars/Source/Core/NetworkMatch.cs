@@ -32,21 +32,40 @@ namespace Crystal_Wars.Source.Core
             Console.WriteLine("server");
             serverThread = new Thread(new ThreadStart(() =>
             {
-                Networking.Start();
+                Networking.Update();
             }));
-            serverThread.Start();
-            SetupButtonsForWaiting();
+            new Thread(new ThreadStart(() =>
+            {
+                Networking.Start();
+                serverThread.Start();
+                
+            })).Start();
+            
+            
+            
+            SetupButtonsForWaitingServer();
             onlineState = OnlineState.Waiting;
             
         }
 
         private void ConnectToMatch()
         {
+            
             Thread connectionThread = new Thread(new ThreadStart(() =>
             {
-                Networking.Connect("127.0.0.1", "hello");
+                Networking.ClientUpdate();
             }));
-            connectionThread.Start();
+            new Thread(new ThreadStart(() =>
+            {
+                Networking.Connect("127.0.0.1");
+                connectionThread.Start();
+
+            })).Start();
+            
+            SetupButtonsForWaitingClient();
+            onlineState = OnlineState.Waiting;
+            
+
         }
 
         private void SetupButtonsForConnection()
@@ -57,13 +76,18 @@ namespace Crystal_Wars.Source.Core
             Game.InputHandler.AddButton(new Button("Exit", 40, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 + 200), Color.Black, () => { Game.InitiallizeMainPage(); Game.GameState = GameState.MainPage; }));
         }
 
-        private void SetupButtonsForWaiting()
+        private void SetupButtonsForWaitingServer()
         {
             Game.InputHandler.ClearButtons();
             
-            Game.InputHandler.AddButton(new Button("Exit", 40, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 + 200), Color.Black, () => { SetupButtonsForConnection(); onlineState = OnlineState.Setup; Networking.EndSeverConnection(); serverThread.Abort(); }));
+            Game.InputHandler.AddButton(new Button("Exit", 40, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 + 200), Color.Black, () => { SetupButtonsForConnection(); onlineState = OnlineState.Setup; Networking.EndSeverConnection();  }));
         }
+        private void SetupButtonsForWaitingClient()
+        {
+            Game.InputHandler.ClearButtons();
 
+            Game.InputHandler.AddButton(new Button("Exit", 40, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 + 200), Color.Black, () => { SetupButtonsForConnection(); onlineState = OnlineState.Setup; Networking.EndClientConnection(); }));
+        }
 
 
         public override void Update(System.TimeSpan time)
