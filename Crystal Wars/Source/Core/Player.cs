@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Crystal_Wars.Source.Objects;
 using Crystal_Wars.Source.Field;
+using Newtonsoft.Json;
 
 namespace Crystal_Wars.Source.Core
 {
@@ -15,18 +16,19 @@ namespace Crystal_Wars.Source.Core
         Player,
         Enemy
     }
-    [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     class Player : Drawable
     {
         //to make sure player never has more than 5 cards
         public static int MaxCardsInHand = 5;
-
+        [JsonProperty]
         public int id;//to be used by database
-
+        [NonSerialized]
         public List<Card> cards;//all cards owned by the player
+        [NonSerialized]
         public List<Deck> decks;//player decks
-
-        private Deck activeDeck;//deck will probably switch to stack which makes more sense for a deck
+        [NonSerialized]
+        public Deck activeDeck;//deck will probably switch to stack which makes more sense for a deck
         List<Card> hand;
         List<Card> graveYard;
 
@@ -40,19 +42,20 @@ namespace Crystal_Wars.Source.Core
 
 
         //help with drawing location on the board
-        public PlayerType PlayerType { get; private set; }
+        [JsonProperty]
+        public PlayerType PlayerType { get;  set; }
         private int crystals;
         public int Crystals { get { return crystals; } private set { crystals = value; crystalsText.DisplayedString = $"Crystals: {value}"; } }
         //this is for when a card increases the amount of crystals to be received for the turn
         public int CrystalsToAdd { get; set; }
 
         public int MaxCrystals { get; private set; }
-
+        [NonSerializedAttribute]
         private Queue<Card> cardsToRemove = new Queue<Card>();
 
-        [NonSerialized] private Text healthText;
+        [NonSerializedAttribute] private Text healthText;
 
-        [NonSerialized] private Text crystalsText;
+        [NonSerializedAttribute] private Text crystalsText;
 
         public ViewType viewType;
 
@@ -128,12 +131,12 @@ namespace Crystal_Wars.Source.Core
                     {
                         var card = new MonsterCard(i);
                         card.cardName.DisplayedString = $"{i}";
-                        if (playerType == PlayerType.Player && temp)//temporary for testing
-                        {
+                        //if ( && temp)//temporary for testing
+                        //{
                             card.Attack = 110;
 
                             temp = false;
-                        }
+                        //}
                         activeDeck.cards.Enqueue(card);
                     }
 
@@ -165,6 +168,33 @@ namespace Crystal_Wars.Source.Core
             Crystals = MaxCrystals;
             CrystalsToAdd = 0;
 
+        }
+
+        public Card GetCard(int? id)
+        {
+            
+            foreach(var card in hand)
+            {
+                if (card.ingameID == id)
+                {
+                    return card;
+                }
+            }
+            return null;
+        }
+
+        public void SetStatPositions()
+        {
+            if (PlayerType == PlayerType.Player)
+            {
+                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 80f, Y = Game.ScreenHeight - 140f }, Color.Red);
+                crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 180f, Y = Game.ScreenHeight - 140f }, Color.Blue);
+            }
+            else
+            {
+                healthText = HelperFunctions.NewText($"Health: ", 15, new Vector2f { X = 80f, Y = 120f }, Color.Red);
+                crystalsText = HelperFunctions.NewText($"Crystals: ", 15, new Vector2f { X = 180f, Y = 120f }, Color.Blue);
+            }
         }
 
         public List<Card> CopyCards()
@@ -313,6 +343,16 @@ namespace Crystal_Wars.Source.Core
             Crystals += CrystalsToAdd;
             ResetCrystalsToAdd();
         }
+
+        public void SetDefaults()
+        {
+            Health = 30;
+
+            MaxCrystals = 4;
+            Crystals = MaxCrystals;
+            CrystalsToAdd = 0;
+
+        }
         //to be used when a card or spell grants crystals
         public void AddCrystals(int num)
         {
@@ -415,6 +455,7 @@ namespace Crystal_Wars.Source.Core
             {
                 for (int i = 0; i < hand.Count; i++)
                 {
+                    hand[i].State = CardState.Front;
                     hand[i].Location = CardLocation.Hand;
                     hand[i].Position = new Vector2f(i * (Card.width + 20) + 200, 0 - Card.height * 1.5f - 20);
                     hand[i].UpdatePositions();
@@ -528,7 +569,7 @@ namespace Crystal_Wars.Source.Core
         }
     }
 
-    static class Extensions
+    public static class Extensions
     {
         //Fisher-Yates shuffle
         public static Queue<T> Shuffle<T>(this Queue<T> queue)

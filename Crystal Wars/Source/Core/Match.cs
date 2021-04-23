@@ -15,7 +15,7 @@ namespace Crystal_Wars.Source.Core
 {
 
     #region StateMachine Enumerators
-    enum TurnState //this is so we can make state machine so we know which turn phase it is
+    public enum TurnState //this is so we can make state machine so we know which turn phase it is
     {
         Drawing,
         Primary,
@@ -24,7 +24,7 @@ namespace Crystal_Wars.Source.Core
         End
     }
 
-    enum MatchState // this is so we can make a state machine so we know whos turn it is
+    public enum MatchState // this is so we can make a state machine so we know whos turn it is
     {
         Player,
         Opponent
@@ -36,15 +36,15 @@ namespace Crystal_Wars.Source.Core
 
         public RenderWindow window;
 
-        private readonly Player[] players;
-        private readonly Field.Field field;
+        public readonly Player[] players;
+        public readonly Field.Field field;
 
         public static TurnState TurnState;
         public static MatchState MatchState;
 
-        private Card selectedCard;
+        public Card selectedCard;
 
-        private Card lastSelectedCard;//used for drawing the zoom up 
+        public Card lastSelectedCard;//used for drawing the zoom up 
 
         public static Effect selectedEffect;
 
@@ -64,8 +64,12 @@ namespace Crystal_Wars.Source.Core
             hasDoneUpdate = false;
             field = new Field.Field(window);
 
+            
+
+
             foreach (var player in players)
             {
+                player.activeDeck.cards = Extensions.Shuffle(player.activeDeck.cards);
                 player.SetDeckPosition();
                 for (int i = 0; i < 3; i++)
                 {
@@ -75,7 +79,7 @@ namespace Crystal_Wars.Source.Core
 
 
             //add button used by match will need also settings button
-            Game.InputHandler.AddButton(new Button("Next Phase", 20, new Vector2f(Game.ScreenWidth - 400, Game.ScreenHeight / 2), Color.Black, NextTurnState));
+            AddButtons();
         }
 
         public Match(Player self, RenderWindow window)
@@ -87,17 +91,30 @@ namespace Crystal_Wars.Source.Core
             MatchState = MatchState.Player;
             hasDoneUpdate = false;
             field = new Field.Field(window);
-            //foreach (var player in players)
-            //{
-            //    player.SetDeckPosition();
-            //    for (int i = 0; i < 3; i++)
-            //    {
-            //        player.DrawACardFromDeck();
-            //    }
-            //}
+            players[0].activeDeck.cards = Extensions.Shuffle(players[0].activeDeck.cards);
 
-            Game.InputHandler.AddButton(new Button("Next Phase", 20, new Vector2f(Game.ScreenWidth - 400, Game.ScreenHeight / 2), Color.Black, NextTurnState));
+                players[0].SetDeckPosition();
+                for (int i = 0; i < 3; i++)
+                {
+                    players[0].DrawACardFromDeck();
+                }
 
+
+            //AddButtons();
+
+        }
+
+        public virtual void AddButtons()
+        {
+            Game.InputHandler.ClearButtons();
+            Game.InputHandler.AddButton(new Button("Next Phase", 20, new Vector2f(Game.ScreenWidth - 500, Game.ScreenHeight / 2), Color.Black, NextTurnState));
+            Game.InputHandler.AddButton(new Button("Exit", 20, new Vector2f(Game.ScreenWidth - 250, Game.ScreenHeight / 2), Color.Black, Exit));
+        }
+
+        public virtual void Exit()
+        {
+            Game.InitiallizeMainPage();
+            
         }
 
         public void AddSecondPlayer(Player player)
@@ -163,7 +180,7 @@ namespace Crystal_Wars.Source.Core
         }
 
         //go to next turn state and reset has done update and call to update text
-        public void NextTurnState()
+        public virtual void NextTurnState()
         {
             TurnState++;
             if (TurnState > TurnState.End)
@@ -214,7 +231,7 @@ namespace Crystal_Wars.Source.Core
 
         }
 
-        public void MouseReleased(Vector2f mouse)
+        public virtual void MouseReleased(Vector2f mouse)
         {
             if (MatchState == MatchState.Player)
             {
@@ -454,7 +471,7 @@ namespace Crystal_Wars.Source.Core
 
 
 
-        public void MouseClick(Vector2f mouse)
+        public virtual void MouseClick(Vector2f mouse)
         {
 
             //check buttons
@@ -1268,7 +1285,7 @@ namespace Crystal_Wars.Source.Core
 
         }
 
-        private void CalculateCardAttack(MonsterCard card1, Tuple<PlayerType, FieldPosition> target) // handle attack between cards 
+        public void CalculateCardAttack(MonsterCard card1, Tuple<PlayerType, FieldPosition> target) // handle attack between cards 
         {
             MonsterCard card2 = (MonsterCard)target.Item2.Card;
             Console.WriteLine($"{card1} attacked {card2}");

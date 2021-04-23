@@ -44,6 +44,8 @@ namespace Crystal_Wars.Source.Core
         private static Stopwatch stopwatch;//used to get time passed
 
         public static CardManager cardManager;
+
+        private Player player;
         public void Initialize()
         {
             stopwatch = new Stopwatch();
@@ -86,8 +88,10 @@ namespace Crystal_Wars.Source.Core
             GameState = GameState.Loading;
             //temporary this will be later connected to a button on the main page screen
             //match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
-            var player = new Player(PlayerType.Player);
+            player = new Player(PlayerType.Player);
             cardManager = new CardManager(window, player);
+
+            
             //InputHandler.SetMatch(match);
 
             InitiallizeLoadingShapes();
@@ -238,6 +242,7 @@ namespace Crystal_Wars.Source.Core
             InputHandler.AddButton(new Button("Card Manager", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 200), Color.Black, InitiallizeCardManager, new Vector2f(1.25f, 1.25f)));
             InputHandler.AddButton(new Button("Settings", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 300), Color.Black, InitiallizeSettingsPage, new Vector2f(1.25f, 1.25f)));
             InputHandler.AddButton(new Button("Exit", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 400), Color.Black, Exit, new Vector2f(1.25f, 1.25f)));
+            GameState = GameState.MainPage;
         }
 
         private static void Exit()
@@ -266,7 +271,7 @@ namespace Crystal_Wars.Source.Core
         {
             InputHandler.ClearButtons();
             //Console.WriteLine("TODO Card Manager");
-            Game.cardManager.AddButton(new Button("Exit", 40, new Vector2f(200, 50), Color.Black, () => { InitiallizeMainPage(); GameState = GameState.MainPage; }));
+            Game.cardManager.AddButton(new Button("Exit", 40, new Vector2f(200, 50), Color.Black, () => { InitiallizeMainPage();  }));
             
             GameState = GameState.CardManager;
 

@@ -153,9 +153,19 @@ namespace Crystal_Wars.Source.Core
                         Game.cardManager.MouseClick(mouse);
                         break;
                     case GameState.Online:
-                        worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
-                        CheckButtonClick(worldPos);
-                        match.MouseClick(worldPos);
+                        switch(NetworkMatch.onlineState)
+                        {
+                            case NetworkMatch.OnlineState.Playing:
+                                worldPos = window.MapPixelToCoords(mouse, Game.fieldView);
+                                CheckButtonClick(worldPos);
+                                match.MouseClick(worldPos);
+                                break;
+                            default:
+                                worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
+                                CheckButtonClick(worldPos);
+                                match.MouseClick(worldPos);
+                                break;
+                        }
                         break;
                     default:
                         break;

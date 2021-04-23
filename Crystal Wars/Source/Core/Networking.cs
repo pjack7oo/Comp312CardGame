@@ -7,11 +7,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
-
+using System.Threading;
+using Crystal_Wars.Source.Objects;
+using Newtonsoft.Json;
 
 namespace Crystal_Wars.Source.Core
 {
+
     class Networking
     {
         private static Int32 port = 13000;
@@ -42,18 +44,46 @@ namespace Crystal_Wars.Source.Core
                 {
                     netStream = tcpClient.GetStream();
                     Networking.SendData(JMessage.Serialize(JMessage.FromValue(Game.match.GetPlayer(0))));
-                    //var msg = Serialize("Hello");
-                    //Console.WriteLine(msg.Data.Length);
-                    //var buffer = new ReadOnlyMemory<byte>(msg.Data);
+                    byte[] myReadBuffer = new byte[tcpClient.ReceiveBufferSize];
+                    var bufferSpan = new Memory<byte>(myReadBuffer);
+                    int read = await netStream.ReadAsync(bufferSpan);
+                    if (read > 0)
+                    {
 
-                    //netStream.WriteAsync(buffer);
+                        //var obj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
+                        var data = System.Text.Encoding.ASCII.GetString(bufferSpan.ToArray());
+                        Console.WriteLine("Received: {0}", data);
+
+                        JMessage message = JMessage.Deserialize(data);
+                        if (message.Type == typeof(Player))
+                        {
+                            var player = message.Value.ToObject<Player>();
+                            player.PlayerType = PlayerType.Enemy;
+                            //player.SetDeckPosition();
+                            player.SetStatPositions();
+                            //for (int i = 0; i < 3; i++)
+                            //{
+                            //    player.DrawACardFromDeck();
+                            //}
+                            player.SetDefaults();
+                            Console.WriteLine(player);
+                            Game.match.AddSecondPlayer(player);
+                            
+
+                        }
+                    }
+                        //var msg = Serialize("Hello");
+                        //Console.WriteLine(msg.Data.Length);
+                        //var buffer = new ReadOnlyMemory<byte>(msg.Data);
+
+                        //netStream.WriteAsync(buffer);
 
 
-                    //var obj = ReadData();
-                    //ClientUpdate(obj);
+                        //var obj = ReadData();
+                        //ClientUpdate(obj);
 
 
-                }
+                    }
                 
                 
 
@@ -131,7 +161,35 @@ namespace Crystal_Wars.Source.Core
                         Console.WriteLine("Connected!");
                         netStream = client.GetStream();
                         Networking.SendData(JMessage.Serialize(JMessage.FromValue(Game.match.GetPlayer(0))));
-                        break;
+                        byte[] myReadBuffer = new byte[client.ReceiveBufferSize];
+                        var bufferSpan = new Memory<byte>(myReadBuffer);
+                        int read = await netStream.ReadAsync(bufferSpan);
+                        if (read > 0)
+                        {
+
+                            //var obj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
+                            var data = System.Text.Encoding.ASCII.GetString(bufferSpan.ToArray());
+                            Console.WriteLine("Received: {0}", data);
+
+                            JMessage message = JMessage.Deserialize(data);
+                            if (message.Type == typeof(Player))
+                            {
+                                var player = message.Value.ToObject<Player>();
+                                player.PlayerType = PlayerType.Enemy;
+                                //player.SetDeckPosition();
+                                player.SetStatPositions();
+                                //for (int i = 0; i < 3; i++)
+                                //{
+                                //    player.DrawACardFromDeck();
+                                //}
+                                player.SetDefaults();
+                                Console.WriteLine(player);
+                                Game.match.AddSecondPlayer(player);
+                                
+
+                            }
+                        }
+                            break;
                         //byte[] myReadBuffer = new byte[1024];
                         //var bufferSpan = new Memory<byte>(myReadBuffer);
                         //int read = await netStream.ReadAsync(bufferSpan);
@@ -176,7 +234,7 @@ namespace Crystal_Wars.Source.Core
                 {
                     try
                     {
-                        byte[] myReadBuffer = new byte[1024];
+                        byte[] myReadBuffer = new byte[client.ReceiveBufferSize];
                         var bufferSpan = new Memory<byte>(myReadBuffer);
                         int read = await netStream.ReadAsync(bufferSpan);
                         if (read > 0)
@@ -184,12 +242,67 @@ namespace Crystal_Wars.Source.Core
 
                             //var obj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
                             var data = System.Text.Encoding.ASCII.GetString(bufferSpan.ToArray());
-                            Console.WriteLine("Received: {0}", data);
-                            JMessage message = JMessage.Deserialize(data);
-                            if (message.Type == typeof(Player))
+                            //Console.WriteLine("Received: {0}", data);
+                            if (data[0] == '[')
                             {
-                                Game.match.AddSecondPlayer(message.Value.ToObject<Player>());
+                                var arr = JsonConvert.DeserializeObject<List<string>>(data);
+                                Game.match.GetPlayer(1).activeDeck.cards.Clear();
+                                foreach (var card in arr)
+                                {
+                                    Console.WriteLine(card);
+                                    JMessage message = JMessage.Deserialize(card);
+                                    if (message.Type == typeof(MonsterCard))
+                                    {
+                                        var monster = message.Value.ToObject<MonsterCard>();
+                                        Game.match.GetPlayer(1).activeDeck.cards.Enqueue(monster);
+                                    }
+                                    else if (message.Type == typeof(EffectMonster))
+                                    {
+                                        var monster = message.Value.ToObject<EffectMonster>();
+                                        Game.match.GetPlayer(1).activeDeck.cards.Enqueue(monster);
+                                    }
+                                    else if (message.Type == typeof(SpellCard))
+                                    {
+                                        var spell = message.Value.ToObject<SpellCard>();
+                                        Game.match.GetPlayer(1).activeDeck.cards.Enqueue(spell);
+                                    }
+                                }
+                                Game.match.GetPlayer(1).SetDeckPosition();
+                                for (int i = 0; i < 3; i++)
+                                {
+                                    Game.match.GetPlayer(1).DrawACardFromDeck();
+                                }
+                                NetworkMatch.onlineState = NetworkMatch.OnlineState.Playing;
+                                Game.match.AddButtons();
                             }
+                            else
+                            {
+                                JMessage message = JMessage.Deserialize(data);
+                                if (message.Type == typeof(Player))
+                                {
+                                    var player = message.Value.ToObject<Player>();
+                                    player.PlayerType = PlayerType.Enemy;
+                                    //player.SetDeckPosition();
+                                    player.SetStatPositions();
+                                    //for (int i = 0; i < 3; i++)
+                                    //{
+                                    //    player.DrawACardFromDeck();
+                                    //}
+                                    player.SetDefaults();
+                                    Console.WriteLine(player);
+                                    Game.match.AddSecondPlayer(player);
+
+
+                                }
+                                else if (message.Type == typeof(PlayerAction))
+                                {
+                                    var action = message.Value.ToObject<PlayerAction>();
+                                    ((NetworkMatch)Game.match).ExecuteAction(action);
+                                }
+                            }
+                            
+                            
+                           
                             //var bj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
 
                             //Console.WriteLine(obj);
@@ -199,7 +312,10 @@ namespace Crystal_Wars.Source.Core
                     {
                         Console.WriteLine(e);
                     }
-                    
+                    catch (ObjectDisposedException e)
+                    {
+                        Console.WriteLine(e);
+                    }
 
 
                 }
@@ -214,26 +330,84 @@ namespace Crystal_Wars.Source.Core
                 {
                     try
                     {
-                        byte[] myReadBuffer = new byte[1024];
+                        
+                        byte[] myReadBuffer = new byte[tcpClient.ReceiveBufferSize];
                         var bufferSpan = new Memory<byte>(myReadBuffer);
                         int read = await netStream.ReadAsync(bufferSpan);
                         if (read > 0)
                         {
                             var data = System.Text.Encoding.ASCII.GetString(bufferSpan.ToArray());
                             //var obj = Deserialize(new Message() { Data = bufferSpan.ToArray() });
-                            Console.WriteLine(data);
-                            JMessage message = JMessage.Deserialize(data);
-                            if (message.Type == typeof(Player))
+                            if (data[0] == '[')
                             {
-                                Game.match.AddSecondPlayer(message.Value.ToObject<Player>());
+                                var arr = JsonConvert.DeserializeObject<List<string>>(data);
+                                Game.match.GetPlayer(1).activeDeck.cards.Clear();
+                                foreach (var card in arr)
+                                {
+                                    Console.WriteLine(card);
+                                    JMessage message = JMessage.Deserialize(card);
+                                    if (message.Type == typeof(MonsterCard))
+                                    {
+                                        var monster = message.Value.ToObject<MonsterCard>();
+                                        Game.match.GetPlayer(1).activeDeck.cards.Enqueue(monster);
+                                    }
+                                    else if (message.Type == typeof(EffectMonster))
+                                    {
+                                        var monster = message.Value.ToObject<EffectMonster>();
+                                        Game.match.GetPlayer(1).activeDeck.cards.Enqueue(monster);
+                                    }
+                                    else if (message.Type == typeof(SpellCard))
+                                    {
+                                        var spell = message.Value.ToObject<SpellCard>();
+                                        Game.match.GetPlayer(1).activeDeck.cards.Enqueue(spell);
+                                    }
+                                }
+                                Game.match.GetPlayer(1).SetDeckPosition();
+                                for (int i = 0; i < 3; i++)
+                                {
+                                    Game.match.GetPlayer(1).DrawACardFromDeck();
+                                }
+                                NetworkMatch.onlineState = NetworkMatch.OnlineState.Playing;
+                                Game.match.AddButtons();
+
                             }
+                            else
+                            {
+                                JMessage message = JMessage.Deserialize(data);
+                                if (message.Type == typeof(Player))
+                                {
+                                    var player = message.Value.ToObject<Player>();
+                                    player.PlayerType = PlayerType.Enemy;
+                                    //player.SetDeckPosition();
+                                    player.SetStatPositions();
+                                    //for (int i = 0; i < 3; i++)
+                                    //{
+                                    //    player.DrawACardFromDeck();
+                                    //}
+                                    player.SetDefaults();
+                                    Console.WriteLine(player);
+                                    Game.match.AddSecondPlayer(player);
+
+
+                                }
+                                else if (message.Type == typeof(PlayerAction))
+                                {
+                                    var action = message.Value.ToObject<PlayerAction>();
+                                    ((NetworkMatch)Game.match).ExecuteAction(action);
+                                }
+                            }
+
                         }
                     }
                     catch (IOException e)
                     {
                         Console.WriteLine(e);
                     }
-                    
+                    catch (ObjectDisposedException e)
+                    {
+                        Console.WriteLine(e);
+                    }
+
                 }
             }
             
@@ -244,6 +418,7 @@ namespace Crystal_Wars.Source.Core
             //netStream = tcpClient.GetStream();
             //var msg = JMessage.Serialize(JMessage.FromValue(obj));
             Byte[] data = System.Text.Encoding.ASCII.GetBytes(obj);
+            Console.WriteLine(data.Length);
             var bufferSpan = new ReadOnlyMemory<byte>(data);
             netStream.WriteAsync(bufferSpan);
             //netStream.Write();
@@ -252,7 +427,7 @@ namespace Crystal_Wars.Source.Core
         public  static JMessage ReadData()
         {
             
-            byte[] myReadBuffer = new byte[1024];
+            byte[] myReadBuffer = new byte[5120];
             var bufferSpan = new Span<byte>(myReadBuffer);
             netStream.Read(bufferSpan);
             JMessage message = JMessage.Deserialize(bufferSpan.ToString());
@@ -284,14 +459,14 @@ namespace Crystal_Wars.Source.Core
         public byte[] Data { get; set; }
     }
 
-    class JMessage
+    public class JMessage
     {
         public Type Type { get; set; }
         public JToken Value { get; set; }
 
         public static JMessage FromValue<T>(T value)
         {
-            return new JMessage { Type = typeof(T), Value = JToken.FromObject(value) };
+            return new JMessage { Type = typeof(T), Value = JToken.FromObject(value)};
         }
 
         public static string Serialize(JMessage message)
