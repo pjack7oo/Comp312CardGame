@@ -224,6 +224,36 @@ namespace Crystal_Wars.Source.Field
             return result;
             }
 
+
+        public bool PlaceCardOnField(PlayerAction.CardType? cardType, int? fieldPosition, Card card)
+        {
+            if (cardType == PlayerAction.CardType.Monster)
+            {
+                foreach (var fieldPos in playerMonsterField)//go through field and select the card that contains mouse
+                {
+                    if (!fieldPos.HasCard && fieldPos.position == fieldPosition)
+                    {
+                        fieldPos.Card = card;
+                        return true;
+                    }
+
+                }
+            }
+            else
+            {
+                foreach (var fieldPos in playerSpellField)//go through field and select the card that contains mouse
+                {
+                    if (!fieldPos.HasCard && fieldPos.position == fieldPosition)
+                    {
+                        fieldPos.Card = card;
+                        return true;
+                    }
+
+                }
+            }
+            return false;
+        }
+
         public bool HasUsableSpellCard()
         {
             foreach (var fieldPos in playerSpellField)//go through field and select the card that contains mouse

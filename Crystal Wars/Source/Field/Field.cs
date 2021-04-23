@@ -108,7 +108,6 @@ namespace Crystal_Wars.Source.Field
 
             return player2Field.GetRandomUnusedMonsterFieldPosition();
             
-            
         }
 
         public FieldPosition GetRandomUnusedSpellFieldPosition()
@@ -120,6 +119,18 @@ namespace Crystal_Wars.Source.Field
         }
 
         
+
+        public Boolean PlaceCardOnField(PlayerType player,PlayerAction.CardType? cardType, int? fieldPosition, Card card)
+        {
+            if (player == PlayerType.Player)
+            {
+                return player1Field.PlaceCardOnField(cardType, fieldPosition, card);
+            }
+            else //enemy 
+            {
+                return player2Field.PlaceCardOnField(cardType, fieldPosition, card);
+            }
+        }
 
         public Boolean PlaceCardOnField(PlayerType player, FieldPosition fieldPosition, Card card)
         {
