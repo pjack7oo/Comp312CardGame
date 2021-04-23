@@ -7,15 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Crystal_Wars.Source.Field;
 using Crystal_Wars.Source.Core;
-
+using Newtonsoft.Json;
 namespace Crystal_Wars.Source.Objects
 {
-    [Serializable]
+    [JsonObject(MemberSerialization.OptOut)]
     class SpellCard: Card
     {
         public readonly bool isFieldType;
         public Effect[] effects;
-
+        [NonSerialized]
         private readonly Text fieldTypeText;//temporary later this will be a symbol on the card
         public Boolean Active { get; private set; }
 

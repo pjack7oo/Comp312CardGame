@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using SFML.System;
 using SFML.Graphics;
 using Crystal_Wars.Source.Field;
-
+using Newtonsoft.Json;
 namespace Crystal_Wars.Source.Objects
 {
-    [Serializable]
+    [JsonObject(MemberSerialization.OptOut)]
     class Deck : Drawable
     {
         public Queue<Card> cards;

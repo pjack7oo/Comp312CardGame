@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using Crystal_Wars.Source.Objects;
 using Crystal_Wars.Source.Core;
 using Crystal_Wars.Source.Field;
-
+using Newtonsoft.Json;
 namespace Crystal_Wars.Source.Objects
 {
-    [Serializable]
+    [JsonObject(MemberSerialization.OptOut)]
     class Effect : Drawable
     {
         public FieldType? TargetCard { get; private set; }
@@ -19,25 +19,47 @@ namespace Crystal_Wars.Source.Objects
         public PlayerType? TargetPlayer { get; private set; }
 
         public ViewType viewType;
-
+        
         public delegate void CustomAction(Card card = null, Player player = null);
-
+        public string actionName;
+        [NonSerialized]
         public CustomAction action;
-
+        [NonSerialized]
         private readonly Text effectText;
 
+        public string effectString;
         public int effectCost;
 
         //public bool hasCost;
-        private int pos;//pos on the card
-        private int id;
+        public int pos;//pos on the card
+        public int id;
         private int useAmount = 1;
         private int maxUseAmount = 1;
         private bool singleUse = false;
+        [NonSerialized]
         private Button button;
 
+        [NonSerialized]
         private readonly Card card;
+        [NonSerialized]
         Random random = new Random();
+        [JsonConstructor]
+        public Effect(FieldType? TargetCard, PlayerType? TargetPlayer, ViewType viewType, int effectCost, int pos, int id, int useAmount, int maxUseAmount, bool singleUse,string actionName, string effectString)
+        {
+            this.TargetCard = TargetCard;
+            this.TargetPlayer = TargetPlayer;
+            this.viewType = viewType;
+            
+            this.effectCost = effectCost;
+            this.pos = pos;
+            this.id = id;
+            this.useAmount = useAmount;
+            this.maxUseAmount = maxUseAmount;
+            this.singleUse = singleUse;
+            this.actionName = actionName;
+            this.effectString = effectString;
+            effectText = HelperFunctions.NewText(this.effectString, 10, new Vector2f(10, 230 + 20 * pos), Color.Black);
+        }
         public Effect(Card card)
         {
             this.card = card;
@@ -55,6 +77,7 @@ namespace Crystal_Wars.Source.Objects
             TargetCard = null;
             TargetPlayer = PlayerType.Player;
             //AddButton();
+            effectString = "Generic effect";
             effectText = HelperFunctions.NewText("Generic effect", 10, new Vector2f(10, 230), Color.Black);
         }
         public Effect(int i)
@@ -64,6 +87,7 @@ namespace Crystal_Wars.Source.Objects
             TargetPlayer = PlayerType.Player;
             pos = i;
             id = random.Next();
+            effectString = "Generic effect";
             effectText = HelperFunctions.NewText("Generic effect", 10, new Vector2f(10, 230 + 20 * pos), Color.Black);
             //AddButton();
         }
@@ -83,9 +107,18 @@ namespace Crystal_Wars.Source.Objects
             TargetPlayer = PlayerType.Player;
             pos = i;
             id = random.Next();
+            effectString = "Generic effect";
             effectText = HelperFunctions.NewText("Generic effect", 10, new Vector2f(10, 230 + 20 * pos), Color.Black);
             //AddButton();
         }
+        //todo
+        //private Effect GetEffect(string effect)
+        //{
+        //    if (effect == "HealAllyCard")
+        //    {
+        //        return 
+        //    }
+        //}
 
         public Effect(int pos, Card card, FieldType? targetCard, PlayerType? targetPlayer, string text, CustomAction action, int effectCost = 1)
         {
@@ -104,6 +137,7 @@ namespace Crystal_Wars.Source.Objects
             this.pos = pos;
             id = random.Next();
             this.effectCost = effectCost;
+            effectString = text;
             effectText = HelperFunctions.NewText(text, 10, new Vector2f(10, 230 + 20 * pos), Color.Black);
         }
 
@@ -270,7 +304,8 @@ namespace Crystal_Wars.Source.Objects
             var effect = new Effect(pos, ownerCard, FieldType.Monster, PlayerType.Player, $"Heal an Ally Card {amount} HP", (card, player) => { ((MonsterCard)card).Hp += amount; }, cost)
             {
                 singleUse = singleUse,
-                useAmount = useAmount
+                useAmount = useAmount,
+                actionName = "HealAllyCard"
             };
             if (ownerCard is EffectMonster)
             {
@@ -279,17 +314,18 @@ namespace Crystal_Wars.Source.Objects
                     if (useAmount == 0)
                     {
                         effect.effectText.DisplayedString = $"{cost} Mana: Heal an Ally Card {amount} HP.\n Single Use";
-
+                        effect.effectString = $"{cost} Mana: Heal an Ally Card {amount} HP.\n Single Use";
                     }
                     else
                     {
                         effect.effectText.DisplayedString = $"{cost} Mana: Heal an Ally Card {amount} HP.\n {useAmount} Uses";
-
+                        effect.effectString = $"{cost} Mana: Heal an Ally Card {amount} HP.\n {useAmount} Uses";
                     }
                 }
                 else
                 {
                     effect.effectText.DisplayedString = $"{cost} Mana: Heal an Ally Card {amount} HP";
+                    effect.effectString = $"{cost} Mana: Heal an Ally Card {amount} HP";
                 }
             }
 
@@ -301,7 +337,8 @@ namespace Crystal_Wars.Source.Objects
             var effect = new Effect(pos, ownerCard, null, PlayerType.Player, $"Heal your Self {amount} HP", (card, player) => { player.Health += amount; }, cost)
             {
                 singleUse = singleUse,
-                useAmount = useAmount
+                useAmount = useAmount,
+                actionName = "HealPlayer"
             };
             if (ownerCard is EffectMonster)
             {
@@ -310,18 +347,18 @@ namespace Crystal_Wars.Source.Objects
                     if (useAmount == 1)
                     {
                         effect.effectText.DisplayedString = $"{cost} Mana: Heal your Self {amount} HP.\n Single Use";
-
+                        effect.effectString = $"{cost} Mana: Heal your Self {amount} HP.\n Single Use";
                     }
                     else
                     {
                         effect.effectText.DisplayedString = $"{cost} Mana: Heal your Self {amount} HP.\n {useAmount} Uses";
-
+                        effect.effectString = $"{cost} Mana: Heal your Self {amount} HP.\n {useAmount} Uses";
                     }
                 }
                 else
                 {
                     effect.effectText.DisplayedString = $"{cost} Mana: Heal your Self {amount} HP";
-
+                    effect.effectString = $"{cost} Mana: Heal your Self {amount} HP";
                 }
             }
 
@@ -334,7 +371,8 @@ namespace Crystal_Wars.Source.Objects
             var effect = new Effect(pos, ownerCard, FieldType.Monster, PlayerType.Player, $"Give Monster {amount} Mana", (card, player) => { ((MonsterCard)card).Mana += amount; }, cost)
             {
                 singleUse = singleUse,
-                useAmount = useAmount
+                useAmount = useAmount,
+                actionName = "OverloadCardMana"
             };
             if (ownerCard is EffectMonster)
             {
@@ -343,10 +381,12 @@ namespace Crystal_Wars.Source.Objects
                     if (useAmount == 1)
                     {
                         effect.effectText.DisplayedString = $"{cost} Mana: Give Monster { amount} Mana. \nSingle Use";
+                        effect.effectString = $"{cost} Mana: Give Monster { amount} Mana. \nSingle Use";
                     }
                     else
                     {
                         effect.effectText.DisplayedString = $"{cost} Mana: Give Monster { amount} Mana. \n{useAmount} Uses";
+                        effect.effectString = $"{cost} Mana: Give Monster { amount} Mana. \n{useAmount} Uses";
                     }
 
 
@@ -354,7 +394,7 @@ namespace Crystal_Wars.Source.Objects
                 else
                 {
                     effect.effectText.DisplayedString = $"{cost} Mana: Give Monster { amount} Man";
-
+                    effect.effectString = $"{cost} Mana: Give Monster { amount} Man";
                 }
 
             }

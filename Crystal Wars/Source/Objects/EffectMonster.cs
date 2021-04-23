@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Crystal_Wars.Source.Field;
 using Crystal_Wars.Source.Core;
-
+using Newtonsoft.Json;
 namespace Crystal_Wars.Source.Objects
 {
-    [Serializable]
+    [JsonObject(MemberSerialization.OptOut)]
     class EffectMonster : MonsterCard
     {
         public Effect[] effects;
@@ -20,7 +20,7 @@ namespace Crystal_Wars.Source.Objects
         {
             SetColors(new Color(192, 192, 192), Color.Black);
             effects = new Effect[1];
-            effects[0] = new Effect(this);
+            effects[0] = new Effect(1,this);
 
         }
 
@@ -28,7 +28,7 @@ namespace Crystal_Wars.Source.Objects
         {
             SetColors(new Color(192, 192, 192), Color.Black);
             effects = new Effect[1];
-            effects[0] = new Effect(this);
+            effects[0] = new Effect(1,this);
 
         }
 

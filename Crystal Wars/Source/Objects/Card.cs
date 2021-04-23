@@ -7,26 +7,29 @@ using System.Text;
 using System.Threading.Tasks;
 using Crystal_Wars.Source.Field;
 using Crystal_Wars.Source.Core;
-
+using Newtonsoft.Json;
 namespace Crystal_Wars.Source.Objects
 {
 
-    [Serializable]
+    [JsonObject(MemberSerialization.OptOut)]
     class Card : Transformable, Drawable, ICard
     {
 
 
         //shapes used to draw the card
+        [NonSerialized]
         private Shape[] shapes;
-
+        [NonSerialized]
         public RectangleShape boundingBox;
         //might need getter and a setter so we can modify card color that is displayed when this is changed
         //public Color color;
         //public Color accentColor;
-
+        [NonSerializedAttribute]
         RectangleShape backSide;
         //card attributes
+        [NonSerialized]
         public Text cardName;
+        [NonSerialized]
         Text cardDescription;
         //Text cardAttackText;
         //Text cardDefenseText;

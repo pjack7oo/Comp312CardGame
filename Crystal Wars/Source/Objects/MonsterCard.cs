@@ -7,11 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Crystal_Wars.Source.Field;
 using Crystal_Wars.Source.Core;
-
+using Newtonsoft.Json;
 namespace Crystal_Wars.Source.Objects
 {
 
-    [Serializable]
+    [JsonObject(MemberSerialization.OptOut)]
     class MonsterCard: Card
     {
 
@@ -24,11 +24,15 @@ namespace Crystal_Wars.Source.Objects
         private int hp;
         public int attackManaCost;
 
-
+        [NonSerialized]
         private readonly Text cardAttackText;
+        [NonSerialized]
         private readonly Text cardDefenseText;
+        [NonSerialized]
         private readonly Text cardManaText;
+        [NonSerialized]
         private readonly Text cardMaxManaText;
+        [NonSerialized]
         private readonly Text cardHpText;
 
         public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
