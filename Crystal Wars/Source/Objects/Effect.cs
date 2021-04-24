@@ -285,11 +285,15 @@ namespace Crystal_Wars.Source.Objects
 
         public Boolean CheckClick(Vector2f mouse)
         {
-            if (button.Contains(mouse))
+            if (button != null)
             {
+                if (button.Contains(mouse))
+                {
 
-                return true;
+                    return true;
+                }
             }
+            
             return false;
 
         }

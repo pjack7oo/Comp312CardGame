@@ -65,6 +65,15 @@ namespace Crystal_Wars.Source.Objects
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
             
         }
+        public SpellCard(bool isFieldType, int CrystalCost, int id, int ingameID, string CardName, string CardDescription) : base(CrystalCost,id, ingameID, CardName, CardDescription)
+        {
+            SetColors(new Color(208, 0, 208), Color.Black);
+            this.isFieldType = isFieldType;
+            effects = new Effect[1];
+
+            fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
+
+        }
 
         public void SetEffect(Effect effect)
         {

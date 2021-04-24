@@ -59,6 +59,24 @@ namespace Crystal_Wars.Source.Objects
             attackManaCost = 1;
             ManaGain = 1;
         }
+        [JsonConstructor]
+        public MonsterCard(int Hp, int Attack, int Defense,int Mana,int MaxMana,int attackManaCost, int ManaGain,int CrystalCost,int id, int ingameID, string CardName, string CardDescription) : base(CrystalCost,id,ingameID, CardName, CardDescription)
+        {
+            this.SetColors(new Color(210, 180, 140), Color.Black);
+            cardAttackText = HelperFunctions.NewText("Attack: ", 15, new Vector2f { X = 5f, Y = height - 20f }, Color.Black);
+            cardDefenseText = HelperFunctions.NewText("Defense: ", 15, new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
+            cardManaText = HelperFunctions.NewText("ManaPool: ", 15, new Vector2f { X = 5f, Y = height - 35f }, Color.Black);
+            cardMaxManaText = HelperFunctions.NewText("MaxMana: ", 15, new Vector2f { X = 100f, Y = height - 35f }, Color.Black);
+            cardHpText = HelperFunctions.NewText("Hp: ", 15, new Vector2f { X = width - 60f, Y = height - 90 }, Color.Black);
+
+            this.Hp = Hp;
+            this.Attack = Attack;
+            this.Defense = Defense;
+            this.Mana = Mana;
+            this.MaxMana = MaxMana;
+            this.attackManaCost = attackManaCost;
+            this.ManaGain = ManaGain;
+        }
 
         public MonsterCard(MonsterCard card): base(card)
         {

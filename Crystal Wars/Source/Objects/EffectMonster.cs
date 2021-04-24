@@ -37,6 +37,11 @@ namespace Crystal_Wars.Source.Objects
             SetColors(new Color(192, 192, 192), Color.Black);
             effects = card.effects;
         }
+        [JsonConstructor]
+        public EffectMonster(int Hp,int Attack, int Defense, int Mana, int MaxMana, int attackManaCost, int ManaGain,int CrystalCost, int id, int ingameID, string CardName, string CardDescription) : base(Hp,Attack,Defense,Mana,MaxMana,attackManaCost,ManaGain, CrystalCost, id,ingameID, CardName, CardDescription)
+        {
+            SetColors(new Color(192, 192, 192), Color.Black);
+        }
 
         public void SetEffect(Effect effect)
         {
