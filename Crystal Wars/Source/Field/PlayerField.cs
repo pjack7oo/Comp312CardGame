@@ -40,13 +40,13 @@ namespace Crystal_Wars.Source.Field
             }
             else
             {
-                int count = 6;
+                int count = 1;
                 for (int i = 0; i < 5; i++)
                 {
                     playerMonsterField[i] = new FieldPosition(playerType, count, FieldType.Monster);
                     count++;
                 }
-                count = 6;
+                count = 1;
                 for (int i = 0; i < 5; i++)
                 {
                     playerSpellField[i] = new FieldPosition(playerType, count, FieldType.Spell);
@@ -231,9 +231,11 @@ namespace Crystal_Wars.Source.Field
             {
                 foreach (var fieldPos in playerMonsterField)//go through field and select the card that contains mouse
                 {
+                    Console.WriteLine($"{fieldPos.position}, {fieldPosition}");
                     if (!fieldPos.HasCard && fieldPos.position == fieldPosition)
                     {
                         fieldPos.Card = card;
+                        card.UpdatePositions();
                         return true;
                     }
 
@@ -246,6 +248,7 @@ namespace Crystal_Wars.Source.Field
                     if (!fieldPos.HasCard && fieldPos.position == fieldPosition)
                     {
                         fieldPos.Card = card;
+                        card.UpdatePositions();
                         return true;
                     }
 

@@ -36,7 +36,7 @@ namespace Crystal_Wars.Source.Field
                 //setting the corner for top field and bottom field
                 if (playerType == PlayerType.Enemy)
                 {
-                    topLeftCorner = new Vector2f((position - 6) * (Card.width + 20) + 200, 170);
+                    topLeftCorner = new Vector2f((position - 1) * (Card.width + 20) + 200, 170);
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
                 else//player
@@ -51,7 +51,7 @@ namespace Crystal_Wars.Source.Field
                 //setting the corner for top field and bottom field
                 if (playerType == PlayerType.Enemy)
                 {
-                    topLeftCorner = new Vector2f((position - 6) * (Card.width + 20) + 200, -170);
+                    topLeftCorner = new Vector2f((position - 1) * (Card.width + 20) + 200, -170);
                     //target.Draw(CardOutlineRectangle(i * (Card.width + 20) + 410, Game.ScreenHeight - Card.height -160));
                 }
                 else//player
