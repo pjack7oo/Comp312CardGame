@@ -69,7 +69,7 @@ namespace Crystal_Wars.Source.Core
 
             foreach (var player in players)
             {
-                player.activeDeck.cards = Extensions.Shuffle(player.activeDeck.cards);
+                player.activeDeck.cards = player.activeDeck.cards.Shuffle();
                 player.SetDeckPosition();
                 for (int i = 0; i < 3; i++)
                 {
@@ -91,13 +91,10 @@ namespace Crystal_Wars.Source.Core
             MatchState = MatchState.Player;
             hasDoneUpdate = false;
             field = new Field.Field(window);
-            players[0].activeDeck.cards = Extensions.Shuffle(players[0].activeDeck.cards);
-
-                players[0].SetDeckPosition();
-                for (int i = 0; i < 3; i++)
-                {
-                    players[0].DrawACardFromDeck();
-                }
+            //players[0].activeDeck.cards.Shuffle();
+            players[0].activeDeck.cards = players[0].activeDeck.cards.Shuffle();
+            players[0].SetDeckPosition();
+                
 
 
             //AddButtons();
@@ -114,6 +111,18 @@ namespace Crystal_Wars.Source.Core
         public virtual void Exit()
         {
             Game.InitiallizeMainPage();
+            
+        }
+
+        public void DrawInitialCards()
+        {
+            foreach(var player in players)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    player.DrawACardFromDeck();
+                }
+            }
             
         }
 

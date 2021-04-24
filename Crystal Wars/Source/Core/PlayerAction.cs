@@ -32,14 +32,14 @@ namespace Crystal_Wars.Source.Core
         public int? Target { get; set; }
 
         public int? Effect { get; set; }
-
-        public PlayerAction(ActionType type,CardType? cardType = null, int? item = null, int? target = null, int? effect = null)
+        [JsonConstructor]
+        public PlayerAction(ActionType Type, CardType? ItemType = null, int? Item = null, int? Target = null, int? Effect = null)
         {
-            Type = type;
-            this.ItemType = cardType;
-            this.Item     = item;
-            this.Target   = target;
-            this.Effect   = effect;
+            this.Type = Type;
+            this.ItemType = ItemType;
+            this.Item     = Item;
+            this.Target   = Target;
+            this.Effect   = Effect;
         }
 
         public void SendAction()

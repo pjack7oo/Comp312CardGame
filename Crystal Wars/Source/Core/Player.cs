@@ -175,6 +175,7 @@ namespace Crystal_Wars.Source.Core
             
             foreach(var card in hand)
             {
+                Console.WriteLine($"{card.ingameID}, {id}");
                 if (card.ingameID == id)
                 {
                     return card;
@@ -400,13 +401,12 @@ namespace Crystal_Wars.Source.Core
         //drawing the cards in your hand
         private void DrawHand(RenderTarget target, RenderStates states)
         {
-            foreach (var card in hand)
+            
+            for(int i = 0; i < hand.Count;i++)
             {
-                card.viewType = ViewType.FieldView;
+                hand[i].viewType = ViewType.FieldView;
 
-                target.Draw(card);
-
-
+                target.Draw(hand[i]);
             }
 
         }
@@ -455,7 +455,7 @@ namespace Crystal_Wars.Source.Core
             {
                 for (int i = 0; i < hand.Count; i++)
                 {
-                    hand[i].State = CardState.Front;
+                    
                     hand[i].Location = CardLocation.Hand;
                     hand[i].Position = new Vector2f(i * (Card.width + 20) + 200, 0 - Card.height * 1.5f - 20);
                     hand[i].UpdatePositions();
@@ -586,6 +586,7 @@ namespace Crystal_Wars.Source.Core
                 list[j] = list[n];
                 list[n] = value;
             }
+            //queue = new Queue<T>(list);
             return new Queue<T>(list);
         }
     }

@@ -39,9 +39,13 @@ namespace Crystal_Wars.Source.Core
                 
                 Thread thread = new Thread(new ThreadStart(() => {
                     var cards = new List<string>();
+                    var deck = players[0].activeDeck.cards;
                     Thread.Sleep(5000);
-                    foreach (var card in Game.match.GetPlayer(0).activeDeck.cards)
+                    Console.WriteLine("sent");
+                    foreach (var card in deck)
                     {
+                        Console.Write($"{card.ingameID} , ");
+
                         string cardStr = "";
                         if (card is EffectMonster effectMonster)
                         {
@@ -86,9 +90,14 @@ namespace Crystal_Wars.Source.Core
             {
                 Thread thread = new Thread(new ThreadStart(() => {
                     var cards = new List<string>();
+                    var deck = players[0].activeDeck.cards;
                     Thread.Sleep(5000);
-                    foreach (var card in Game.match.GetPlayer(0).activeDeck.cards)
+                    Console.WriteLine("sent");
+                    foreach (var card in deck)
                     {
+                        
+                        Console.Write($"{card.ingameID} , ");
+                        
                         string cardStr = "";
                         if (card is EffectMonster effectMonster)
                         {
@@ -107,6 +116,7 @@ namespace Crystal_Wars.Source.Core
 
                     var str = string.Join("','", cards);
                     str = "['" + str + "']";
+                    //Console.WriteLine(str);
                     Networking.SendData(str);
                 }));
                 thread.Start();
@@ -319,9 +329,35 @@ namespace Crystal_Wars.Source.Core
             }
             else if (action.Type == PlayerAction.ActionType.Move)
             {
-                Console.WriteLine(action);
+                //Console.WriteLine(action);
                 var card = players[1].GetCard(action.Item);
+                Console.WriteLine($"{action.ItemType}, {action.Target}");
                 field.PlaceCardOnField(PlayerType.Enemy, action.ItemType, action.Target, card);
+                if (card is EffectMonster effectmonster)
+                {
+                    //effectmonster.AddEffectButtons();
+                    players[1].RemoveCrystals(effectmonster.CrystalCost);
+
+                    effectmonster.Location = CardLocation.Field;
+                    effectmonster.Selected = false;
+                }
+                else if (card is MonsterCard monster)
+                {
+                    players[1].RemoveCrystals(monster.CrystalCost);
+
+                    monster.Location = CardLocation.Field;
+                    monster.Selected = false;
+                    
+                }
+                else if (card is SpellCard spell)
+                {
+                    //spell.AddEffectButtons();
+                    players[1].RemoveCrystals(spell.CrystalCost);
+
+                    spell.Location = CardLocation.Field;
+                    spell.Selected = false;
+                }
+                players[1].AddCardToRemoveQueue(card);
             }
             else if (action.Type == PlayerAction.ActionType.Attack)
             {
