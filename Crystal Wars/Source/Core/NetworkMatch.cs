@@ -36,8 +36,9 @@ namespace Crystal_Wars.Source.Core
             field.UpdateMatchStateText();
             serverThread = new Thread(new ThreadStart(() =>
             {
-                
-                Thread thread = new Thread(new ThreadStart(() => {
+
+                Thread thread = new Thread(new ThreadStart(() =>
+                {
                     var cards = new List<string>();
                     var deck = players[0].activeDeck.cards;
                     Thread.Sleep(5000);
@@ -88,16 +89,17 @@ namespace Crystal_Wars.Source.Core
             field.UpdateMatchStateText();
             serverThread = new Thread(new ThreadStart(() =>
             {
-                Thread thread = new Thread(new ThreadStart(() => {
+                Thread thread = new Thread(new ThreadStart(() =>
+                {
                     var cards = new List<string>();
                     var deck = players[0].activeDeck.cards;
                     Thread.Sleep(5000);
                     Console.WriteLine("sent");
                     foreach (var card in deck)
                     {
-                        
+
                         Console.Write($"{card.ingameID} , ");
-                        
+
                         string cardStr = "";
                         if (card is EffectMonster effectMonster)
                         {
@@ -323,50 +325,176 @@ namespace Crystal_Wars.Source.Core
 
         public void ExecuteAction(PlayerAction action)
         {
-            if (action.Type == PlayerAction.ActionType.NextPhase)
+            Thread thread = new Thread(new ThreadStart(() =>
             {
-                NextTurnState();
-            }
-            else if (action.Type == PlayerAction.ActionType.Move)
-            {
-                //Console.WriteLine(action);
-                var card = players[1].GetCard(action.Item);
-                Console.WriteLine($"{action.ItemType}, {action.Target}");
-                field.PlaceCardOnField(PlayerType.Enemy, action.ItemType, action.Target, card);
-                if (card is EffectMonster effectmonster)
+                if (action.Type == PlayerAction.ActionType.NextPhase)
                 {
-                    //effectmonster.AddEffectButtons();
-                    players[1].RemoveCrystals(effectmonster.CrystalCost);
-
-                    effectmonster.Location = CardLocation.Field;
-                    effectmonster.Selected = false;
+                    NextTurnState();
                 }
-                else if (card is MonsterCard monster)
+                else if (action.Type == PlayerAction.ActionType.Move)
                 {
-                    players[1].RemoveCrystals(monster.CrystalCost);
+                    //Console.WriteLine(action);
+                    var card = players[1].GetCard(action.Item);
+                    Console.WriteLine($"{action.ItemType}, {action.Target}");
+                    field.PlaceCardOnField(PlayerType.Enemy, action.ItemType, action.Target, card);
+                    if (card is EffectMonster effectmonster)
+                    {
+                        //effectmonster.AddEffectButtons();
+                        players[1].RemoveCrystals(effectmonster.CrystalCost);
+                        effectmonster.State = CardState.Front;
+                        effectmonster.Location = CardLocation.Field;
+                        effectmonster.Selected = false;
+                    }
+                    else if (card is MonsterCard monster)
+                    {
+                        players[1].RemoveCrystals(monster.CrystalCost);
+                        monster.State = CardState.Front;
+                        monster.Location = CardLocation.Field;
+                        monster.Selected = false;
 
-                    monster.Location = CardLocation.Field;
-                    monster.Selected = false;
+                    }
+                    else if (card is SpellCard spell)
+                    {
+                        //spell.AddEffectButtons();
+                        players[1].RemoveCrystals(spell.CrystalCost);
+
+                        spell.Location = CardLocation.Field;
+                        spell.Selected = false;
+                    }
+                    players[1].AddCardToRemoveQueue(card);
+                }
+                else if (action.Type == PlayerAction.ActionType.Attack)
+                {
                     
+                    if (action.ItemType == null && action.Target == null)//attack opponent
+                    {
+                        AttackPlayerOnline(((int)action.Item), PlayerType.Player);
+                    }
+                    else
+                    {
+                        CalculateCardAttackOnline((int)action.Item, (int)action.Target, PlayerType.Player);
+                    }
                 }
-                else if (card is SpellCard spell)
+                else if (action.Type == PlayerAction.ActionType.Effect)
                 {
-                    //spell.AddEffectButtons();
-                    players[1].RemoveCrystals(spell.CrystalCost);
 
-                    spell.Location = CardLocation.Field;
-                    spell.Selected = false;
                 }
-                players[1].AddCardToRemoveQueue(card);
-            }
-            else if (action.Type == PlayerAction.ActionType.Attack)
-            {
+                else if (action.Type == PlayerAction.ActionType.Retry)//might be used to resend data we shall see
+                {
+                    Networking.SendData(JMessage.Serialize(JMessage.FromValue(new PlayerAction(PlayerAction.ActionType.Ready))));
+                }
+                else if (action.Type == PlayerAction.ActionType.Ready)
+                {
+                    if (Networking.CardsLoaded)
+                    {
+                        players[0].SetDeckPosition();
+                        players[1].SetDeckPosition();
+                        AddButtons();
+                        onlineState = OnlineState.Playing;
+                        DrawInitialCards();
 
-            }
-            else if (action.Type == PlayerAction.ActionType.Effect)
-            {
+                    }
+                    else
+                    {
+                        Networking.SendData(JMessage.Serialize(JMessage.FromValue(new PlayerAction(PlayerAction.ActionType.Retry))));
+                    }
 
+                }
+            }));
+            thread.Start();
+        }
+
+        public void AttackPlayerOnline(int cardId, PlayerType player)
+        {
+            if (player == PlayerType.Player)
+            {
+                FieldPosition position = field.GetMonsterCard(PlayerType.Enemy, cardId);
+                if (((MonsterCard)position.Card).Mana - ((MonsterCard)position.Card).attackManaCost >= 0)
+                {
+                    Console.WriteLine($"{((MonsterCard)position.Card)} attacked Player");
+
+                    players[0].ApplyDamage(((MonsterCard)position.Card).Attack);
+
+
+
+                    ((MonsterCard)position.Card).Mana -= ((MonsterCard)position.Card).attackManaCost;
+
+                }
             }
+            else
+            {
+                FieldPosition position = field.GetMonsterCard(PlayerType.Player, cardId);
+                if (((MonsterCard)position.Card).Mana - ((MonsterCard)position.Card).attackManaCost >= 0)
+                {
+                    Console.WriteLine($"{((MonsterCard)position.Card)} attacked Opponent");
+
+
+
+                    players[1].ApplyDamage(((MonsterCard)position.Card).Attack);
+
+                    ((MonsterCard)position.Card).Mana -= ((MonsterCard)position.Card).attackManaCost;
+
+                }
+            }
+        }
+        public void CalculateCardAttackOnline(int cardId, int targetId,PlayerType target)
+        {
+            MonsterCard card1;
+            MonsterCard card2;
+            if (target == PlayerType.Player)
+            {
+                card1 = (MonsterCard)field.GetMonsterCard(PlayerType.Enemy, cardId).Card;
+
+                var targetField = field.GetMonsterCard(PlayerType.Player, targetId);
+                card2 = (MonsterCard)targetField.Card;
+                Console.WriteLine($"{card1} attacked {card2}");
+                if (card1.Mana - card1.attackManaCost >= 0)
+                {
+                    if (card1.Attack > card2.Defense)//attack worked, send card2 to graveyard and deal difference of attack - defense to opponent
+                    {
+                        players[0].SendCardToGraveyard(card2);
+
+                        players[0].ApplyDamage(card1.Attack - card2.Defense);
+
+                        targetField.ResetCard();
+
+                    }
+                    else //attack failed you get dealt difference of defense -attack
+                    {
+                        players[1].ApplyDamage(card2.Defense - card1.Attack);
+                    }
+                    card1.Mana -= card1.attackManaCost;
+
+                }
+            }
+            else
+            {
+                card1 = (MonsterCard)field.GetMonsterCard(PlayerType.Player, cardId).Card;
+                var targetField = field.GetMonsterCard(PlayerType.Enemy, targetId);
+                card2 = (MonsterCard)targetField.Card;
+                Console.WriteLine($"{card1} attacked {card2}");
+                if (card1.Mana - card1.attackManaCost >= 0)
+                {
+                    if (card1.Attack > card2.Defense)//attack worked, send card2 to graveyard and deal difference of attack - defense to opponent
+                    {
+                        players[1].SendCardToGraveyard(card2);
+
+                        players[1].ApplyDamage(card1.Attack - card2.Defense);
+
+                        targetField.ResetCard();
+
+                    }
+                    else //attack failed you get dealt difference of defense -attack
+                    {
+                        players[0].ApplyDamage(card2.Defense - card1.Attack);
+                    }
+                    card1.Mana -= card1.attackManaCost;
+
+                }
+            }
+            
+            
+            
         }
 
         public override void Render()
@@ -406,11 +534,44 @@ namespace Crystal_Wars.Source.Core
                             //handle releasing on player field position this will include spell handling
                             if (target.Item1 == PlayerType.Player)
                             {
-                                if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
+                                if (target.Item2 != null)
                                 {
-                                    if (target.Item2.fieldType == FieldType.Monster && selectedCard is MonsterCard)
+                                    if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
                                     {
-                                        if (selectedCard is EffectMonster card)
+                                        if (target.Item2.fieldType == FieldType.Monster && selectedCard is MonsterCard)
+                                        {
+                                            if (selectedCard is EffectMonster card)
+                                            {
+                                                field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                                card.AddEffectButtons();
+                                                players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
+                                                target.Item2.Card = selectedCard;
+                                                selectedCard.Location = CardLocation.Field;
+                                                selectedCard.Selected = false;
+                                                players[0].AddCardToRemoveQueue(selectedCard);
+                                                var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Monster, selectedCard.ingameID, target.Item2.position);
+                                                Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
+                                                //cardsToRemove.Enqueue(selectedCard);
+                                                //players[0].RemoveCard(selectedCard);
+                                                selectedCard = null;
+                                            }
+                                            else
+                                            {
+                                                field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                                players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
+                                                target.Item2.Card = selectedCard;
+                                                selectedCard.Location = CardLocation.Field;
+                                                selectedCard.Selected = false;
+                                                players[0].AddCardToRemoveQueue(selectedCard);
+                                                var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Monster, selectedCard.ingameID, target.Item2.position);
+                                                Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
+                                                //cardsToRemove.Enqueue(selectedCard);
+                                                //players[0].RemoveCard(selectedCard);
+                                                selectedCard = null;
+                                            }
+
+                                        }
+                                        else if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard card)
                                         {
                                             field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
                                             card.AddEffectButtons();
@@ -419,7 +580,7 @@ namespace Crystal_Wars.Source.Core
                                             selectedCard.Location = CardLocation.Field;
                                             selectedCard.Selected = false;
                                             players[0].AddCardToRemoveQueue(selectedCard);
-                                            var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Monster, selectedCard.ingameID, target.Item2.position);
+                                            var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Spell, selectedCard.ingameID, target.Item2.position);
                                             Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
                                             //cardsToRemove.Enqueue(selectedCard);
                                             //players[0].RemoveCard(selectedCard);
@@ -427,71 +588,31 @@ namespace Crystal_Wars.Source.Core
                                         }
                                         else
                                         {
-                                            field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
-                                            players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
-                                            target.Item2.Card = selectedCard;
-                                            selectedCard.Location = CardLocation.Field;
-                                            selectedCard.Selected = false;
-                                            players[0].AddCardToRemoveQueue(selectedCard);
-                                            var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Monster, selectedCard.ingameID, target.Item2.position);
-                                            Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
-                                            //cardsToRemove.Enqueue(selectedCard);
-                                            //players[0].RemoveCard(selectedCard);
-                                            selectedCard = null;
+                                            ResetCard();
                                         }
 
                                     }
-                                    else if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard card)
-                                    {
-                                        field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
-                                        card.AddEffectButtons();
-                                        players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
-                                        target.Item2.Card = selectedCard;
-                                        selectedCard.Location = CardLocation.Field;
-                                        selectedCard.Selected = false;
-                                        players[0].AddCardToRemoveQueue(selectedCard);
-                                        var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Spell, selectedCard.ingameID, target.Item2.position);
-                                        Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
-                                        //cardsToRemove.Enqueue(selectedCard);
-                                        //players[0].RemoveCard(selectedCard);
-                                        selectedCard = null;
-                                    }
-                                    else
-                                    {
-                                        if (selectedCard.Location == CardLocation.Moving)
-                                        {
-                                            selectedCard.Selected = false;
-                                            selectedCard.Location = CardLocation.Hand;
-                                            //player1.ResetCardPosition(selectedCard);
-                                            selectedCard.ResetCard();
-                                            selectedCard = null;
-                                            //Console.WriteLine("released");
-
-                                            //player1.ResetCards();
-                                        }
-                                    }
-
                                 }
+                                else
+                                {
+                                    ResetCard();
+                                }
+
 
                             }
                             else //handle release on opponent field in necessary
                             {
-
+                                ResetCard();
                             }
                         }
                         else if (selectedCard != null && target == null) //check where to place card when mouse is released and if no valid slot is selected then drop the card back to previous spot
                         {
-                            if (selectedCard.Location == CardLocation.Moving)
-                            {
-                                selectedCard.Selected = false;
-                                selectedCard.Location = CardLocation.Hand;
-                                //player1.ResetCardPosition(selectedCard);
-                                selectedCard.ResetCard();
-                                selectedCard = null;
-                                //Console.WriteLine("released");
+                            ResetCard();
 
-                                //player1.ResetCards();
-                            }
+                        }
+                        else if (selectedCard != null && target.Item2 == null) //check where to place card when mouse is released and if no valid slot is selected then drop the card back to previous spot
+                        {
+                            ResetCard();
 
                         }
                         break;
@@ -503,56 +624,48 @@ namespace Crystal_Wars.Source.Core
                             //handle releasing on player field position this will include spell handling
                             if (target.Item1 == PlayerType.Player)
                             {
-                                if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
+                                if (target.Item2 != null)
                                 {
-
-                                    if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard card)
+                                    if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
                                     {
-                                        field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
-                                        card.AddEffectButtons();
-                                        players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
-                                        target.Item2.Card = selectedCard;
-                                        selectedCard.Location = CardLocation.Field;
-                                        selectedCard.Selected = false;
-                                        players[0].AddCardToRemoveQueue(selectedCard);
-                                        var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Spell, selectedCard.ingameID, target.Item2.position);
-                                        Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
 
-                                        selectedCard = null;
-                                    }
-                                    else
-                                    {
-                                        if (selectedCard.Location == CardLocation.Moving)
+                                        if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard card)
                                         {
+                                            field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                            card.AddEffectButtons();
+                                            players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
+                                            target.Item2.Card = selectedCard;
+                                            selectedCard.Location = CardLocation.Field;
                                             selectedCard.Selected = false;
-                                            selectedCard.Location = CardLocation.Hand;
-                                            //player1.ResetCardPosition(selectedCard);
-                                            selectedCard.ResetCard();
+                                            players[0].AddCardToRemoveQueue(selectedCard);
+                                            var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Spell, selectedCard.ingameID, target.Item2.position);
+                                            Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
+
                                             selectedCard = null;
-                                            //Console.WriteLine("released");
-
-                                            //player1.ResetCards();
                                         }
-                                    }
+                                        else
+                                        {
+                                            ResetCard();
+                                        }
 
+                                    }
+                                }
+                                else
+                                {
+                                    ResetCard();
                                 }
 
+
+                            }
+                            else
+                            {
+                                ResetCard();
                             }
 
                         }
                         else if (selectedCard != null && target == null) //check where to place card when mouse is released and if no valid slot is selected then drop the card back to previous spot
                         {
-                            if (selectedCard.Location == CardLocation.Moving)
-                            {
-                                selectedCard.Selected = false;
-                                selectedCard.Location = CardLocation.Hand;
-                                //player1.ResetCardPosition(selectedCard);
-                                selectedCard.ResetCard();
-                                selectedCard = null;
-                                //Console.WriteLine("released");
-
-                                //player1.ResetCards();
-                            }
+                            ResetCard();
 
                         }
                         break;
@@ -562,73 +675,54 @@ namespace Crystal_Wars.Source.Core
                             //handle releasing on player field position this will include spell handling
                             if (target.Item1 == PlayerType.Player)
                             {
-                                if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
+                                if (target != null)
                                 {
-                                    if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard card)
+                                    if (!target.Item2.HasCard && selectedCard.Location == CardLocation.Moving)
                                     {
-                                        field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
-                                        card.AddEffectButtons();
-                                        players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
-                                        target.Item2.Card = selectedCard;
-                                        selectedCard.Location = CardLocation.Field;
-                                        selectedCard.Selected = false;
-                                        players[0].AddCardToRemoveQueue(selectedCard);
-                                        var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Spell, selectedCard.ingameID, target.Item2.position);
-                                        Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
-                                        //cardsToRemove.Enqueue(selectedCard);
-                                        //players[0].RemoveCard(selectedCard);
-                                        selectedCard = null;
-                                    }
-                                    else
-                                    {
-                                        if (selectedCard.Location == CardLocation.Moving)
+                                        if (target.Item2.fieldType == FieldType.Spell && selectedCard is SpellCard card)
                                         {
+                                            field.PlaceCardOnField(target.Item1, target.Item2, selectedCard);
+                                            card.AddEffectButtons();
+                                            players[(int)MatchState].RemoveCrystals(selectedCard.CrystalCost);
+                                            target.Item2.Card = selectedCard;
+                                            selectedCard.Location = CardLocation.Field;
                                             selectedCard.Selected = false;
-                                            selectedCard.Location = CardLocation.Hand;
-                                            //player1.ResetCardPosition(selectedCard);
-                                            selectedCard.ResetCard();
+                                            players[0].AddCardToRemoveQueue(selectedCard);
+                                            var action = new PlayerAction(PlayerAction.ActionType.Move, PlayerAction.CardType.Spell, selectedCard.ingameID, target.Item2.position);
+                                            Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
+                                            //cardsToRemove.Enqueue(selectedCard);
+                                            //players[0].RemoveCard(selectedCard);
                                             selectedCard = null;
-                                            //Console.WriteLine("released");
-
-                                            //player1.ResetCards();
                                         }
-                                    }
+                                        else
+                                        {
+                                            ResetCard();
+                                        }
 
+                                    }
                                 }
 
+                                else
+                                {
+                                    ResetCard();
+                                }
+                            }
+                            else
+                            {
+                                ResetCard();
                             }
 
                         }
                         else if (selectedCard != null && target == null) //check where to place card when mouse is released and if no valid slot is selected then drop the card back to previous spot
                         {
-                            if (selectedCard.Location == CardLocation.Moving)
-                            {
-                                selectedCard.Selected = false;
-                                selectedCard.Location = CardLocation.Hand;
-                                //player1.ResetCardPosition(selectedCard);
-                                selectedCard.ResetCard();
-                                selectedCard = null;
-                                //Console.WriteLine("released");
-
-                                //player1.ResetCards();
-                            }
+                            ResetCard();
 
                         }
                         break;
                     default:
                         if (selectedCard != null)
                         {
-                            if (selectedCard.Location == CardLocation.Moving)
-                            {
-                                selectedCard.Selected = false;
-                                selectedCard.Location = CardLocation.Hand;
-                                //player1.ResetCardPosition(selectedCard);
-                                selectedCard.ResetCard();
-                                selectedCard = null;
-                                //Console.WriteLine("released");
-
-                                //player1.ResetCards();
-                            }
+                            ResetCard();
                         }
 
                         break;
@@ -996,18 +1090,31 @@ namespace Crystal_Wars.Source.Core
                             }
                             else
                             {
-                                if (selectedCard is MonsterCard)
+                                if (selectedCard is MonsterCard monster)
                                 {
                                     //Console.WriteLine(selectedCard is MonsterCard);
                                     Tuple<PlayerType, FieldPosition> target;
                                     target = field.GetTarget(mouse);
-                                    if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
+                                    if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null && target.Item2 == null)
                                     {
-
-                                        CalculateCardAttack((MonsterCard)selectedCard, target);
-                                        var action = new PlayerAction(PlayerAction.ActionType.Attack, PlayerAction.CardType.Monster, selectedCard.ingameID, target.Item2.position);
+                                        AttackPlayer(monster, PlayerType.Enemy);
+                                        var action = new PlayerAction(PlayerAction.ActionType.Attack, null, selectedCard.ingameID, null);
                                         Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
+                                        selectedCard.Selected = false;
+                                        selectedCard = null;
+                                        ClearAlertText();
                                     }
+                                    else if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null && target.Item2.fieldType == FieldType.Monster) //handle attacking card
+                                    {
+                                        var action = new PlayerAction(PlayerAction.ActionType.Attack, PlayerAction.CardType.Monster, selectedCard.ingameID, target.Item2.Card.ingameID);
+                                        Networking.SendData(JMessage.Serialize(JMessage.FromValue(action)));
+                                        CalculateCardAttack(monster, target);
+                                        
+                                        selectedCard.Selected = false;
+                                        selectedCard = null;
+                                        ClearAlertText();
+                                    }
+
                                 }
                                 else if (selectedCard is SpellCard)//spell card
                                 {

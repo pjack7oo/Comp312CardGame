@@ -48,9 +48,9 @@ namespace Crystal_Wars.Source.Core
 
             noSprite = false;
             //load in the sprites
-            defaultSprite = new Sprite(new Texture("Media/Images/GenericBtn.png"));
+            defaultSprite = (Sprite)FileHandler.GetItem("Generic_Btn_Pressed_Sprite");//new Sprite(new Texture("Media/Images/Generic_Btn_Sprite.png"));
 
-            pressedSprite = new Sprite(new Texture("Media/Images/GenericBtnPressed.png"));
+            pressedSprite = (Sprite)FileHandler.GetItem("Generic_Btn_Pressed_Sprite");//new Sprite(new Texture("Media/Images/Generic_Btn_Pressed_Sprite.png"));
             
             defaultSprite.Scale = scale;
             pressedSprite.Scale = scale;
@@ -79,9 +79,9 @@ namespace Crystal_Wars.Source.Core
             noSprite = false;
 
             //load in the sprites
-            defaultSprite = new Sprite(new Texture("Media/Images/GenericBtn.png"));
+            defaultSprite = new Sprite(new Texture("Media/Images/Generic_Btn_Sprite.png"));
 
-            pressedSprite = new Sprite(new Texture("Media/Images/GenericBtnPressed.png"));
+            pressedSprite = new Sprite(new Texture("Media/Images/Generic_Btn_Pressed_Sprite.png"));
 
             Origin = new Vector2f(defaultSprite.GetGlobalBounds().Width / 2, defaultSprite.GetGlobalBounds().Height / 2);
             Position = location;

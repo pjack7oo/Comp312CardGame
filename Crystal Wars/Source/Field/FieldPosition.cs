@@ -19,7 +19,7 @@ namespace Crystal_Wars.Source.Field
     {
         private Card card;
         public FieldType fieldType;
-        public Card Card { get { return card; } set { card = value; card.Position = topLeftCorner; } }
+        public Card Card { get { return card; } set { card = value; value.Position = topLeftCorner; } }
         public int position; //temporary way of store card position it might be changed
         public Boolean HasCard { get { return (this.card != null) ? true : false; } }
         //important for drawing things to the right spot

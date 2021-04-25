@@ -12,13 +12,32 @@ namespace Crystal_Wars.Source.Objects
 {
 
     [JsonObject(MemberSerialization.OptOut)]
-    class Card : Transformable, Drawable, ICard
+    abstract class Card : Transformable, Drawable, ICard
     {
 
-
-        //shapes used to draw the card
         [NonSerialized]
-        private Shape[] shapes;
+        public Sprite face;
+
+        [NonSerialized]
+        public Sprite back = (Sprite)FileHandler.GetItem("Back of Card_Sprite");
+
+        [NonSerialized]
+        public Sprite nameBar;
+
+        [NonSerialized]
+        public Sprite pictureBackground;
+
+        
+
+        [NonSerialized]
+        public Sprite picture;
+        [NonSerialized]
+        public RectangleShape imageBoxOutline = new RectangleShape(new Vector2f { X = width - 20f, Y = width - 20f }) { FillColor = Color.Transparent, OutlineColor = Color.Black, OutlineThickness = 2f, Position = new Vector2f { X = 10f, Y = 50f } };
+        [NonSerialized]
+        public RectangleShape nameBoxOutline = new RectangleShape(new Vector2f { X = width - 20f, Y = 20f }) { FillColor = Color.Transparent, OutlineColor = Color.Black, OutlineThickness = 2f, Position = new Vector2f { X = 10f, Y = 10f } };
+        //shapes used to draw the card
+        //[NonSerialized]
+        //private Shape[] shapes;
         [NonSerialized]
         public RectangleShape boundingBox;
         //might need getter and a setter so we can modify card color that is displayed when this is changed
@@ -36,6 +55,8 @@ namespace Crystal_Wars.Source.Objects
         //Text cardManaText;
         //Text cardMaxManaText;
         //Text cardCrystalCostText;
+
+        public string pictureName;
 
         public Vector2f previousPosition;
         //used to know which side to draw
@@ -60,13 +81,13 @@ namespace Crystal_Wars.Source.Objects
 
         public readonly int id;
 
-        public  int ingameID;
+        public int ingameID;
         //Selected is only true when mouse is hovered over the card in hand or if selected while on the field
         public Boolean Selected { get; set; }
         //card location can be either deck, hand, field, or graveyard
         public CardLocation Location { get; set; }
 
-        
+
         public CardState State { get { return state; } set { state = value; } }
         //public int Attack { get { return attack; } set { attack = value; cardAttackText.DisplayedString = "Attack: " + value.ToString(); } }
         //public int Defense { get { return defense; } set { defense = value; cardDefenseText.DisplayedString = "Defense: " + value.ToString(); } }
@@ -83,13 +104,14 @@ namespace Crystal_Wars.Source.Objects
         //generic constructor will be rarely used was mainly for testing
         public Card()
         {
-            
+
             ingameID = HelperFunctions.random.Next();
             //Console.WriteLine(ingameID);
             //creating the shapes of the card
             var color = Color.Cyan;
             var accentColor = Color.Black;
-            shapes = CardShapes(Position, color, accentColor);
+            //shapes = CardShapes(Position, color, accentColor);
+            
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
             boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 2, OutlineColor = Color.Red };
             //filling in the name and description
@@ -107,7 +129,7 @@ namespace Crystal_Wars.Source.Objects
             //MaxMana = 1;
             crystals = new List<CircleShape>();
             CrystalCost = 2;
-            
+            back.Scale = new Vector2f(width / back.GetLocalBounds().Width, height / back.GetLocalBounds().Height);
             //attackManaCost = 1;
 
             //for (int i = 0; i < CrystalCost; i++)
@@ -120,11 +142,12 @@ namespace Crystal_Wars.Source.Objects
 
         }
         [JsonConstructor]
-        public Card(int CrystalCost,int id, int ingameID, string CardName, string CardDescription) 
+        public Card(int CrystalCost, int id, int ingameID, string CardName, string CardDescription, string pictureName)
         {
             var color = Color.Cyan;
             var accentColor = Color.Black;
-            shapes = CardShapes(Position, color, accentColor);
+            
+            //shapes = CardShapes(Position, color, accentColor);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
             boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 2, OutlineColor = Color.Red };
             //filling in the name and description
@@ -141,8 +164,9 @@ namespace Crystal_Wars.Source.Objects
             //Mana = 1;
             //MaxMana = 1;
             crystals = new List<CircleShape>();
-            
+            this.pictureName = pictureName;
 
+            back.Scale = new Vector2f(width / back.GetLocalBounds().Width, height / back.GetLocalBounds().Height);
             //attackManaCost = 1;
 
             //for (int i = 0; i < CrystalCost; i++)
@@ -164,11 +188,12 @@ namespace Crystal_Wars.Source.Objects
             id = card.id;
             ingameID = card.ingameID;
 
-            
+
             //creating the shapes of the card
             var color = Color.Cyan;
             var accentColor = Color.Black;
-            shapes = CardShapes(Position, color, accentColor);
+            
+            //shapes = CardShapes(Position, color, accentColor);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
             boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 2, OutlineColor = Color.Red };
             //filling in the name and description
@@ -189,6 +214,7 @@ namespace Crystal_Wars.Source.Objects
             State = card.State;
             //attackManaCost = 1;
 
+            back.Scale = new Vector2f(width / back.GetLocalBounds().Width, height / back.GetLocalBounds().Height);
             //for (int i = 0; i < CrystalCost; i++)
             //{
             //    crystals.Add(new CircleShape(5f, 4) { Position = new Vector2f(10f + i * 15f, 35f), FillColor = Color.Magenta, OutlineColor = new Color(169, 169, 169), OutlineThickness = 1 });
@@ -198,7 +224,7 @@ namespace Crystal_Wars.Source.Objects
             Location = CardLocation.Deck;
         }
 
-        
+
         public Card(int id)
         {
             this.id = id;
@@ -206,7 +232,8 @@ namespace Crystal_Wars.Source.Objects
             //creating the shapes of the card
             var color = Color.Cyan;
             var accentColor = Color.Black;
-            shapes = CardShapes(Position, color, accentColor);
+            
+            //shapes = CardShapes(Position, color, accentColor);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
             boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 2, OutlineColor = Color.Red };
             //filling in the name and description
@@ -225,6 +252,7 @@ namespace Crystal_Wars.Source.Objects
             crystals = new List<CircleShape>();
             CrystalCost = 2;
 
+            back.Scale = new Vector2f(width / back.GetLocalBounds().Width, height / back.GetLocalBounds().Height);
             //attackManaCost = 1;
 
             //for (int i = 0; i < CrystalCost; i++)
@@ -239,10 +267,11 @@ namespace Crystal_Wars.Source.Objects
 
         public Card(String name, String discription)
         {
-            
+
             ingameID = HelperFunctions.random.Next();
+            
             //creating the shapes of the card
-            shapes = CardShapes(Position, Color.Cyan, Color.Black);
+            //shapes = CardShapes(Position, Color.Cyan, Color.Black);
             backSide = new RectangleShape(new Vector2f(width, height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 };
             boundingBox = new RectangleShape(new Vector2f(width, height)) { FillColor = Color.Transparent, OutlineThickness = 1, OutlineColor = Color.Red };
             //filling in the name and description
@@ -250,7 +279,7 @@ namespace Crystal_Wars.Source.Objects
             cardDescription = HelperFunctions.NewText(discription, 10, Position + new Vector2f { X = 10f, Y = 235f }, Color.Black);
             //cardAttackText = HelperFunctions.NewText("Attack: ", 15, Position + new Vector2f { X = 10f, Y = height - 20f }, Color.Black);
             //cardDefenseText = HelperFunctions.NewText("Defense: ", 15, Position + new Vector2f { X = 100f, Y = height - 20f }, Color.Black);
-
+            ScaleSprite(back);
 
             //Attack = attack;
             //Defense = defense;
@@ -258,6 +287,10 @@ namespace Crystal_Wars.Source.Objects
             Location = CardLocation.Deck;
         }
 
+        public static void ScaleSprite(Sprite sprite)
+        {
+            sprite.Scale = new Vector2f(width / sprite.GetLocalBounds().Width, height / sprite.GetLocalBounds().Height);
+        }
 
         public bool Equals(Card obj)
         {
@@ -268,30 +301,35 @@ namespace Crystal_Wars.Source.Objects
 
         public virtual void Draw(RenderTarget target, RenderStates states)
         {
-           
+
             if (viewType == ViewType.SideView)
             {
-                
-                    states.Transform.Translate(new Vector2f(Game.SideViewWidth - Card.width * 1.4f, Game.ScreenHeight - Card.height * 1.4f - 50));
-                    //drawing each of the shapes
-                    foreach (var shape in shapes)
-                    {
-                        target.Draw(shape, states);
-                    }
-                    //drawing the text
-                    target.Draw(cardName, states);
-                    target.Draw(cardDescription, states);
-                    //target.Draw(cardAttackText, states);
-                    //target.Draw(cardDefenseText, states);
-                    //target.Draw(cardManaText, states);
-                    //target.Draw(cardMaxManaText, states);
 
-                    for (int i = 0; i < crystals.Count; i++)
-                    {
-                        target.Draw(crystals[i], states);
-                    }
-                    //target.Draw(cardCrystalCostText, states);
-                
+                states.Transform.Translate(new Vector2f(Game.SideViewWidth - Card.width * 1.4f, Game.ScreenHeight - Card.height * 1.4f - 50));
+                //drawing each of the shapes
+                target.Draw(face, states);
+                target.Draw(nameBar, states);
+                target.Draw(pictureBackground, states);
+                target.Draw(imageBoxOutline, states);
+                target.Draw(nameBoxOutline, states);
+                //foreach (var shape in shapes)
+                //{
+                //    target.Draw(shape, states);
+                //}
+                //drawing the text
+                target.Draw(cardName, states);
+                target.Draw(cardDescription, states);
+                //target.Draw(cardAttackText, states);
+                //target.Draw(cardDefenseText, states);
+                //target.Draw(cardManaText, states);
+                //target.Draw(cardMaxManaText, states);
+
+                for (int i = 0; i < crystals.Count; i++)
+                {
+                    target.Draw(crystals[i], states);
+                }
+                //target.Draw(cardCrystalCostText, states);
+
             }
             else
             {
@@ -300,13 +338,19 @@ namespace Crystal_Wars.Source.Objects
                 //applying object transform to the states transform for drawing uniformly
                 states.Transform = Transform;
                 //drawing based on the state
+
                 if (state == CardState.Front)
                 {
+                    target.Draw(face, states);
+                    target.Draw(nameBar, states);
+                    target.Draw(pictureBackground, states);
+                    target.Draw(imageBoxOutline, states);
+                    target.Draw(nameBoxOutline, states);
                     //drawing each of the shapes
-                    foreach (var shape in shapes)
-                    {
-                        target.Draw(shape, states);
-                    }
+                    //foreach (var shape in shapes)
+                    //{
+                    //    target.Draw(shape, states);
+                    //}
                     //drawing the text
                     target.Draw(cardName, states);
                     target.Draw(cardDescription, states);
@@ -323,7 +367,7 @@ namespace Crystal_Wars.Source.Objects
                 }
                 else //drawing the back
                 {
-                    target.Draw(backSide, states);
+                    target.Draw(back, states);
                 }
                 if (Selected)
                 {
@@ -349,25 +393,25 @@ namespace Crystal_Wars.Source.Objects
             }
         }
 
-        public void SetColors(Color baseColor, Color accentColor, Color textColor)
-        {
+        //public void SetColors(Color baseColor, Color accentColor, Color textColor)
+        //{
 
-            shapes[0].FillColor = baseColor;
-            foreach (var shape in shapes)
-            {
-                shape.OutlineColor = accentColor;
-            }
-        }
+        //    shapes[0].FillColor = baseColor;
+        //    foreach (var shape in shapes)
+        //    {
+        //        shape.OutlineColor = accentColor;
+        //    }
+        //}
 
-        public void SetColors(Color baseColor, Color accentColor)
-        {
+        //public void SetColors(Color baseColor, Color accentColor)
+        //{
 
-            shapes[0].FillColor = baseColor;
-            foreach (var shape in shapes)
-            {
-                shape.OutlineColor = accentColor;
-            }
-        }
+        //    shapes[0].FillColor = baseColor;
+        //    foreach (var shape in shapes)
+        //    {
+        //        shape.OutlineColor = accentColor;
+        //    }
+        //}
 
         //this is to update the boundingbox might do more in the future
         public void UpdatePositions(Vector2f mouse)//position is mouse + offset of card so grabbing center of card
@@ -382,7 +426,7 @@ namespace Crystal_Wars.Source.Objects
                 this.Position = new Vector2f(mouse.X - width / 2, mouse.Y - height / 2);
                 boundingBox.Position = Position;
             }
-           
+
         }
         public void UpdatePositions()
         {
@@ -418,16 +462,18 @@ namespace Crystal_Wars.Source.Objects
 
         }
 
-        private static Shape[] CardShapes(Vector2f position, Color fillColor, Color accentColor)
-        {
-            Shape[] shapes = new Shape[3];
-            //creating the shapes of the card
-            shapes[0] = new RectangleShape(new Vector2f { X = width, Y = height }) { FillColor = fillColor, OutlineColor = accentColor, OutlineThickness = 2f };
-            shapes[1] = new RectangleShape(new Vector2f { X = width - 20f, Y = 20f }) { OutlineColor = accentColor, OutlineThickness = 2f, Position = position + new Vector2f { X = 10f, Y = 10f } };
-            shapes[2] = new RectangleShape(new Vector2f { X = width - 20f, Y = width - 20f }) { OutlineColor = accentColor, OutlineThickness = 2f, Position = position + new Vector2f { X = 10f, Y = 50f } };
+        
 
-            return shapes;
-        }
+        //private static Shape[] CardShapes(Vector2f position, Color fillColor, Color accentColor)
+        //{
+        //    Shape[] shapes = new Shape[1];
+        //    //creating the shapes of the card
+        //    //shapes[0] = new RectangleShape(new Vector2f { X = width, Y = height }) { FillColor = fillColor, OutlineColor = accentColor, OutlineThickness = 2f };
+        //    //shapes[0] = new RectangleShape(new Vector2f { X = width - 20f, Y = 20f }) { OutlineColor = accentColor, OutlineThickness = 2f, Position = position + new Vector2f { X = 10f, Y = 10f } };
+        //    //shapes[0] = new RectangleShape(new Vector2f { X = width - 20f, Y = width - 20f }) { OutlineColor = accentColor, OutlineThickness = 2f, Position = position + new Vector2f { X = 10f, Y = 50f } };
+
+        //    return shapes;
+        //}
 
 
 

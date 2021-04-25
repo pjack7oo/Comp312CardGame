@@ -18,7 +18,11 @@ namespace Crystal_Wars.Source.Objects
 
         public EffectMonster() : base()
         {
-            SetColors(new Color(192, 192, 192), Color.Black);
+            //SetColors(new Color(192, 192, 192), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Silver_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Silver_B_Texture"), new IntRect(0, 0, (int)width - 20, 20)) { Position = new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Silver_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+            ScaleSprite(face);
             effects = new Effect[1];
             effects[0] = new Effect(1,this);
 
@@ -26,7 +30,12 @@ namespace Crystal_Wars.Source.Objects
 
         public EffectMonster(int id) : base(id)
         {
-            SetColors(new Color(192, 192, 192), Color.Black);
+            //SetColors(new Color(192, 192, 192), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Silver_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Silver_B_Texture"), new IntRect(0, 0, (int)width - 20, 20)) { Position = new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Silver_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+
+            ScaleSprite(face);
             effects = new Effect[1];
             effects[0] = new Effect(1,this);
 
@@ -34,18 +43,29 @@ namespace Crystal_Wars.Source.Objects
 
         public EffectMonster(EffectMonster card): base(card)
         {
-            SetColors(new Color(192, 192, 192), Color.Black);
+            //SetColors(new Color(192, 192, 192), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Silver_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Silver_B_Texture"), new IntRect(0, 0, (int)width - 20, 20)) { Position = new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Silver_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+
+            ScaleSprite(face);
             effects = card.effects;
         }
         [JsonConstructor]
-        public EffectMonster(int Hp,int Attack, int Defense, int Mana, int MaxMana, int attackManaCost, int ManaGain,int CrystalCost, int id, int ingameID, string CardName, string CardDescription) : base(Hp,Attack,Defense,Mana,MaxMana,attackManaCost,ManaGain, CrystalCost, id,ingameID, CardName, CardDescription)
+        public EffectMonster(int Hp,int Attack, int Defense, int Mana, int MaxMana, int attackManaCost, int ManaGain,int CrystalCost, int id, int ingameID, string CardName, string CardDescription, string pictureName) : base(Hp,Attack,Defense,Mana,MaxMana,attackManaCost,ManaGain, CrystalCost, id,ingameID, CardName, CardDescription, pictureName)
         {
-            SetColors(new Color(192, 192, 192), Color.Black);
+            //SetColors(new Color(192, 192, 192), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Silver_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Silver_B_Texture"), new IntRect(0, 0, (int)width - 20, 20)) { Position = new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Silver_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+
+            ScaleSprite(face);
         }
 
         public void SetEffect(Effect effect)
         {
             effects = new Effect[1];
+
             effects[0] = effect;
 
 

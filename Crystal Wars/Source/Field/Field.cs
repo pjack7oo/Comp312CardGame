@@ -19,7 +19,7 @@ namespace Crystal_Wars.Source.Field
 
     class Field
     {
-        readonly Random  random = new Random();
+        readonly Random random = new Random();
         //temporary will be fieldPositions in the future
         //Card[] player1Field;
         //Card[] player2Field;
@@ -41,12 +41,12 @@ namespace Crystal_Wars.Source.Field
             //int count = 1;
             player1Field = new PlayerField(PlayerType.Player);
             player2Field = new PlayerField(PlayerType.Enemy);
-            
 
-            turnStateText = HelperFunctions.NewText(Match.TurnState.ToString(), 15,  new Vector2f { X = 140f, Y = Game.ScreenHeight/2 }, Color.Green);
+
+            turnStateText = HelperFunctions.NewText(Match.TurnState.ToString(), 15, new Vector2f { X = 140f, Y = Game.ScreenHeight / 2 }, Color.Green);
             matchStateText = HelperFunctions.NewText(Match.MatchState.ToString(), 15, new Vector2f { X = 40f, Y = Game.ScreenHeight / 2 }, Color.Green);
             //initializing fieldPositions
-            
+
             //for (int i = 0; i < 5; i++)
             //{
             //    player1Field[i] = new FieldPosition(count);
@@ -59,7 +59,7 @@ namespace Crystal_Wars.Source.Field
             //}
         }
         //might move handling of obj mouse can touch can be moved to its own file
-        public Tuple<PlayerType,FieldPosition> GetTarget(Vector2f mouse)
+        public Tuple<PlayerType, FieldPosition> GetTarget(Vector2f mouse)
         {
             var target = player1Field.GetTarget(mouse);
             if (target != null)
@@ -76,11 +76,29 @@ namespace Crystal_Wars.Source.Field
                     {
                         return target;
                     }
-                    
+
+                }
+                
+            }
+            if (Game.match.players[0] != null)
+            {
+                target = Game.match.players[0].GetTarget(mouse);
+                if (target != null)
+                {
+                    return target;
                 }
             }
-            return null;
+            if (Game.match.players[1] != null)
+            {
+                target = Game.match.players[1].GetTarget(mouse);
+                if (target != null)
+                {
+                    return target;
+                }
+            }
             
+            return null;
+
             //for (int i = 0; i < player1Field.Count(); i++)
             //{
             //    if (player1Field[i].Contains(mouse))
@@ -88,7 +106,7 @@ namespace Crystal_Wars.Source.Field
             //        return new Tuple<PlayerType, FieldPosition>(PlayerType.Player, player1Field[i]);
             //    }
             //}
-            
+
             //for (int i = 0; i < player2Field.Count(); i++)//check if we clicked on opponent field
             //{   if (Match.TurnState == TurnState.Attack)//handle click on opponent in attack phase
             //    {
@@ -97,7 +115,7 @@ namespace Crystal_Wars.Source.Field
             //            return new Tuple<PlayerType, FieldPosition>(PlayerType.Enemy, player2Field[i]);
             //        }
             //    }
-                
+
             //}
             //return null;
         }
@@ -107,7 +125,7 @@ namespace Crystal_Wars.Source.Field
         {
 
             return player2Field.GetRandomUnusedMonsterFieldPosition();
-            
+
         }
 
         public FieldPosition GetRandomUnusedSpellFieldPosition()
@@ -118,9 +136,21 @@ namespace Crystal_Wars.Source.Field
 
         }
 
-        
+        public FieldPosition GetMonsterCard(PlayerType player, int id)
+        {
+            if (player == PlayerType.Player)
+            {
+                return player1Field.GetMonsterCard(id);
+            }
+            else
+            {
+                return player2Field.GetMonsterCard(id);
+            }
+        }
 
-        public Boolean PlaceCardOnField(PlayerType player,PlayerAction.CardType? cardType, int? fieldPosition, Card card)
+
+
+        public Boolean PlaceCardOnField(PlayerType player, PlayerAction.CardType? cardType, int? fieldPosition, Card card)
         {
             if (player == PlayerType.Player)
             {
@@ -163,7 +193,7 @@ namespace Crystal_Wars.Source.Field
                     {
                         card.State = CardState.Back;
                     }
-                    
+
                     fieldPosition.Card = card;
                     card.UpdatePositions();
                     return true;
@@ -178,7 +208,7 @@ namespace Crystal_Wars.Source.Field
         public Card SelectAnyCard(Vector2f mouse)
         {
             var card = player1Field.SelectCardWithoutActivation(mouse);
-            if (card!= null)
+            if (card != null)
             {
                 return card;
             }
@@ -200,13 +230,13 @@ namespace Crystal_Wars.Source.Field
             {
                 player2Field.GiveCardsMana();
             }
-            
-            
+
+
         }
 
         public void UpdateTurnStateText()
         {
-            turnStateText.DisplayedString= Match.TurnState.ToString();
+            turnStateText.DisplayedString = Match.TurnState.ToString();
         }
 
         public void UpdateMatchStateText()
@@ -256,7 +286,7 @@ namespace Crystal_Wars.Source.Field
         //this is for the cpu to place on random field pos
         //public FieldPosition GetRandomFieldPosition(PlayerType player)
         //{
-            
+
         //    if (player == PlayerType.Enemy)
         //    {
         //        return player2Field[random.Next(0, player2Field.Length)];
@@ -279,9 +309,9 @@ namespace Crystal_Wars.Source.Field
 
                 player2Field.Draw(window);
             }
-            
-            
-            
+
+
+
 
             //target.Draw(CardOutlineRectangle(1400,600));
         }
@@ -296,11 +326,12 @@ namespace Crystal_Wars.Source.Field
         {
             if (viewType == ViewType.FieldView)
             {
-                for (int i = -350; i < Game.ScreenWidth; i =i+  50) {
+                for (int i = -350; i < Game.ScreenWidth; i = i + 50)
+                {
                     VertexArray line = new VertexArray(PrimitiveType.Lines, 2);
                     line[0] = new Vertex(new Vector2f(i, -270), Color.White);
                     line[1] = new Vertex(new Vector2f(i, Game.ScreenHeight), Color.White);
-                    if (i %100 == 0)
+                    if (i % 100 == 0)
                     {
                         line[0] = new Vertex(new Vector2f(i, -270), Color.Red);
                         line[1] = new Vertex(new Vector2f(i, Game.ScreenHeight), Color.Red);
@@ -326,7 +357,7 @@ namespace Crystal_Wars.Source.Field
                 //        line[0] = new Vertex(new Vector2f(Game.ScreenWidth, i), Color.Green);
                 //    }
                 //    line[1] = new Vertex(new Vector2f(Game.ScreenWidth, i), Color.White);
-                    
+
                 //    window.Draw(line);
                 //}
             }
@@ -336,6 +367,6 @@ namespace Crystal_Wars.Source.Field
             }
         }
 
-        
+
     }
 }

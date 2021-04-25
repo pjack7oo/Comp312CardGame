@@ -32,6 +32,7 @@ namespace Crystal_Wars.Source.Core
         List<Card> hand;
         List<Card> graveYard;
 
+        public RectangleShape boundingBox;
         //Selected card for handling when player grabs a card
         //Card selectedCard;
         //target for when selecting target to attack or use spell on
@@ -85,6 +86,14 @@ namespace Crystal_Wars.Source.Core
             decks = new List<Deck>();
             Boolean temp = true;
             int tempI = 0;
+            if (playerType == PlayerType.Player)
+            {
+                boundingBox = new RectangleShape(new Vector2f(2000, Card.height + 200)) { OutlineColor = Color.White, FillColor = Color.Transparent, OutlineThickness = 2, Position = new Vector2f(-300, Game.ScreenHeight - 150) };
+            }
+            else
+            {
+                boundingBox = new RectangleShape(new Vector2f(2000, Card.height + 200)) { OutlineColor = Color.White, FillColor = Color.Transparent, OutlineThickness = 2, Position = new Vector2f(-300, -20) };
+            }
             //temporary for loop for testing later wont be needed because it will load in the players cards
             for (int i = 0; i < 30; i++)
             {
@@ -122,7 +131,7 @@ namespace Crystal_Wars.Source.Core
                         card.SetEffects(effects);
                         card.cardName.DisplayedString = $"{i}";
 
-                        card.Attack = 110;
+                        card.Attack = 12;
 
                         activeDeck.cards.Enqueue(card);
 
@@ -133,7 +142,7 @@ namespace Crystal_Wars.Source.Core
                         card.cardName.DisplayedString = $"{i}";
                         //if ( && temp)//temporary for testing
                         //{
-                            card.Attack = 110;
+                            card.Attack = 13;
 
                             temp = false;
                         //}
@@ -175,7 +184,7 @@ namespace Crystal_Wars.Source.Core
             
             foreach(var card in hand)
             {
-                Console.WriteLine($"{card.ingameID}, {id}");
+                Console.WriteLine($"{card.ingameID}, {id} ids");
                 if (card.ingameID == id)
                 {
                     return card;
@@ -218,6 +227,16 @@ namespace Crystal_Wars.Source.Core
             }
             return newCards;
         }
+
+        public Tuple<PlayerType, FieldPosition> GetTarget(Vector2f mouse)
+        {
+            if (boundingBox.GetGlobalBounds().Contains(mouse.X, mouse.Y))
+            {
+                return new Tuple<PlayerType, FieldPosition>(PlayerType, null);
+            }
+            return null;
+        }
+
         //position the decks on their field
         public void SetDeckPosition()
         {
@@ -225,7 +244,7 @@ namespace Crystal_Wars.Source.Core
             // bottom field deck position
             if (PlayerType == PlayerType.Player)
             {
-
+                boundingBox = new RectangleShape(new Vector2f(2000, Card.height + 200)) { OutlineColor = Color.White, FillColor = Color.Transparent, OutlineThickness = 2, Position = new Vector2f(-300, Game.ScreenHeight - 150) };
                 Vector2f position = new Vector2f(Game.ScreenWidth - Card.width * 2 - 220, Game.ScreenHeight - Card.height - 170);
                 graveyardOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position, OutlineColor = Color.Red, OutlineThickness = 2, FillColor = Color.Transparent };
 
@@ -243,7 +262,7 @@ namespace Crystal_Wars.Source.Core
             else //top field deck position
             {
 
-
+                boundingBox = new RectangleShape(new Vector2f(2000, Card.height + 200)) { OutlineColor = Color.White, FillColor = Color.Transparent, OutlineThickness = 2, Position = new Vector2f(-300, -370) };
                 Vector2f position = new Vector2f(-20, Card.height / 2 + 10);
 
                 graveyardOutline = new RectangleShape(new Vector2f(Card.width, Card.height)) { Position = position, OutlineColor = Color.Red, OutlineThickness = 2, FillColor = Color.Transparent };
@@ -379,6 +398,7 @@ namespace Crystal_Wars.Source.Core
                 target.Draw(activeDeck, states);
                 DrawHand(target, states);
                 DrawGraveyard(target, states);
+                target.Draw(boundingBox);
             }
             else
             {

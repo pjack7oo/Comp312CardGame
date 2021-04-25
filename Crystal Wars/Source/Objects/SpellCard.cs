@@ -31,7 +31,12 @@ namespace Crystal_Wars.Source.Objects
         public SpellCard() : base()
         {
             
-            SetColors(new Color(208, 0, 208), Color.Black);
+            //SetColors(new Color(208, 0, 208), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Red_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0,0,(int)width-20,20) ) { Position = new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+
+            ScaleSprite(face);
             isFieldType = false;
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82, 30) };
             effects = new Effect[1];
@@ -41,7 +46,11 @@ namespace Crystal_Wars.Source.Objects
         public SpellCard(int id) : base(id)
         {
 
-            SetColors(new Color(208, 0, 208), Color.Black);
+            //SetColors(new Color(208, 0, 208), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Red_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, 20)) { Position = new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+            ScaleSprite(face);
             isFieldType = false;
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82, 30) };
             effects = new Effect[1];
@@ -50,7 +59,11 @@ namespace Crystal_Wars.Source.Objects
 
         public SpellCard(SpellCard card): base(card)
         {
-            SetColors(new Color(208, 0, 208), Color.Black);
+            //SetColors(new Color(208, 0, 208), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Red_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, 20)) { Position = new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+            ScaleSprite(face);
             isFieldType = card.isFieldType;
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 15) { FillColor = Color.Black, Position = new Vector2f(Card.width - 82, 30) };
             effects = card.effects;
@@ -58,16 +71,24 @@ namespace Crystal_Wars.Source.Objects
         }
         public SpellCard(bool isFieldType) : base()
         {
-            SetColors(new Color(208, 0, 208), Color.Black);
+            //SetColors(new Color(208, 0, 208), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Red_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, 20)) { Position= new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+            ScaleSprite(face);
             this.isFieldType = isFieldType;
             effects = new Effect[1];
             
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
             
         }
-        public SpellCard(bool isFieldType, int CrystalCost, int id, int ingameID, string CardName, string CardDescription) : base(CrystalCost,id, ingameID, CardName, CardDescription)
+        public SpellCard(bool isFieldType, int CrystalCost, int id, int ingameID, string CardName, string CardDescription, string pictureName) : base(CrystalCost,id, ingameID, CardName, CardDescription, pictureName)
         {
-            SetColors(new Color(208, 0, 208), Color.Black);
+            //SetColors(new Color(208, 0, 208), Color.Black);
+            face = new Sprite((Texture)FileHandler.GetItem("Red_A_Texture"));
+            nameBar = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, 20)) { Position = new Vector2f { X = 10f, Y = 10f } };
+            pictureBackground = new Sprite((Texture)FileHandler.GetItem("Red_B_Texture"), new IntRect(0, 0, (int)width - 20, (int)width - 20)) { Position = new Vector2f { X = 10f, Y = 50f } };
+            ScaleSprite(face);
             this.isFieldType = isFieldType;
             effects = new Effect[1];
 
@@ -86,14 +107,14 @@ namespace Crystal_Wars.Source.Objects
             this.effects = effects;
         }
 
-        public SpellCard(Effect[] effects, bool isFieldType) : base()
-        {
-            SetColors(new Color(208, 0, 208), Color.Black);
-            this.isFieldType = isFieldType;
-            this.effects = effects;
-            fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
+        //public SpellCard(Effect[] effects, bool isFieldType) : base()
+        //{
+        //    //SetColors(new Color(208, 0, 208), Color.Black);
+        //    this.isFieldType = isFieldType;
+        //    this.effects = effects;
+        //    fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
             
-        }
+        //}
 
         public override void Draw(RenderTarget target, RenderStates states)
         {

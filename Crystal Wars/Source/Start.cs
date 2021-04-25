@@ -13,6 +13,7 @@ namespace Crystal_Wars.Source
         //start game
         static void Main(String[] args)
         {
+            FileHandler.LoadAllImages();
             Game game = new Game();
             game.Initialize();
 
@@ -21,6 +22,8 @@ namespace Crystal_Wars.Source
             test.DBConnectionTest();
           
             game.Run();
+
+            
         }
     }
 }

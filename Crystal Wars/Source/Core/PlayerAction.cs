@@ -15,7 +15,9 @@ namespace Crystal_Wars.Source.Core
             Move,
             Effect,
             Attack,
-            NextPhase
+            NextPhase,
+            Ready,
+            Retry
         }
         public enum CardType
         {

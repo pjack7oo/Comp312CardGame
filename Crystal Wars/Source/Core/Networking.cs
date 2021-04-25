@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 namespace Crystal_Wars.Source.Core
 {
 
-    class Networking
+    static class Networking
     {
         private static Int32 port = 13000;
         public static TcpClient tcpClient = null;
@@ -22,12 +22,12 @@ namespace Crystal_Wars.Source.Core
         public static TcpListener server;
         public static IPAddress localAddr = IPAddress.Parse("127.0.0.1");
         public static NetworkStream netStream;
-
+        public static bool CardsLoaded = false;
         public static Match match;
-        public Networking()
-        {
-            netStream = tcpClient.GetStream();
-        }
+        //public Networking()
+        //{
+        //    netStream = tcpClient.GetStream();
+        //}
 
 
         public async static void Connect(String server)
@@ -100,7 +100,11 @@ namespace Crystal_Wars.Source.Core
             try
             {
                 //netStream.Close();
-                server.Stop();
+                if (server != null)
+                {
+                    server.Stop();
+                }
+                
             }
             catch (ArgumentException e)
             {
@@ -218,11 +222,11 @@ namespace Crystal_Wars.Source.Core
                                     }
                                 }
                                 Console.WriteLine($"recieved: {Game.match.players[1].activeDeck.cards.Count}cards");
-                                Game.match.players[1].SetDeckPosition();
-                                
-                                NetworkMatch.onlineState = NetworkMatch.OnlineState.Playing;
-                                Game.match.AddButtons();
-                                Game.match.DrawInitialCards();
+                                CardsLoaded = true;
+
+
+                                //Game.match.DrawInitialCards();
+                                SendData(JMessage.Serialize(JMessage.FromValue(new PlayerAction(PlayerAction.ActionType.Ready))));
                             }
                             else
                             {
@@ -271,6 +275,7 @@ namespace Crystal_Wars.Source.Core
             }
             
         }
+        
         public async static void ClientUpdate()
         {
             if (tcpClient != null)
@@ -315,12 +320,12 @@ namespace Crystal_Wars.Source.Core
                                         Game.match.players[1].activeDeck.cards.Enqueue(spell);
                                     }
                                 }
-                                Game.match.players[1].SetDeckPosition();
-                                Console.WriteLine($"recieved: {Game.match.players[1].activeDeck.cards.Count}cards");
                                 
-                                NetworkMatch.onlineState = NetworkMatch.OnlineState.Playing;
-                                Game.match.AddButtons();
-                                Game.match.DrawInitialCards();
+                                Console.WriteLine($"recieved: {Game.match.players[1].activeDeck.cards.Count}cards");
+                                CardsLoaded = true;
+                                
+                                //Game.match.DrawInitialCards();
+                                SendData(JMessage.Serialize(JMessage.FromValue(new PlayerAction(PlayerAction.ActionType.Ready))));
                             }
                             else
                             {

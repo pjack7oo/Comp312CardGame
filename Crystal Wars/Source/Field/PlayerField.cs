@@ -393,6 +393,21 @@ namespace Crystal_Wars.Source.Field
             return result;
         }
 
+        public FieldPosition GetMonsterCard(int id)
+        {
+            for(int i = 0;i <playerMonsterField.Length;i++)
+            {
+                if (playerMonsterField[i].HasCard)
+                {
+                    if (playerMonsterField[i].Card is MonsterCard)
+                    {
+                        return playerMonsterField[i];
+                    }
+                }
+            }
+            return null;
+        }
+
         //drawing the field positions 
         public void Draw(RenderWindow window)
         {
