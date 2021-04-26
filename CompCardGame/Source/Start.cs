@@ -15,8 +15,8 @@ namespace CompCardGame.Source
             game.Initialize();
 
             //for listing databases test
-            Database test = new Database();
-            test.DBConnectionTest();
+            ////Database test = new Database();
+            //test.DBConnectionTest();
 
             game.Run();
         }
