@@ -30,7 +30,7 @@ namespace Crystal_Wars.Source.Core
         //}
 
 
-        public async static void Connect(String server)
+        public static bool Connect(String server)
         {
             try
             {
@@ -44,17 +44,17 @@ namespace Crystal_Wars.Source.Core
                 {
                     netStream = tcpClient.GetStream();
                     Networking.SendData(JMessage.Serialize(JMessage.FromValue(Game.match.GetPlayer(0))));
-                    
-                        //var msg = Serialize("Hello");
-                        //Console.WriteLine(msg.Data.Length);
-                        //var buffer = new ReadOnlyMemory<byte>(msg.Data);
 
-                        //netStream.WriteAsync(buffer);
+                    //var msg = Serialize("Hello");
+                    //Console.WriteLine(msg.Data.Length);
+                    //var buffer = new ReadOnlyMemory<byte>(msg.Data);
+
+                    //netStream.WriteAsync(buffer);
 
 
-                        //var obj = ReadData();
-                        //ClientUpdate(obj);
-
+                    //var obj = ReadData();
+                    //ClientUpdate(obj);
+                    return true;
 
                     }
                 
@@ -71,7 +71,7 @@ namespace Crystal_Wars.Source.Core
             {
                 Console.WriteLine("SocketException: {0}", e);
             }
-
+            return false;
             
         }
 
@@ -115,12 +115,13 @@ namespace Crystal_Wars.Source.Core
 
 
 
-        public static async void Start()
+        public static  bool Start(string address)
         {
             server = null;
+            
             try
             {
-                server = new TcpListener(localAddr, port);
+                server = new TcpListener(IPAddress.Parse(address), port);
                 server.Start();
                 
                 
@@ -138,8 +139,8 @@ namespace Crystal_Wars.Source.Core
                         Console.WriteLine("Connected!");
                         netStream = client.GetStream();
                         Networking.SendData(JMessage.Serialize(JMessage.FromValue(Game.match.GetPlayer(0))));
-                        
-                            break;
+
+                        return true;
                         //byte[] myReadBuffer = new byte[1024];
                         //var bufferSpan = new Memory<byte>(myReadBuffer);
                         //int read = await netStream.ReadAsync(bufferSpan);
@@ -171,8 +172,9 @@ namespace Crystal_Wars.Source.Core
             finally
             {
                 server.Stop();
+                
             }
-
+            return false;
             
         }
 
@@ -275,7 +277,25 @@ namespace Crystal_Wars.Source.Core
             }
             
         }
-        
+
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+
+        public static string GetPublicIP()
+        {
+            return new WebClient().DownloadString("https://ipv4.icanhazip.com/").TrimEnd();
+        }
+
         public async static void ClientUpdate()
         {
             if (tcpClient != null)

@@ -72,6 +72,8 @@ namespace Crystal_Wars.Source.Core
 
             window.MouseWheelScrolled += new EventHandler<MouseWheelScrollEventArgs>(InputHandler.ScrollWheel);
 
+            window.TextEntered += new EventHandler<TextEventArgs>(InputHandler.GetInput);
+
             fieldView = new View(new FloatRect(0f, 0f, ScreenWidth, ScreenHeight));
             fieldView.Zoom(1.5f);
             fieldView.Viewport = new FloatRect(0.2f, 0f, 1f, 1f);
@@ -192,6 +194,7 @@ namespace Crystal_Wars.Source.Core
                     break;
                 case GameState.Online:
                     match.Render();
+                    
                     break;
                 default:
                     break;
@@ -242,6 +245,7 @@ namespace Crystal_Wars.Source.Core
             InputHandler.AddButton(new Button("Card Manager", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 200), Color.Black, InitiallizeCardManager, new Vector2f(1.25f, 1.25f)));
             InputHandler.AddButton(new Button("Settings", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 300), Color.Black, InitiallizeSettingsPage, new Vector2f(1.25f, 1.25f)));
             InputHandler.AddButton(new Button("Exit", 20, new Vector2f(ScreenWidth / 2, ScreenHeight / 2 + 400), Color.Black, Exit, new Vector2f(1.25f, 1.25f)));
+            InputHandler.RemoveInput();
             GameState = GameState.MainPage;
         }
 

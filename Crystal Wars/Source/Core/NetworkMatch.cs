@@ -27,11 +27,13 @@ namespace Crystal_Wars.Source.Core
         {
             SetupButtonsForConnection();
             onlineState = OnlineState.Setup;
+            Game.InputHandler.InsertInput(new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 - 100));
         }
 
         private void StartMatch()
         {
-            Console.WriteLine("server");
+            var ip = Networking.GetLocalIPAddress();
+            Console.WriteLine($"server at {ip}");
             MatchState = MatchState.Player;
             field.UpdateMatchStateText();
             serverThread = new Thread(new ThreadStart(() =>
@@ -71,8 +73,21 @@ namespace Crystal_Wars.Source.Core
             }));
             new Thread(new ThreadStart(() =>
             {
-                Networking.Start();
-                serverThread.Start();
+                while (true)
+                {
+                    if (Networking.Start(ip))
+                    {
+                        serverThread.Start();
+                        break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(1500);
+
+                    }
+                }
+               
+                
 
             })).Start();
 
@@ -85,6 +100,12 @@ namespace Crystal_Wars.Source.Core
 
         private void ConnectToMatch()
         {
+            var ip = Game.InputHandler.GetTextFromInput();
+            Console.WriteLine(ip);
+            if (ip.Length >=7)
+            {
+                return; 
+            }
             MatchState = MatchState.Opponent;
             field.UpdateMatchStateText();
             serverThread = new Thread(new ThreadStart(() =>
@@ -126,14 +147,27 @@ namespace Crystal_Wars.Source.Core
             }));
             new Thread(new ThreadStart(() =>
             {
-                Networking.Connect("127.0.0.1");
-                serverThread.Start();
+                while (true)
+                {
+                    if (Networking.Connect(ip))
+                    {
+                        serverThread.Start();
+                        break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(1500);
+
+                    }
+                }
+                
+                
 
             })).Start();
 
             SetupButtonsForWaitingClient();
             onlineState = OnlineState.Waiting;
-
+            Game.InputHandler.RemoveInput();
 
         }
 
@@ -167,18 +201,19 @@ namespace Crystal_Wars.Source.Core
             Game.InputHandler.AddButton(new Button("Start Server", 15, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2), Color.Black, StartMatch, new Vector2f(1.25f, 1.25f)));
             Game.InputHandler.AddButton(new Button("Connect Server", 15, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 + 100), Color.Black, ConnectToMatch, new Vector2f(1.25f, 1.25f)));
             Game.InputHandler.AddButton(new Button("Exit", 40, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 + 200), Color.Black, () => { Game.InitiallizeMainPage(); Game.GameState = GameState.MainPage; }));
+            Game.InputHandler.InsertInput(new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 - 100));
         }
 
         private void SetupButtonsForWaitingServer()
         {
             Game.InputHandler.ClearButtons();
-
+            Game.InputHandler.RemoveInput();
             Game.InputHandler.AddButton(new Button("Exit", 40, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 + 200), Color.Black, () => { SetupButtonsForConnection(); onlineState = OnlineState.Setup; Networking.EndSeverConnection(); }));
         }
         private void SetupButtonsForWaitingClient()
         {
             Game.InputHandler.ClearButtons();
-
+            Game.InputHandler.RemoveInput();
             Game.InputHandler.AddButton(new Button("Exit", 40, new Vector2f(Game.ScreenWidth / 2, Game.ScreenHeight / 2 + 200), Color.Black, () => { SetupButtonsForConnection(); onlineState = OnlineState.Setup; Networking.EndClientConnection(); }));
         }
 

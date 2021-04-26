@@ -17,6 +17,8 @@ namespace Crystal_Wars.Source.Core
 
         private RenderWindow window;
 
+        public Input input;
+
         public InputHandler(RenderWindow window)
         {
             this.window = window;
@@ -49,6 +51,11 @@ namespace Crystal_Wars.Source.Core
             {
                 target.Draw(button);
             }
+            if (input != null)
+            {
+                target.Draw(input);
+            }
+            
         }
 
         public void OnKeyPressed(object sender, SFML.Window.KeyEventArgs e)
@@ -59,6 +66,27 @@ namespace Crystal_Wars.Source.Core
             }
         }
 
+        public void GetInput(object sender, TextEventArgs e)
+        {
+            if (input != null)
+            {
+                input.GetInput(e);
+            }
+        }
+
+        public void InsertInput(Vector2f pos)
+        {
+            input = new Input(pos);
+        }
+
+        public string GetTextFromInput()
+        {
+            if (input != null)
+            {
+                return input.GetText();
+            }
+            return null;
+        }
 
         //handles mouseMovement
         public void MouseMovement(object sender, MouseMoveEventArgs e)
@@ -128,6 +156,11 @@ namespace Crystal_Wars.Source.Core
             }
         }
 
+        public void RemoveInput()
+        {
+            input = null;
+        }
+
         public void MouseClick(object sender, MouseButtonEventArgs e)//this might need the state of the turn in future
         {
             if (e.Button == Mouse.Button.Left)
@@ -150,7 +183,12 @@ namespace Crystal_Wars.Source.Core
                         break;
                     case GameState.CardManager:
                         //var mouse2 = new Vector2f(e.X, e.Y);
+                        worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
                         Game.cardManager.MouseClick(mouse);
+                        if (input != null)
+                        {
+                            input.Contains(worldPos);
+                        }
                         break;
                     case GameState.Online:
                         switch(NetworkMatch.onlineState)
@@ -164,6 +202,10 @@ namespace Crystal_Wars.Source.Core
                                 worldPos = window.MapPixelToCoords(mouse, Game.defaultView);
                                 CheckButtonClick(worldPos);
                                 match.MouseClick(worldPos);
+                                if (input != null)
+                                {
+                                    input.Contains(worldPos);
+                                }
                                 break;
                         }
                         break;
