@@ -30,6 +30,7 @@ namespace Crystal_Wars.Source.Objects
         public string effectString;
         public int effectCost;
 
+        public int effectAmount;
         //public bool hasCost;
         public int pos;//pos on the card
         public int id;
@@ -40,11 +41,11 @@ namespace Crystal_Wars.Source.Objects
         private Button button;
 
         [NonSerialized]
-        private readonly Card card;
+        private  Card card;
         [NonSerialized]
         Random random = new Random();
         [JsonConstructor]
-        public Effect(FieldType? TargetCard, PlayerType? TargetPlayer, ViewType viewType, int effectCost, int pos, int id, int useAmount, int maxUseAmount, bool singleUse,string actionName, string effectString)
+        public Effect(FieldType? TargetCard, PlayerType? TargetPlayer, ViewType viewType, int effectCost, int pos, int id, int useAmount, int maxUseAmount, bool singleUse,string actionName, string effectString, int effectAmount)
         {
             this.TargetCard = TargetCard;
             this.TargetPlayer = TargetPlayer;
@@ -58,7 +59,10 @@ namespace Crystal_Wars.Source.Objects
             this.singleUse = singleUse;
             this.actionName = actionName;
             this.effectString = effectString;
+            this.effectAmount = effectAmount;
+            this.action = GetEffect(actionName, effectAmount);
             effectText = HelperFunctions.NewText(this.effectString, 10, new Vector2f(10, 230 + 20 * pos), Color.Black);
+
         }
         public Effect(Card card)
         {
@@ -191,6 +195,8 @@ namespace Crystal_Wars.Source.Objects
 
         }
 
+    
+
         public void ResetUseAmount()
         {
             if (!singleUse)
@@ -303,6 +309,44 @@ namespace Crystal_Wars.Source.Objects
             return id == effect.id && card.Equals(effect.card);
 
         }
+        public void SetCard(Card card)
+        {
+            this.card = card;
+        }
+
+        public static CustomAction GetEffect(string action, int effectAmount)
+        {
+            switch(action)
+            {
+                case ("HealAllyCard"):
+                    return HealAllyCard(effectAmount);
+                case ("HealPlayer"):
+                    return HealPlayer(effectAmount);
+                case ("OverloadCardMana"):
+                    return OverloadCardMana(effectAmount);
+                default:
+                    return null;
+                    break;
+            }
+        }
+
+        public static CustomAction HealAllyCard(int amount)
+        {
+            return (card, player) => { ((MonsterCard)card).Hp += amount; };
+        }
+
+
+        public static CustomAction OverloadCardMana(int amount)
+        {
+            return (card, player) => { ((MonsterCard)card).Mana += amount; };
+        }
+
+
+        public static CustomAction HealPlayer(int amount)
+        {
+            return (card, player) => { player.Health += amount; };
+        }
+
         public static Effect HealAllyCard(int amount, Card ownerCard, int pos = 1, int cost = 1, bool singleUse = false, int useAmount = 1)
         {
             var effect = new Effect(pos, ownerCard, FieldType.Monster, PlayerType.Player, $"Heal an Ally Card {amount} HP", (card, player) => { ((MonsterCard)card).Hp += amount; }, cost)
