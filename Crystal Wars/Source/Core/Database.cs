@@ -36,8 +36,19 @@ namespace Crystal_Wars.Source.Core
             }
         }
 
-        public void Insert() { 
-            //need to update
+        //document represents one card so we need to include all stats defined 
+        public void InsertCard(string name, int attack, int defense, int mana, int maxMana, int crystalCost) {
+            var stats = client.GetDatabase("cards").GetCollection<BsonDocument>("monsters");
+            var doc = new BsonDocument
+            {
+                {"name", name},
+                {"attack", attack},
+                {"defense", defense},
+                {"mana", mana },
+                {"maxMana", maxMana },
+                {"crystalCost", crystalCost }
+            };
+            stats.InsertOne(doc);
         }
 
        
