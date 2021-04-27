@@ -232,9 +232,30 @@ namespace Crystal_Wars.Source.Core
 
                     break;
                 case OnlineState.Playing:
+                    for(int i = 0; i <players.Length;i++)
+                    {
+                        players[i].Update();
+                        if (players[i].Health <= 0)
+                        {
+                            if (i ==0)
+                            {
+                                AlertText.DisplayedString = "Enemy has won";
+                            }
+                            else
+                            {
+                                AlertText.DisplayedString = "Player has won"; 
+                            }
+                            Thread.Sleep(1000);
+                            Networking.EndClientConnection();
+                            Networking.EndSeverConnection();
+                            Game.InitiallizeMainPage(); 
+                            Game.GameState = GameState.MainPage;
+
+                        }
+                    }
                     foreach (var player in players)//do player updates that arent based on turn state
                     {
-                        player.Update();
+                       
                     }
                     switch (MatchState)//TODO 
                     {
