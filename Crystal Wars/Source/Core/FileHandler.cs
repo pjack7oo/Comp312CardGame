@@ -53,9 +53,10 @@ namespace Crystal_Wars.Source.Core
             {
                 foreach (string d in Directory.GetDirectories(dir))
                 {
+                    Console.WriteLine(d);
                     foreach (string f in Directory.GetFiles(d))
                     {
-                        //Console.WriteLine(f);
+                        
                         LoadImage(f);
                     }
                     SearchDirectory(d);
