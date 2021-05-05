@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SFML.Graphics;
@@ -34,19 +35,22 @@ namespace Crystal_Wars.Source.Core
 
         private static string GetName(string address)
         {
-            if (address.Contains('/')) {
-                var strings = address.Split('/');
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                
+                var strings = address.Split('\\');
 
                 var item = strings[strings.Length - 1].Split('.');
                 return item[0];
             }
             else {
-                Console.WriteLine(address);
-                var strings = address.Split('\\');
+                
+                var strings = address.Split('/');
 
                 var item = strings[strings.Length - 1].Split('.');
-            return item[0];
+                return item[0];
             }
+            
             
         }
         private static void StoreItem<T>(string key, T item)
@@ -64,7 +68,7 @@ namespace Crystal_Wars.Source.Core
             {
                 foreach (string d in Directory.GetDirectories(dir))
                 {
-                    
+
                     foreach (string f in Directory.GetFiles(d))
                     {
                         
