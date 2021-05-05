@@ -9,9 +9,9 @@ OS X & Linux:
 
 2 options
 * standalone
-1.Download Crystal Wars Linux.zip
-2.Make 'Crystal Wars' executable with `chmod +x 'Crystal Wars'`
-3.Run using `./'Crystal Wars'`
+1.Download Crystal Wars Linux.zip.
+2.Make 'Crystal Wars' executable with `chmod +x 'Crystal Wars'`.
+3.Run using `./'Crystal Wars'`.
 
 * dotnet
 1.Download Crystal Wars Linux.zip or regular
