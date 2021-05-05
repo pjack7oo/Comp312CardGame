@@ -34,13 +34,24 @@ namespace Crystal_Wars.Source.Core
 
         private static string GetName(string address)
         {
-            var strings = address.Split('\\');
+            if (address.Contains('/')) {
+                var strings = address.Split('/');
 
-            var item = strings[strings.Length - 1].Split('.');
+                var item = strings[strings.Length - 1].Split('.');
+                return item[0];
+            }
+            else {
+                Console.WriteLine(address);
+                var strings = address.Split('\\');
+
+                var item = strings[strings.Length - 1].Split('.');
             return item[0];
+            }
+            
         }
         private static void StoreItem<T>(string key, T item)
         {
+            
             Hashtable.Add(key, item);
             //foreach (DictionaryEntry entry in Hashtable) {
             //    Console.WriteLine("{0}, {1}", entry.Key, entry.Value);
@@ -53,9 +64,10 @@ namespace Crystal_Wars.Source.Core
             {
                 foreach (string d in Directory.GetDirectories(dir))
                 {
+                    
                     foreach (string f in Directory.GetFiles(d))
                     {
-                        //Console.WriteLine(f);
+                        
                         LoadImage(f);
                     }
                     SearchDirectory(d);
