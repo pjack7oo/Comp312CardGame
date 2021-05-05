@@ -9,12 +9,12 @@ OS X & Linux:
 
 2 options
 * standalone
-1.Download Crystal Wars Linux.zip.
-2.Make 'Crystal Wars' executable with `chmod +x 'Crystal Wars'`.
-3.Run using `./'Crystal Wars'`.
+1. Download Crystal Wars Linux.zip.
+2. Make 'Crystal Wars' executable with `chmod +x 'Crystal Wars'`
+3. Run using `./'Crystal Wars'`
 
 * dotnet
-1.Download Crystal Wars Linux.zip or regular
+1. Download Crystal Wars Linux.zip or regular
 However if you download the regular release you will be unable to run without dotnet
 2. Download and install .net5.0 for linux
 3. Run with `dotnet 'Crystal Wars.dll'`
