@@ -13,7 +13,7 @@ The instructions are for sfml c++ not c# and the c# requires something called mo
 
 Windows:
 
-run the exe provided in the download
+run the exe provided in the download in the release tab
 
 
 
