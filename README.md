@@ -34,6 +34,8 @@ For development you must install SFML.net and place them where the executable is
 ## Meta
 
 Piotr Jackowski - [@Github](https://github.com/pjack7oo) - pjackowski@luc.edu
+Nathan Natindim - [@Github](https://github.com/nnatindim) - nnatindim@luc.edu
+Kyle Cole - [@Github](https://github.com/Raikoen) - cole.kairu@gmail.com
 
 ## License
 
