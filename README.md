@@ -66,7 +66,6 @@ SOFTWARE.
 
 Creative Commons Attribution-NonCommercial 4.0 International License
 
-The short version: <br>
 Anyone can access, edit, and share my artwork anywhere they want to. <br>
-You must credit Kyle C. Cole with having created the monster designs (found in Crystal Wars/ Media/Monster). <br>
-You must also credit him for the creation of the card designs (back of card / front of card backgrounds). 
+You must credit Kyle C. Cole with having created the monster designs (found in Crystal Wars/ Media/Images/Monster). <br>
+You must also credit him for the creation of the card designs (back of card / front of card backgrounds / stat icons). 
