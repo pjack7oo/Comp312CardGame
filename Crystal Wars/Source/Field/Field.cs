@@ -149,6 +149,18 @@ namespace Crystal_Wars.Source.Field
         }
 
 
+        public bool HasMonstersOnTheField(PlayerType player)
+        {
+            if (player == PlayerType.Player)
+            {
+                return player1Field.HasMonstersOnTheField();
+            }
+            else
+            {
+                return player2Field.HasMonstersOnTheField();
+            }
+        }
+
 
         public Boolean PlaceCardOnField(PlayerType player, PlayerAction.CardType? cardType, int? fieldPosition, Card card)
         {

@@ -224,6 +224,17 @@ namespace Crystal_Wars.Source.Field
             return result;
             }
 
+        public bool HasMonstersOnTheField()
+        {
+            for (int i = 0; i < playerMonsterField.Length;i++)
+            {
+                if (playerMonsterField[i].HasCard)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public bool PlaceCardOnField(PlayerAction.CardType? cardType, int? fieldPosition, Card card)
         {

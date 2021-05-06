@@ -79,6 +79,8 @@ namespace Crystal_Wars.Source.Field
             }
         }
 
+        
+
         public void ResetCard()
         {
             card = null;

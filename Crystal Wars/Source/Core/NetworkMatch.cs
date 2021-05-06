@@ -1151,7 +1151,7 @@ namespace Crystal_Wars.Source.Core
                                     //Console.WriteLine(selectedCard is MonsterCard);
                                     Tuple<PlayerType, FieldPosition> target;
                                     target = field.GetTarget(mouse);
-                                    if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null && target.Item2 == null)
+                                    if (target != null && target.Item1 == PlayerType.Enemy && selectedCard != null && target.Item2 == null && !field.HasMonstersOnTheField(PlayerType.Enemy))
                                     {
                                         AttackPlayer(monster, PlayerType.Enemy);
                                         var action = new PlayerAction(PlayerAction.ActionType.Attack, null, selectedCard.ingameID, null);
