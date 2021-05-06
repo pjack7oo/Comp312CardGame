@@ -194,7 +194,7 @@ namespace Crystal_Wars.Source.Core
             //var update = Builders<Models.User>.Update.Pull("Decks.$.Card_Instance_Ids", new BsonDocument { { "id", ObjectId.Parse(card.id) } });
             Console.WriteLine(collection.UpdateOne(userFilter,update));
             
-            collection.
+            
         }
 
         public static List<Card> GetPlayerCards(Player player)
