@@ -35,7 +35,8 @@ For development you must install SFML.net and place them where the executable is
 
 Piotr Jackowski [Game Source] - [@Github](https://github.com/pjack7oo) - pjackowski@luc.edu <br>
 Nathan Natindim [Database]- [@Github](https://github.com/nnatindim) - nnatindim@luc.edu <br>
-Kyle Cole [Monster Designs]- [@Github](https://github.com/Raikoen) - cole.kairu@gmail.com
+Kyle Cole [Monster Designs]- [@Github](https://github.com/Raikoen) - kcole5@luc.edu <br>
+Zara Batalvi [Documentation] - [@Github](https://github.com/battlev) - zbatalvi@luc.edu
 
 ## License
 
