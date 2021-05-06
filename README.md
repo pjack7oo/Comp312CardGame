@@ -42,7 +42,7 @@ Zara Batalvi [Documentation] - [@Github](https://github.com/battlev) - zbatalvi@
 
 MIT License
 
-Copyright (c) 2021 Piotr Jackowski
+Copyright (c) 2021 Piotr Jackowski, Nathan Natindim, Kyle Cole & Zara Batalvi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
