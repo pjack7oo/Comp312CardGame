@@ -38,7 +38,7 @@ Nathan Natindim [Database]- [@Github](https://github.com/nnatindim) - nnatindim@
 Kyle Cole [Monster Designs]- [@Github](https://github.com/Raikoen) - kcole5@luc.edu <br>
 Zara Batalvi [Documentation] - [@Github](https://github.com/zarabb) - zbatalvi@luc.edu
 
-## License
+## Software License
 
 MIT License
 
@@ -62,5 +62,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+## Artwork License
 
+Creative Commons Attribution-NonCommercial 4.0 International License
 
+The short version: <br>
+Anyone can access, edit, and share my artwork anywhere they want to. <br>
+You must credit Kyle C. Cole with having created the monster designs (found in Crystal Wars/ Media/Monster). <br>
+You must also credit him for the creation of the card designs (back of card / front of card backgrounds). 
