@@ -73,7 +73,7 @@ namespace Crystal_Wars.Source.Objects
             ManaGain = 1;
         }
         [JsonConstructor]
-        public MonsterCard(int Hp, int Attack, int Defense, int Mana, int MaxMana, int attackManaCost, int ManaGain, int CrystalCost, int id, int ingameID, string CardName, string CardDescription, string pictureName) : base(CrystalCost, id, ingameID, CardName, CardDescription, pictureName)
+        public MonsterCard(int Hp, int Attack, int Defense, int Mana, int MaxMana, int attackManaCost, int ManaGain, int CrystalCost, string id, int ingameID, string CardName, string CardDescription, string pictureName) : base(CrystalCost, id, ingameID, CardName, CardDescription, pictureName)
         {
             //this.SetColors(new Color(210, 180, 140), Color.Black);
             CardIcons();
@@ -133,7 +133,7 @@ namespace Crystal_Wars.Source.Objects
             attackManaCost = card.attackManaCost;
             ManaGain = card.ManaGain;
         }
-        public MonsterCard(int id) : base(id)
+        public MonsterCard(string id) : base(id)
         {
             //this.SetColors(new Color(210, 180, 140), Color.Black);
             CardIcons();

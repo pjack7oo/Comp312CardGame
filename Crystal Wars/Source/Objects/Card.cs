@@ -79,7 +79,7 @@ namespace Crystal_Wars.Source.Objects
         public const float width = 200f;
         public const float height = 320f;
 
-        public readonly int id;
+        public readonly string id;
 
         public int ingameID;
         //Selected is only true when mouse is hovered over the card in hand or if selected while on the field
@@ -142,7 +142,7 @@ namespace Crystal_Wars.Source.Objects
 
         }
         [JsonConstructor]
-        public Card(int CrystalCost, int id, int ingameID, string CardName, string CardDescription, string pictureName)
+        public Card(int CrystalCost, string id, int ingameID, string CardName, string CardDescription, string pictureName)
         {
             var color = Color.Cyan;
             var accentColor = Color.Black;
@@ -225,7 +225,7 @@ namespace Crystal_Wars.Source.Objects
         }
 
 
-        public Card(int id)
+        public Card(string id)
         {
             this.id = id;
             ingameID = HelperFunctions.random.Next();

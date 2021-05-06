@@ -43,7 +43,7 @@ namespace Crystal_Wars.Source.Objects
             effects[0] = Effect.HealAllyCard(5, this);//temporary for testing
         }
 
-        public SpellCard(int id) : base(id)
+        public SpellCard(string id) : base(id)
         {
 
             //SetColors(new Color(208, 0, 208), Color.Black);
@@ -82,7 +82,7 @@ namespace Crystal_Wars.Source.Objects
             fieldTypeText = new Text(isFieldType ? "FieldCard" : "", HelperFunctions.font, 50);
             
         }
-        public SpellCard(bool isFieldType, int CrystalCost, int id, int ingameID, string CardName, string CardDescription, string pictureName) : base(CrystalCost,id, ingameID, CardName, CardDescription, pictureName)
+        public SpellCard(bool isFieldType, int CrystalCost, string id, int ingameID, string CardName, string CardDescription, string pictureName) : base(CrystalCost,id, ingameID, CardName, CardDescription, pictureName)
         {
             //SetColors(new Color(208, 0, 208), Color.Black);
             face = new Sprite((Texture)FileHandler.GetItem("Red_A_Texture"));

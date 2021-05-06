@@ -28,7 +28,7 @@ namespace Crystal_Wars.Source.Objects
 
         }
 
-        public EffectMonster(int id) : base(id)
+        public EffectMonster(string id) : base(id)
         {
             //SetColors(new Color(192, 192, 192), Color.Black);
             face = new Sprite((Texture)FileHandler.GetItem("Silver_A_Texture"));
@@ -52,7 +52,7 @@ namespace Crystal_Wars.Source.Objects
             effects = card.effects;
         }
         [JsonConstructor]
-        public EffectMonster(int Hp,int Attack, int Defense, int Mana, int MaxMana, int attackManaCost, int ManaGain,int CrystalCost, int id, int ingameID, string CardName, string CardDescription, string pictureName) : base(Hp,Attack,Defense,Mana,MaxMana,attackManaCost,ManaGain, CrystalCost, id,ingameID, CardName, CardDescription, pictureName)
+        public EffectMonster(int Hp,int Attack, int Defense, int Mana, int MaxMana, int attackManaCost, int ManaGain,int CrystalCost, string id, int ingameID, string CardName, string CardDescription, string pictureName) : base(Hp,Attack,Defense,Mana,MaxMana,attackManaCost,ManaGain, CrystalCost, id,ingameID, CardName, CardDescription, pictureName)
         {
             //SetColors(new Color(192, 192, 192), Color.Black);
             face = new Sprite((Texture)FileHandler.GetItem("Silver_A_Texture"));

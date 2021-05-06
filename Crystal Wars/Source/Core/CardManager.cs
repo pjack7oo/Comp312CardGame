@@ -101,7 +101,7 @@ namespace Crystal_Wars.Source.Core
                 {
                     if (tempI == 0)
                     {
-                        var card = new SpellCard(i);
+                        var card = new SpellCard(i.ToString());
                         card.cardName.DisplayedString = $"{i}";
                         card.State = CardState.Front;
                         player.cards.Add(card);
@@ -109,7 +109,7 @@ namespace Crystal_Wars.Source.Core
                     }
                     else
                     {
-                        var card = new SpellCard(i);
+                        var card = new SpellCard(i.ToString());
                         card.SetEffect(Effect.OverloadCardMana(2, card));
                         card.cardName.DisplayedString = $"Overload Mana";
                         card.State = CardState.Front;
@@ -121,7 +121,7 @@ namespace Crystal_Wars.Source.Core
                 {
                     if (i % 3 == 0)
                     {
-                        var card = new EffectMonster(i) { MaxMana = 2 };
+                        var card = new EffectMonster(i.ToString()) { MaxMana = 2 };
                         var effects = new Effect[2];
                         effects[0] = Effect.HealPlayer(5, card, 1, 2);
                         effects[1] = Effect.OverloadCardMana(1, card, 2, 0, true);
@@ -134,7 +134,7 @@ namespace Crystal_Wars.Source.Core
                     }
                     else
                     {
-                        var card = new MonsterCard(i);
+                        var card = new MonsterCard(i.ToString());
                         card.cardName.DisplayedString = $"{i}";
                         card.State = CardState.Front;
                         card.Attack = 110;
@@ -272,6 +272,7 @@ namespace Crystal_Wars.Source.Core
         private void CreateDeck()
         {
             var deck = new Deck();
+            Database.CreateDeck(player, deck);
             player.decks.Add(deck);
             CreateDeckButton(deck);
             
@@ -279,7 +280,6 @@ namespace Crystal_Wars.Source.Core
 
         private void CreateDeckButton(Deck deck)
         {
-
             var button = new Button("", 0, new Vector2f((player.decks.Count - 1) * (Card.width + 20) + 150, 400), Color.Black, new RectangleShape(new Vector2f(Card.width, Card.height)) { FillColor = new Color(139, 69, 10), OutlineColor = new Color(169, 169, 169), OutlineThickness = 2 }, () => { activeDeck = deck; ResetViewPos(); managerState = ManagerState.DeckEdit; SetAvailableCards(); SetDeckCardPositions(); });
             deckSelectButtons.Add(button);
         }

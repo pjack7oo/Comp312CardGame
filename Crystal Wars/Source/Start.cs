@@ -17,22 +17,10 @@ namespace Crystal_Wars.Source
             Game game = new Game();
             game.Initialize();
 
-            //for listing databases test
-            Database db = new Database();
-            db.DBConnectionTest();
+            
+            Database.DBConnectionTest();
 
-            if (Database.FileExists())
-            {
-                var id = Database.ReadFromFile();
-                var player = Database.GetPlayer(id);
-                Console.WriteLine(player.ToString());
-            }
-            else
-            {
-                var id = Database.CreatePlayer();
-                Database.WriteToFile(id);
-
-            }
+            
             
             game.Run();
 

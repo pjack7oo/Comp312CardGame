@@ -17,13 +17,13 @@ namespace Crystal_Wars.Source.Objects
         private bool inDeckEditor = false;
         public List<Card> savedCards;
 
-        public int ID { get; private set; }
+        public string Id { get; set; }
         public Deck()
         {
             var random = new Random();
             savedCards = new List<Card>();
             cards = new Queue<Card>(savedCards);
-            ID = random.Next();
+            //ID = random.Next().ToString();
         }
         //to be used by card manager
         public bool AddCardToSavedDeck(Card card)

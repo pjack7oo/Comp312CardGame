@@ -45,7 +45,7 @@ namespace Crystal_Wars.Source.Core
 
         public static CardManager cardManager;
 
-        private Player player;
+        private static Player player;
         public void Initialize()
         {
             stopwatch = new Stopwatch();
@@ -93,7 +93,19 @@ namespace Crystal_Wars.Source.Core
             player = new Player(PlayerType.Player);
             cardManager = new CardManager(window, player);
 
-            
+            if (Database.FileExists())
+            {
+                var id = Database.ReadFromFile();
+                player.id = id;
+                var data = Database.GetPlayer(id);
+                Console.WriteLine(data.ToString());
+            }
+            else
+            {
+                var id = Database.CreatePlayer();
+                Database.WriteToFile(id);
+
+            }
             //InputHandler.SetMatch(match);
 
             InitiallizeLoadingShapes();
@@ -264,7 +276,7 @@ namespace Crystal_Wars.Source.Core
         private static void InitiallizeOnlineMatchPage()
         {
             Console.WriteLine("TODO Online Match");
-            match = new NetworkMatch(new Player(PlayerType.Player), window);
+            match = new NetworkMatch(player, window);
             
             InputHandler.SetMatch(match);
 
@@ -285,7 +297,7 @@ namespace Crystal_Wars.Source.Core
         {
             InputHandler.ClearButtons();
 
-            match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
+            match = new Match(player, new Player(PlayerType.Enemy), window);
 
             InputHandler.SetMatch(match);
 
