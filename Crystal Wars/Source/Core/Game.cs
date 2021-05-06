@@ -91,23 +91,29 @@ namespace Crystal_Wars.Source.Core
             //temporary this will be later connected to a button on the main page screen
             //match = new Match(new Player(PlayerType.Player), new Player(PlayerType.Enemy), window);
             player = new Player(PlayerType.Player);
-            cardManager = new CardManager(window, player);
+            
 
             if (Database.FileExists())
             {
                 var id = Database.ReadFromFile();
-                player.id = id;
+                
                 var data = Database.GetPlayer(id);
-                Console.WriteLine(data.ToString());
+                if (data == null)
+                {
+                    id = Database.CreatePlayer();
+                    Database.WriteToFile(id);
+                }
+                player.id = id;
+                
             }
             else
             {
                 var id = Database.CreatePlayer();
                 Database.WriteToFile(id);
-
+                player.id = id;
             }
             //InputHandler.SetMatch(match);
-
+            cardManager = new CardManager(window, player);
             InitiallizeLoadingShapes();
 
 

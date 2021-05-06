@@ -59,16 +59,18 @@ namespace Crystal_Wars.Source.Core
        
         public static string CreatePlayer()
         {
-            var collection = client.GetDatabase("Players").GetCollection<BsonDocument>("players");
+            var collection = client.GetDatabase("Players").GetCollection<Models.User>("players");
 
-            var player = new BsonDocument
+            var user = new Models.User
             {
-                { "Decks", new BsonArray{ } },
-                { "Card_Instance", new BsonArray{ } }
+                Id = ObjectId.GenerateNewId(),
+                Decks = new List<Models.Deck>(),
+                Cards = new List<Models.Card_Instance>()
             };
 
-            collection.InsertOne(player);
-            return player["_id"].ToString();
+            collection.InsertOne(user);
+            Console.WriteLine(user.Id.ToString());
+            return user.Id.ToString();
         }
 
         public static BsonDocument GetPlayer(string id)
@@ -128,18 +130,22 @@ namespace Crystal_Wars.Source.Core
 
         public static void CreateDeck(Player player, Deck deck)
         {
-            var collection = client.GetDatabase("Players").GetCollection<BsonDocument>("players");
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(player.id));
+            var collection = client.GetDatabase("Players").GetCollection<Models.User>("players");
+            var filter = Builders<Models.User>.Filter.Eq("_id", ObjectId.Parse(player.id));
 
             var deckID = ObjectId.GenerateNewId();
-            var deckData = new BsonDocument
+
+            var deckData = new Models.Deck
             {
-                { "_id", deckID},
-                { "Card_Instance_Ids", new BsonArray{ } },
-                { "Active", false}
+                Id = deckID,
+                Active = false,
+                Card_Instance_Ids = new List<BsonDocument>()
             };
 
-            var update = Builders<BsonDocument>.Update.Push("Decks", deckData);
+
+           
+
+            var update = Builders<Models.User>.Update.Push("Decks", deckData);
 
             collection.FindOneAndUpdate(filter, update);
 
@@ -149,12 +155,46 @@ namespace Crystal_Wars.Source.Core
 
         public static void InsertCardIntoDeck(Player player, Deck deck, Card card)
         {
+            var collection = client.GetDatabase("Players").GetCollection<Models.User>("players");
+            var userFilter = Builders<Models.User>.Filter.And(
+                Builders<Models.User>.Filter.Eq("_id", ObjectId.Parse(player.id)),
+                Builders<Models.User>.Filter.Eq("Decks._id", ObjectId.Parse(deck.Id))
+                );
 
+            
+
+            var userData = (from user in collection.AsQueryable()
+                         where user.Id == ObjectId.Parse(player.id)
+                         select user).FirstOrDefault();
+
+            var deck_query = (from deck_data in userData.Decks
+                         where deck_data.Id == ObjectId.Parse(deck.Id)
+                         select deck_data).FirstOrDefault();
+
+            var query = (from user_card in userData.Cards
+                         where user_card.Card_Id == ObjectId.Parse(card.id)
+                         select user_card).FirstOrDefault();
+            var item = new BsonDocument { { "id", query.Id } };
+            var update = Builders<Models.User>.Update.Push("Decks.$.Card_Instance_Ids",item);
+
+            collection.FindOneAndUpdate(userFilter, update);
         }
 
         public static void RemoveCardFromDeck(Player player, Deck deck, Card card)
         {
+            var collection = client.GetDatabase("Players").GetCollection<Models.User>("players");
+            var userFilter = Builders<Models.User>.Filter.And(
+                Builders<Models.User>.Filter.Eq("_id", ObjectId.Parse(player.id)),
+                Builders<Models.User>.Filter.Eq("Decks._id", ObjectId.Parse(deck.Id))
+                //Builders<Models.User>.Filter.ElemMatch(x => x.Decks, item => item.Id == ObjectId.Parse(deck.Id))
+                );
 
+            var update = Builders<Models.User>.Update.PullFilter(i=> i.Decks[-1].Card_Instance_Ids, y=> y["id"].AsBsonValue == ObjectId.Parse(card.id));
+            //var update = Builders<Models.User>.Update.PullFilter("Decks.$.Card_Instance_Ids", Builders<BsonDocument>.Filter.Eq("id", ObjectId.Parse(card.id)));
+            //var update = Builders<Models.User>.Update.Pull("Decks.$.Card_Instance_Ids", new BsonDocument { { "id", ObjectId.Parse(card.id) } });
+            Console.WriteLine(collection.UpdateOne(userFilter,update));
+            
+            collection.
         }
 
         public static List<Card> GetPlayerCards(Player player)
@@ -165,7 +205,18 @@ namespace Crystal_Wars.Source.Core
 
         public static void AddCardToPlayerCards(Player player, Card card)
         {
+            var collection = client.GetDatabase("Players").GetCollection<Models.User>("players");
+            var filter = Builders<Models.User>.Filter.Eq("_id", ObjectId.Parse(player.id));
 
+            var card_instance = new Models.Card_Instance
+            {
+                Id = ObjectId.GenerateNewId(),
+                Card_Id = ObjectId.Parse(card.id)
+                
+            };
+
+            var update = Builders<Models.User>.Update.Push("Cards", card_instance);
+            collection.FindOneAndUpdate(filter, update);
         }
 
     }

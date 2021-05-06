@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Crystal_Wars.Source.Objects;
 using Crystal_Wars.Source.Field;
 using Newtonsoft.Json;
+using MongoDB.Bson;
 
 namespace Crystal_Wars.Source.Core
 {
@@ -102,7 +103,7 @@ namespace Crystal_Wars.Source.Core
                 {
                     if (tempI == 0)
                     {
-                        var card = new SpellCard(i.ToString());
+                        var card = new SpellCard(ObjectId.GenerateNewId().ToString());
 
                         card.cardName.DisplayedString = $"{i}";
                         activeDeck.cards.Enqueue(card);
@@ -110,7 +111,7 @@ namespace Crystal_Wars.Source.Core
                     }
                     else
                     {
-                        var card = new SpellCard(i.ToString());
+                        var card = new SpellCard(ObjectId.GenerateNewId().ToString());
                         card.SetEffect(Effect.OverloadCardMana(2, card));
                         card.cardName.DisplayedString = $"Overload Mana";
                         activeDeck.cards.Enqueue(card);
@@ -122,7 +123,7 @@ namespace Crystal_Wars.Source.Core
                 {
                     if (i == 3)
                     {
-                        var card = new EffectMonster(i.ToString()) { MaxMana = 2 };
+                        var card = new EffectMonster(ObjectId.GenerateNewId().ToString()) { MaxMana = 2 };
                         var effects = new Effect[2];
                         effects[0] = Effect.HealPlayer(5, card, 1,2);
                         effects[1] = Effect.OverloadCardMana(1, card, 2, 0, true);
@@ -138,7 +139,7 @@ namespace Crystal_Wars.Source.Core
                     }
                     else
                     {
-                        var card = new MonsterCard(i.ToString());
+                        var card = new MonsterCard(ObjectId.GenerateNewId().ToString());
                         card.cardName.DisplayedString = $"{i}";
                         //if ( && temp)//temporary for testing
                         //{
@@ -178,6 +179,8 @@ namespace Crystal_Wars.Source.Core
             CrystalsToAdd = 0;
 
         }
+
+        
 
         public Card GetCard(int? id)
         {

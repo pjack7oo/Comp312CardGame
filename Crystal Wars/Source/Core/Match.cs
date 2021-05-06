@@ -50,6 +50,7 @@ namespace Crystal_Wars.Source.Core
 
         public static Text AlertText = HelperFunctions.NewText("", 50, new Vector2f(Game.ScreenWidth / 2 - 600, Game.ScreenHeight / 2 - 40), Color.Red);
 
+        public int TurnCount { get; private set; }
 
         //this is has the system done an update to the field/cards/player for that match phase
         //will be reset every switch of the turnstate
@@ -63,7 +64,7 @@ namespace Crystal_Wars.Source.Core
             MatchState = MatchState.Player;
             hasDoneUpdate = false;
             field = new Field.Field(window);
-
+            TurnCount = 0;
 
 
 
@@ -91,7 +92,7 @@ namespace Crystal_Wars.Source.Core
             //players[0].activeDeck.cards.Shuffle();
             players[0].activeDeck.cards = players[0].activeDeck.cards.Shuffle();
             players[0].SetDeckPosition();
-
+            TurnCount = 0;
 
 
             //AddButtons();
@@ -205,6 +206,7 @@ namespace Crystal_Wars.Source.Core
         {
             MatchState = 1 - MatchState;//flip between 0 and 1
             field.UpdateMatchStateText();
+            TurnCount += 1;
             ClearAlertText();
         }
 
@@ -1391,6 +1393,9 @@ namespace Crystal_Wars.Source.Core
             }
             
         }
+
+
+
 
         public void AttackPlayer(MonsterCard card1, PlayerType type) // handle attack between cards 
         {

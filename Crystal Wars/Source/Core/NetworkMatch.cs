@@ -983,6 +983,13 @@ namespace Crystal_Wars.Source.Core
                         {
                             lastSelectedCard = selectedCard2;
                         }
+
+                        if (TurnCount ==0)
+                        {
+                            AlertText.DisplayedString = "Cant attack on first turn.";
+                            return;
+                        }
+
                         if (selectedEffect != null)//button will make the selected = the effect there will be cancel button or space bar
                         {
 

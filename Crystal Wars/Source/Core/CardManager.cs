@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Crystal_Wars.Source.Objects;
+using MongoDB.Bson;
 
 namespace Crystal_Wars.Source.Core
 {
@@ -101,27 +102,29 @@ namespace Crystal_Wars.Source.Core
                 {
                     if (tempI == 0)
                     {
-                        var card = new SpellCard(i.ToString());
+                        var card = new SpellCard(ObjectId.GenerateNewId().ToString());
                         card.cardName.DisplayedString = $"{i}";
                         card.State = CardState.Front;
                         player.cards.Add(card);
                         tempI = 1;
+                        Database.AddCardToPlayerCards(player, card);
                     }
                     else
                     {
-                        var card = new SpellCard(i.ToString());
+                        var card = new SpellCard(ObjectId.GenerateNewId().ToString());
                         card.SetEffect(Effect.OverloadCardMana(2, card));
                         card.cardName.DisplayedString = $"Overload Mana";
                         card.State = CardState.Front;
                         player.cards.Add(card);
                         tempI = 0;
+                        Database.AddCardToPlayerCards(player, card);
                     }
                 }
                 else
                 {
                     if (i % 3 == 0)
                     {
-                        var card = new EffectMonster(i.ToString()) { MaxMana = 2 };
+                        var card = new EffectMonster(ObjectId.GenerateNewId().ToString()) { MaxMana = 2 };
                         var effects = new Effect[2];
                         effects[0] = Effect.HealPlayer(5, card, 1, 2);
                         effects[1] = Effect.OverloadCardMana(1, card, 2, 0, true);
@@ -131,14 +134,16 @@ namespace Crystal_Wars.Source.Core
                         card.State = CardState.Front;
                         card.Attack = 110;
                         player.cards.Add(card);
+                        Database.AddCardToPlayerCards(player, card);
                     }
                     else
                     {
-                        var card = new MonsterCard(i.ToString());
+                        var card = new MonsterCard(ObjectId.GenerateNewId().ToString());
                         card.cardName.DisplayedString = $"{i}";
                         card.State = CardState.Front;
                         card.Attack = 110;
                         player.cards.Add(card);
+                        Database.AddCardToPlayerCards(player, card);
                     }
                 }
             }
@@ -445,6 +450,7 @@ namespace Crystal_Wars.Source.Core
                             cards.Remove(selectedCard);
                             selectedCard.Selected = false;
                             selectedCard.Location = CardLocation.Hand;
+                            Database.InsertCardIntoDeck(player, activeDeck, selectedCard);
                             selectedCard = null;
                             SetCardPositions();
                             SetDeckCardPositions();
@@ -485,8 +491,10 @@ namespace Crystal_Wars.Source.Core
                     if (selectedCard != null && target == Location.Cards)
                     {
                         activeDeck.savedCards.Remove(selectedCard);
+                        Database.RemoveCardFromDeck(player, activeDeck, selectedCard);
                         //cards.Add(selectedCard);
                         SetAvailableCards();
+                        SetDeckCardPositions();
                         selectedCard = null;
                         //activeDeck.AddCardToSavedDeck(selectedCard);
                         //selectedCard.Selected = false;
