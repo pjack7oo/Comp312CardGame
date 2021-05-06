@@ -3,17 +3,26 @@
 
 
 ## Installation
+Download Latest Release
 
 OS X & Linux:
 
-This one is a little bit tricky. Since we are using SFML.net it becomes a bit harder to setup for linux. 
-I wanted to make a linux executible but cant seem to properly do it properly.
-The instructions are for sfml c++ not c# and the c# requires something called mono.
+2 options
+* standalone
+1. Download Crystal Wars Linux.zip.
+2. Make 'Crystal Wars' executable with `chmod +x 'Crystal Wars'`
+3. Run using `./'Crystal Wars'`
+
+* dotnet
+1. Download Crystal Wars Linux.zip or regular
+However if you download the regular release you will be unable to run without dotnet
+2. Download and install .net5.0 for linux
+3. Run with `dotnet 'Crystal Wars.dll'`
 
 
 Windows:
 
-run the exe provided in the download in the release tab
+run the exe provided.
 
 
 
